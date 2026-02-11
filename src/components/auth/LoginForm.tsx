@@ -18,6 +18,8 @@ import { authService } from "@/services/auth";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 const formSchema = z.object({
     email: z.string().email({
@@ -29,7 +31,8 @@ const formSchema = z.object({
 });
 
 export function LoginForm() {
-    const router = useRouter();
+    const router = useRouter(); // Keep for safety if login doesn't redirect (but it does)
+    const { login } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -46,8 +49,7 @@ export function LoginForm() {
         setError(null);
         try {
             const response = await authService.login(values);
-            localStorage.setItem("token", response.token);
-            router.push("/dashboard");
+            await login(response.token);
         } catch (err: any) {
             if (err.response && err.response.data && err.response.data.message) {
                 setError(err.response.data.message);

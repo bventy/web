@@ -18,6 +18,7 @@ import { authService } from "@/services/auth";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert"; // We might need an Alert component, or simpler div
+import { useAuth } from "@/context/AuthContext";
 
 const formSchema = z.object({
     email: z.string().email({
@@ -30,6 +31,7 @@ const formSchema = z.object({
 
 export function SignupForm() {
     const router = useRouter();
+    const { login } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -46,8 +48,7 @@ export function SignupForm() {
         setError(null);
         try {
             const response = await authService.signup(values);
-            localStorage.setItem("token", response.token);
-            router.push("/dashboard");
+            await login(response.token);
         } catch (err: any) {
             // Simple error handling
             if (err.response && err.response.data && err.response.data.message) {

@@ -3,14 +3,13 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ShieldAlert, LogOut } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 export default function NotAuthorizedPage() {
-    const router = useRouter();
+    const { logout } = useAuth();
 
     const handleLogout = () => {
-        localStorage.removeItem("token");
-        router.push("/auth/login");
+        logout();
     };
 
     return (
