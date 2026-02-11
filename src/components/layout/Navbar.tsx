@@ -49,7 +49,7 @@ export function Navbar() {
                                                 {user.role.toUpperCase()}
                                             </p>
                                             <p className="text-xs leading-none text-muted-foreground">
-                                                {user.permissions.length} Permissions
+                                                {user.permissions?.length || 0} Permissions
                                             </p>
                                         </div>
                                     </DropdownMenuLabel>
