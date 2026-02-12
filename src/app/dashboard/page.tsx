@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { userService, UserProfile } from "@/services/user";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Store, Calendar, ShieldCheck, User } from "lucide-react";
+import { Loader2, Store, Calendar, ShieldCheck, Users, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -27,7 +27,6 @@ export default function DashboardPage() {
                 const data = await userService.getMe();
                 setProfile(data);
             } catch (error) {
-                // If 401, the interceptor handles redirect, but we can catch other errors here
                 console.error("Failed to fetch profile", error);
             } finally {
                 setLoading(false);
@@ -39,126 +38,133 @@ export default function DashboardPage() {
 
     if (loading) {
         return (
-            <div className="flex h-screen items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <div className="flex min-h-screen flex-col">
+                <Navbar />
+                <div className="flex-1 flex items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+                <Footer />
             </div>
         );
     }
 
     if (!profile) {
-        return null; // Handle error state better if needed
+        return null;
     }
 
     const isAdminOrStaff = ["admin", "super_admin", "staff"].includes(profile.role);
+    const firstName = profile.full_name ? profile.full_name.split(" ")[0] : "there";
 
     return (
-        <div className="flex min-h-screen flex-col">
+        <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950">
             <Navbar />
-            <main className="flex-1 container mx-auto p-4 py-8">
-                <h1 className="mb-8 text-3xl font-bold">Dashboard</h1>
+            <main className="flex-1 container mx-auto px-4 py-12">
+                <div className="mb-10 text-center md:text-left">
+                    <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+                        Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"}, {firstName}.
+                    </h1>
+                    <p className="mt-2 text-lg text-muted-foreground">
+                        What would you like to focus on today?
+                    </p>
+                </div>
 
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {/* Vendor Card */}
-                    <Card>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
+                    {/* Mode 1: Plan Events */}
+                    <Card className="flex flex-col border-0 shadow-lg shadow-slate-200/50 dark:shadow-none ring-1 ring-slate-200 dark:ring-slate-800 transition-all hover:translate-y-[-4px] hover:shadow-xl">
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Store className="h-5 w-5" />
-                                Vendor Profile
-                            </CardTitle>
-                            <CardDescription>
-                                Manage your vendor services and leads.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {profile.vendor_profile_exists ? (
-                                <div className="flex flex-col gap-2">
-                                    <p className="text-sm font-medium text-green-600">Status: Verified</p>
-                                    <Button className="w-full" asChild>
-                                        <Link href="/vendor/dashboard">Go to Vendor Dashboard</Link>
-                                    </Button>
-                                </div>
-                            ) : (
-                                <div className="flex flex-col gap-4">
-                                    <p className="text-sm text-muted-foreground">
-                                        Expand your business by listing your services on Bventy.
-                                    </p>
-                                    <Button className="w-full" asChild>
-                                        <Link href="/vendor/onboard">Become a Vendor</Link>
-                                    </Button>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-
-                    {/* Organizer Card */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
+                            <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
                                 <Calendar className="h-5 w-5" />
-                                Event Organizer
-                            </CardTitle>
+                            </div>
+                            <CardTitle>Plan Events</CardTitle>
                             <CardDescription>
-                                Plan events and find the best vendors.
+                                Create and manage your events. Find vendors and track budgets.
                             </CardDescription>
                         </CardHeader>
-                        <CardContent>
-                            {profile.organizer_profile_exists ? (
-                                <div className="flex flex-col gap-4">
-                                    <Button className="w-full" variant="outline" asChild>
-                                        <Link href="/vendors">Browse Vendors</Link>
-                                    </Button>
-                                    <Button className="w-full" asChild>
-                                        <Link href="/organizer/dashboard">My Events</Link>
-                                    </Button>
-                                </div>
+                        <CardContent className="mt-auto pt-4">
+                            <Button className="w-full justify-between group" asChild>
+                                <Link href="/events">
+                                    My Events
+                                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                                </Link>
+                            </Button>
+                        </CardContent>
+                    </Card>
+
+                    {/* Mode 2: Groups */}
+                    <Card className="flex flex-col border-0 shadow-lg shadow-slate-200/50 dark:shadow-none ring-1 ring-slate-200 dark:ring-slate-800 transition-all hover:translate-y-[-4px] hover:shadow-xl">
+                        <CardHeader>
+                            <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
+                                <Users className="h-5 w-5" />
+                            </div>
+                            <CardTitle>Groups</CardTitle>
+                            <CardDescription>
+                                Manage not-for-profit groups, communities, and agencies.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="mt-auto pt-4">
+                            <Button className="w-full justify-between group" variant="secondary" asChild>
+                                <Link href="/groups">
+                                    My Groups
+                                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                                </Link>
+                            </Button>
+                        </CardContent>
+                    </Card>
+
+                    {/* Mode 3: Vendor Mode */}
+                    <Card className="flex flex-col border-0 shadow-lg shadow-slate-200/50 dark:shadow-none ring-1 ring-slate-200 dark:ring-slate-800 transition-all hover:translate-y-[-4px] hover:shadow-xl">
+                        <CardHeader>
+                            <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                <Store className="h-5 w-5" />
+                            </div>
+                            <CardTitle>Vendor Mode</CardTitle>
+                            <CardDescription>
+                                {profile.vendor_profile_exists
+                                    ? "Manage your business profile and incoming leads."
+                                    : "List your services and start getting leads today."}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="mt-auto pt-4">
+                            {profile.vendor_profile_exists ? (
+                                <Button className="w-full justify-between group" variant="outline" asChild>
+                                    <Link href="/vendor/dashboard">
+                                        Vendor Dashboard
+                                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                                    </Link>
+                                </Button>
                             ) : (
-                                <div className="flex flex-col gap-4">
-                                    <p className="text-sm text-muted-foreground">
-                                        Planning an event? Create a profile to manage inquiries.
-                                    </p>
-                                    <Button className="w-full" asChild>
-                                        <Link href="/organizer/onboard">Plan an Event</Link>
-                                    </Button>
-                                </div>
+                                <Button className="w-full justify-between group" variant="outline" asChild>
+                                    <Link href="/vendor/onboard">
+                                        Become a Vendor
+                                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                                    </Link>
+                                </Button>
                             )}
                         </CardContent>
                     </Card>
 
-                    {/* Admin Tools (Conditional) */}
+                    {/* Mode 4: Internal Tools (Admin) */}
                     {isAdminOrStaff && (
-                        <Card className="border-red-200 bg-red-50 dark:bg-red-950/10 dark:border-red-900">
+                        <Card className="flex flex-col border-0 shadow-lg shadow-slate-200/50 dark:shadow-none ring-1 ring-red-200 dark:ring-red-900/50 bg-red-50/50 dark:bg-red-950/10 transition-all hover:translate-y-[-4px] hover:shadow-xl">
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-red-700 dark:text-red-400">
+                                <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
                                     <ShieldCheck className="h-5 w-5" />
-                                    Admin Tools
-                                </CardTitle>
-                                <CardDescription className="text-red-600/80 dark:text-red-400/80">
-                                    Internal management tools.
+                                </div>
+                                <CardTitle>Internal Tools</CardTitle>
+                                <CardDescription>
+                                    Admin dashboard for platform management and moderation.
                                 </CardDescription>
                             </CardHeader>
-                            <CardContent>
-                                <Button variant="secondary" className="w-full" asChild>
-                                    <Link href="/admin">Go to Admin Panel</Link>
+                            <CardContent className="mt-auto pt-4">
+                                <Button className="w-full justify-between group" variant="destructive" asChild>
+                                    <Link href="/admin">
+                                        Admin Panel
+                                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                                    </Link>
                                 </Button>
                             </CardContent>
                         </Card>
                     )}
-
-                    {/* User Profile Summary */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <User className="h-5 w-5" />
-                                My Profile
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-1 text-sm">
-                                <p><span className="font-medium">Role:</span> <span className="capitalize">{profile.role.replace('_', ' ')}</span></p>
-                            </div>
-                        </CardContent>
-                    </Card>
-
                 </div>
             </main>
             <Footer />

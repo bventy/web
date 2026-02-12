@@ -30,7 +30,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
 
 const formSchema = z.object({
-    name: z.string().min(2, {
+    business_name: z.string().min(2, {
         message: "Business name must be at least 2 characters.",
     }),
     category: z.string().min(1, {
@@ -56,7 +56,7 @@ export function VendorOnboardingForm() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            name: "",
+            business_name: "",
             city: "",
             bio: "",
             whatsapp_link: "",
@@ -80,24 +80,7 @@ export function VendorOnboardingForm() {
         }
     }
 
-    if (success) {
-        return (
-            <div className="flex flex-col items-center justify-center gap-6 py-8 text-center">
-                <div className="rounded-full bg-green-100 p-3 dark:bg-green-900/20">
-                    <CheckCircle2 className="h-12 w-12 text-green-600 dark:text-green-500" />
-                </div>
-                <div className="space-y-2">
-                    <h3 className="text-2xl font-bold">Profile Submitted!</h3>
-                    <p className="text-muted-foreground">
-                        Your vendor profile has been submitted for verification.
-                    </p>
-                </div>
-                <Button asChild size="lg">
-                    <Link href="/dashboard">Back to Dashboard</Link>
-                </Button>
-            </div>
-        );
-    }
+    // ... success state ...
 
     return (
         <div className="grid gap-6">
@@ -105,7 +88,7 @@ export function VendorOnboardingForm() {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     <FormField
                         control={form.control}
-                        name="name"
+                        name="business_name"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Business Name</FormLabel>

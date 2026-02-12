@@ -44,7 +44,7 @@ export default function VendorMarketplacePage() {
     const cities = ["All", ...Array.from(new Set(vendors.map((v) => v.city))).sort()];
 
     const filteredVendors = vendors.filter((vendor) => {
-        const matchesSearch = vendor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        const matchesSearch = vendor.business_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             vendor.bio.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesCategory = selectedCategory === "All" || vendor.category === selectedCategory;
         const matchesCity = selectedCity === "All" || vendor.city === selectedCity;

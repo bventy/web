@@ -81,13 +81,16 @@ export function Navbar() {
                             <Button variant="ghost" asChild>
                                 <Link href="/auth/login">Login</Link>
                             </Button>
+                            <Button variant="outline" asChild className="hidden sm:inline-flex">
+                                <Link href="/auth/signup">Sign Up</Link>
+                            </Button>
                             <Button asChild>
-                                <Link href="/auth/signup">Join as Vendor</Link>
+                                <Link href="/auth/join-vendor">Join as Vendor</Link>
                             </Button>
                         </>
                     )}
                 </nav>
             </div>
-        </header>
+        </header >
     );
 }

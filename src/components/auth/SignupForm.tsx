@@ -21,6 +21,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert"; // We might nee
 import { useAuth } from "@/context/AuthContext";
 
 const formSchema = z.object({
+    full_name: z.string().min(2, {
+        message: "Full name must be at least 2 characters.",
+    }),
     email: z.string().email({
         message: "Please enter a valid email address.",
     }),
@@ -38,6 +41,7 @@ export function SignupForm() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
+            full_name: "",
             email: "",
             password: "",
         },
@@ -65,6 +69,19 @@ export function SignupForm() {
         <div className="grid gap-6">
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <FormField
+                        control={form.control}
+                        name="full_name"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Full Name</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="John Doe" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                     <FormField
                         control={form.control}
                         name="email"

@@ -1,7 +1,7 @@
 import { api } from "@/lib/api";
 
 export interface VendorProfileRequest {
-    name: string;
+    business_name: string;
     category: string;
     city: string;
     bio: string;
@@ -10,7 +10,7 @@ export interface VendorProfileRequest {
 
 export interface VendorProfile {
     id: string;
-    name: string;
+    business_name: string;
     slug: string;
     category: string;
     city: string;

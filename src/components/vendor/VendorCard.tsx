@@ -16,7 +16,7 @@ export function VendorCard({ vendor }: VendorCardProps) {
             <CardHeader>
                 <div className="flex items-start justify-between">
                     <div className="space-y-1">
-                        <CardTitle className="line-clamp-1">{vendor.name}</CardTitle>
+                        <CardTitle className="line-clamp-1">{vendor.business_name}</CardTitle>
                         <CardDescription className="flex items-center gap-1 text-xs">
                             <MapPin className="h-3 w-3" />
                             {vendor.city}

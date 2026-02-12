@@ -3,6 +3,7 @@ import { api } from "@/lib/api";
 export interface SignupRequest {
     email?: string;
     password?: string;
+    full_name?: string;
 }
 
 export interface LoginRequest {

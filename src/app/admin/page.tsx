@@ -107,7 +107,7 @@ export default function AdminPage() {
                                     <CardHeader className="pb-3">
                                         <div className="flex items-start justify-between">
                                             <div>
-                                                <CardTitle>{vendor.name}</CardTitle>
+                                                <CardTitle>{vendor.business_name}</CardTitle>
                                                 <CardDescription>{vendor.city} • {vendor.category}</CardDescription>
                                             </div>
                                             <div className="flex gap-2">
