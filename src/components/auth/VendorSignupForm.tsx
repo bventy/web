@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import { auth } from "@/lib/firebase";
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
 import {
     Form,
     FormControl,
@@ -23,7 +25,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
-import { authService } from "@/services/auth";
+// import { authService } from "@/services/auth";
 import { vendorService } from "@/services/vendor";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -61,7 +63,6 @@ const formSchema = z.object({
 
 export function VendorSignupForm() {
     const router = useRouter();
-    const { login } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -83,17 +84,20 @@ export function VendorSignupForm() {
         setIsLoading(true);
         setError(null);
         try {
-            // 1. Create User Account
-            const authResponse = await authService.signup({
-                full_name: values.full_name,
-                email: values.email,
-                password: values.password,
+            // 1. Create User Account (Firebase)
+            const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+
+            // Update profile
+            await updateProfile(userCredential.user, {
+                displayName: values.full_name,
             });
 
-            // 2. Login (to get token for next step)
-            await login(authResponse.token);
+            // Send verification email
+            await sendEmailVerification(userCredential.user);
 
-            // 3. Create Vendor Profile
+            // 2. Create Vendor Profile (Backend)
+            // Note: Firebase automatically signs in the user, so auth.currentUser is set
+            // The api interceptor will pick up the token
             await vendorService.createProfile({
                 business_name: values.business_name,
                 category: values.category,
@@ -102,12 +106,14 @@ export function VendorSignupForm() {
                 whatsapp_link: values.whatsapp_link,
             });
 
-            // 4. Redirect
+            // 3. Redirect
             router.push("/dashboard");
 
         } catch (err: any) {
             console.error("Vendor signup error:", err);
-            if (err.response && err.response.data && err.response.data.message) {
+            if (err.code === 'auth/email-already-in-use') {
+                setError("Email is already in use.");
+            } else if (err.response && err.response.data && err.response.data.message) {
                 setError(err.response.data.message);
             } else {
                 setError("Failed to create vendor account. Please try again.");
