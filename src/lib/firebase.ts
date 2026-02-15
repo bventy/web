@@ -10,6 +10,17 @@ const firebaseConfig = {
     appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
+// Validate config
+const requiredKeys = Object.keys(firebaseConfig) as (keyof typeof firebaseConfig)[];
+const missingKeys = requiredKeys.filter((key) => !firebaseConfig[key]);
+
+if (missingKeys.length > 0) {
+    throw new Error(
+        `Missing required Firebase environment variables: ${missingKeys.join(", ")}. ` +
+        `Please check your .env.local file.`
+    );
+}
+
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
