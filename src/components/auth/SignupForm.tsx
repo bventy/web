@@ -48,6 +48,8 @@ export function SignupForm() {
         },
     });
 
+    const [verificationSent, setVerificationSent] = useState(false);
+
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
         setError(null);
@@ -57,20 +59,9 @@ export function SignupForm() {
                 displayName: values.full_name,
             });
             await sendEmailVerification(userCredential.user);
-            setError(null);
-            // Show success message
+            setVerificationSent(true);
             const formContainer = document.querySelector('form');
             if (formContainer) formContainer.reset();
-
-            // We can settle for an alert or a specific UI state, but reusing setError for success message for now or a separate state
-            // The prompt said: Show message "Verification email sent. Please check inbox/spam."
-            // I'll keep the redirect but make the message clear. 
-            // Better: use a success state to replace the form or show a banner.
-            // For MVP, I'll alert and redirect or just show message.
-            // User said: "Do NOT block signup."
-            // I'll just change the error/success handling.
-            alert("Account created! Verification email sent. Please check your inbox/spam.");
-            router.push("/auth/login");
         } catch (err: any) {
             console.error(err);
             if (err.code === 'auth/email-already-in-use') {
@@ -81,6 +72,37 @@ export function SignupForm() {
         } finally {
             setIsLoading(false);
         }
+    }
+
+    if (verificationSent) {
+        return (
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                <div className="rounded-full bg-green-100 p-3 text-green-600 dark:bg-green-900/30 dark:text-green-400">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-6 w-6"
+                    >
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                </div>
+                <h3 className="text-xl font-semibold">Verification Email Sent</h3>
+                <p className="text-muted-foreground">
+                    We've sent a verification email to your inbox. Please check your inbox and verify your account to continue.
+                </p>
+                <Button variant="outline" onClick={() => router.push("/auth/login")}>
+                    Go to Login
+                </Button>
+            </div>
+        );
     }
 
     return (

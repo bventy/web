@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { auth, googleProvider } from "@/lib/firebase";
-import { signInWithEmailAndPassword, signOut, signInWithPopup } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut, signInWithPopup, sendEmailVerification } from "firebase/auth";
 import {
     Form,
     FormControl,
@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 // import { authService } from "@/services/auth";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
@@ -36,6 +37,7 @@ export function LoginForm() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [isUnverified, setIsUnverified] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -63,21 +65,6 @@ export function LoginForm() {
             // Optionally handle this error, but we might want to let the user in specifically if backend is just for syncing profile
         }
 
-        if (!user.emailVerified) {
-            // We can either set a warning state here if we stay on page, or redirect and let Dashboard handle it.
-            // The requirement says: if (!user.emailVerified) setWarning("...") 
-            // But if we redirect immediately, the warning might be missed. 
-            // "You can continue, but please verify soon." 
-            // I'll set warning and redirect after a short delay or just redirect and let Dashboard show the banner.
-            // User prompt: "if (!user.emailVerified) { setWarning(...) }" 
-            // "After login ... router.push('/dashboard')"
-            // I will set warning/error and redirect. 
-            // Actually, if I redirect, the warning on this component unmounts.
-            // Maybe I should redirect immediately and let Dashboard show the banner as per step 5.
-            // Step 4 says: "setWarning(...) ... After login ... router.push". 
-            // I will show the warning for a moment or just redirect. 
-            // Given Step 5 adds a banner to Dashboard, I'll rely on that for persistent warning.
-        }
         router.push("/dashboard");
     }
 
@@ -86,6 +73,7 @@ export function LoginForm() {
         setError(null);
         try {
             const result = await signInWithPopup(auth, googleProvider);
+            // We can optionally enforce verification for Google too, but usually Google is verified.
             await handleLoginSuccess(result.user);
         } catch (error: any) {
             console.error(error);
@@ -94,16 +82,37 @@ export function LoginForm() {
         }
     }
 
+    async function handleResendVerification() {
+        if (auth.currentUser) {
+            try {
+                await sendEmailVerification(auth.currentUser);
+                toast.success("Verification email resent. Please check your inbox.");
+            } catch (err: any) {
+                if (err.code === 'auth/too-many-requests') {
+                    toast.error("Too many requests. Please wait.");
+                } else {
+                    toast.error("Failed to resend email.");
+                }
+            }
+        }
+    }
+
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
         setError(null);
+        setIsUnverified(false);
         try {
             const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+
             if (!userCredential.user.emailVerified) {
-                // Non-blocking warning
-                setError("Email not verified yet. You can continue, but please verify soon.");
-                // We don't return here! We continue to success.
+                // strict check: block login
+                setError("Please verify your email before logging in.");
+                setIsUnverified(true);
+                // We do NOT sign out immediately so that 'Resend' works.
+                // We rely on not redirecting to dashboard to 'block' them.
+                return;
             }
+
             await handleLoginSuccess(userCredential.user);
         } catch (err: any) {
             console.error(err);
@@ -112,6 +121,7 @@ export function LoginForm() {
             } else {
                 setError("Something went wrong. Please try again.");
             }
+        } finally {
             setIsLoading(false);
         }
     }
@@ -148,8 +158,18 @@ export function LoginForm() {
                     />
 
                     {error && (
-                        <Alert variant="destructive">
+                        <Alert variant="destructive" className="flex flex-col gap-2">
                             <AlertDescription>{error}</AlertDescription>
+                            {isUnverified && (
+                                <Button
+                                    type="button"
+                                    variant="link"
+                                    className="p-0 h-auto font-normal text-destructive underline self-start"
+                                    onClick={handleResendVerification}
+                                >
+                                    Resend Verification Email
+                                </Button>
+                            )}
                         </Alert>
                     )}
 
