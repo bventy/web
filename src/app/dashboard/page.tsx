@@ -9,13 +9,27 @@ import { Loader2, Store, Calendar, ShieldCheck, Users, ArrowRight } from "lucide
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { auth } from "@/lib/firebase";
+import { sendEmailVerification, onAuthStateChanged } from "firebase/auth";
+import { AlertCircle } from "lucide-react";
 
 export default function DashboardPage() {
     const router = useRouter();
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
+    const [emailVerified, setEmailVerified] = useState(true);
+    const [resending, setResending] = useState(false);
 
     useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+            if (firebaseUser) {
+                setEmailVerified(firebaseUser.emailVerified);
+                // We can also fetch profile here if not using AuthContext for it, 
+                // but existing code draws from localStorage and userService.
+                // We keep existing flow but ensure token is set.
+            }
+        });
+
         const token = localStorage.getItem("token");
         if (!token) {
             router.push("/auth/login");
@@ -34,7 +48,27 @@ export default function DashboardPage() {
         };
 
         fetchProfile();
+        return () => unsubscribe();
     }, [router]);
+
+    const handleResendVerification = async () => {
+        if (auth.currentUser && !auth.currentUser.emailVerified) {
+            setResending(true);
+            try {
+                await sendEmailVerification(auth.currentUser);
+                alert("Verification email resent. Please check your inbox.");
+            } catch (error: any) {
+                console.error("Error sending verification email", error);
+                if (error.code === 'auth/too-many-requests') {
+                    alert("Too many requests. Please wait a bit before trying again.");
+                } else {
+                    alert("Failed to send verification email.");
+                }
+            } finally {
+                setResending(false);
+            }
+        }
+    };
 
     if (loading) {
         return (
@@ -59,6 +93,30 @@ export default function DashboardPage() {
         <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950">
             <Navbar />
             <main className="flex-1 container mx-auto px-4 py-12">
+                {!emailVerified && (
+                    <div className="mb-8 rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-300">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <AlertCircle className="h-5 w-5" />
+                                <span className="font-medium">Email not verified</span>
+                                <span className="hidden md:inline text-amber-700/80 dark:text-amber-400/80 text-sm ml-2">
+                                    Please verify your email address to access all features.
+                                </span>
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="border-amber-200 bg-white text-amber-800 hover:bg-amber-100 hover:text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300 dark:hover:bg-amber-900"
+                                onClick={handleResendVerification}
+                                disabled={resending}
+                            >
+                                {resending ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : null}
+                                Resend Email
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
                 <div className="mb-10 text-center md:text-left">
                     <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
                         Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"}, {firstName}.

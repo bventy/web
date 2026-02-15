@@ -57,11 +57,20 @@ export function SignupForm() {
                 displayName: values.full_name,
             });
             await sendEmailVerification(userCredential.user);
-            setError("Account created! Please check your email to verify your account before logging in.");
-            // Optional: Redirect to login after a delay or let user click link
-            setTimeout(() => {
-                router.push("/auth/login");
-            }, 5000);
+            setError(null);
+            // Show success message
+            const formContainer = document.querySelector('form');
+            if (formContainer) formContainer.reset();
+
+            // We can settle for an alert or a specific UI state, but reusing setError for success message for now or a separate state
+            // The prompt said: Show message "Verification email sent. Please check inbox/spam."
+            // I'll keep the redirect but make the message clear. 
+            // Better: use a success state to replace the form or show a banner.
+            // For MVP, I'll alert and redirect or just show message.
+            // User said: "Do NOT block signup."
+            // I'll just change the error/success handling.
+            alert("Account created! Verification email sent. Please check your inbox/spam.");
+            router.push("/auth/login");
         } catch (err: any) {
             console.error(err);
             if (err.code === 'auth/email-already-in-use') {
