@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import { auth } from "@/lib/firebase";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import {
     Form,
     FormControl,
@@ -31,8 +33,7 @@ const formSchema = z.object({
 });
 
 export function LoginForm() {
-    const router = useRouter(); // Keep for safety if login doesn't redirect (but it does)
-    const { login } = useAuth();
+    const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -48,13 +49,20 @@ export function LoginForm() {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await authService.login(values);
-            await login(response.token);
+            const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+            if (!userCredential.user.emailVerified) {
+                await signOut(auth);
+                setError("Please verify your email address before logging in.");
+                return;
+            }
+            // AuthContext will handle the state update and redirection via onAuthStateChanged or we can redirect here
+            router.push("/dashboard");
         } catch (err: any) {
-            if (err.response && err.response.data && err.response.data.message) {
-                setError(err.response.data.message);
+            console.error(err);
+            if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+                setError("Invalid email or password.");
             } else {
-                setError("Invalid credentials. Please try again.");
+                setError("Something went wrong. Please try again.");
             }
         } finally {
             setIsLoading(false);

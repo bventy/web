@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import { auth } from "@/lib/firebase";
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
 import {
     Form,
     FormControl,
@@ -34,7 +36,6 @@ const formSchema = z.object({
 
 export function SignupForm() {
     const router = useRouter();
-    const { login } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -51,12 +52,20 @@ export function SignupForm() {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await authService.signup(values);
-            await login(response.token);
+            const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+            await updateProfile(userCredential.user, {
+                displayName: values.full_name,
+            });
+            await sendEmailVerification(userCredential.user);
+            setError("Account created! Please check your email to verify your account before logging in.");
+            // Optional: Redirect to login after a delay or let user click link
+            setTimeout(() => {
+                router.push("/auth/login");
+            }, 5000);
         } catch (err: any) {
-            // Simple error handling
-            if (err.response && err.response.data && err.response.data.message) {
-                setError(err.response.data.message);
+            console.error(err);
+            if (err.code === 'auth/email-already-in-use') {
+                setError("Email is already in use.");
             } else {
                 setError("Something went wrong. Please try again.");
             }

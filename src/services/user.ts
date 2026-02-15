@@ -12,7 +12,7 @@ export interface UserProfile {
 
 export const userService = {
     getMe: async (): Promise<UserProfile> => {
-        const response = await api.get<UserProfile>("/me");
+        const response = await api.get<UserProfile>("/auth/me");
         return response.data;
     },
 };
