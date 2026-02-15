@@ -5,13 +5,12 @@ import { useRouter } from "next/navigation";
 import { userService, UserProfile } from "@/services/user";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Store, Calendar, ShieldCheck, Users, ArrowRight } from "lucide-react";
+import { Loader2, Store, Calendar, ShieldCheck, Users, ArrowRight, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { auth } from "@/lib/firebase";
-import { sendEmailVerification, onAuthStateChanged } from "firebase/auth";
-import { AlertCircle } from "lucide-react";
+import { sendEmailVerification, onAuthStateChanged, User } from "firebase/auth";
 
 export default function DashboardPage() {
     const router = useRouter();
@@ -23,7 +22,7 @@ export default function DashboardPage() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: User | null) => {
             if (firebaseUser) {
                 setEmailVerified(firebaseUser.emailVerified);
                 // We can also fetch profile here if not using AuthContext for it, 
