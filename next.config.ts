@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "http://localhost:8082/:path*",
+        destination: "https://bventy-api.onrender.com/:path*",
       },
     ];
   },
