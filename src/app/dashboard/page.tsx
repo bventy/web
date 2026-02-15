@@ -20,6 +20,8 @@ export default function DashboardPage() {
     const [emailVerified, setEmailVerified] = useState(true);
     const [resending, setResending] = useState(false);
 
+    const [error, setError] = useState<string | null>(null);
+
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
             if (firebaseUser) {
@@ -40,8 +42,12 @@ export default function DashboardPage() {
             try {
                 const data = await userService.getMe();
                 setProfile(data);
+                if (!data.full_name) {
+                    router.push("/onboarding");
+                }
             } catch (error) {
                 console.error("Failed to fetch profile", error);
+                setError("Failed to load profile. Please try refreshing the page.");
             } finally {
                 setLoading(false);
             }
@@ -76,6 +82,25 @@ export default function DashboardPage() {
                 <Navbar />
                 <div className="flex-1 flex items-center justify-center">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+                <Footer />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex min-h-screen flex-col">
+                <Navbar />
+                <div className="flex-1 flex flex-col items-center justify-center p-4">
+                    <div className="text-destructive mb-4">
+                        <AlertCircle className="h-12 w-12" />
+                    </div>
+                    <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
+                    <p className="text-muted-foreground mb-4">{error}</p>
+                    <Button onClick={() => window.location.reload()}>
+                        Retry
+                    </Button>
                 </div>
                 <Footer />
             </div>
