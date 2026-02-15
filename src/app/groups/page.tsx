@@ -25,7 +25,7 @@ export default function MyGroupsPage() {
             const fetchGroups = async () => {
                 try {
                     const data = await groupService.getMyGroups();
-                    setGroups(data);
+                    setGroups(data || []);
                 } catch (error) {
                     console.error("Failed to fetch groups", error);
                 } finally {
@@ -77,7 +77,7 @@ export default function MyGroupsPage() {
                 </div>
             ) : (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {groups.map((group) => (
+                    {(groups || []).map((group) => (
                         <Card key={group.id} className="overflow-hidden transition-all hover:shadow-md">
                             <CardHeader className="bg-muted/40 pb-4">
                                 <div className="flex justify-between items-start">

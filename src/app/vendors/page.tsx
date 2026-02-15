@@ -29,7 +29,7 @@ export default function VendorMarketplacePage() {
         const fetchVendors = async () => {
             try {
                 const data = await vendorService.getVendors();
-                setVendors(data);
+                setVendors(data || []);
             } catch (error) {
                 console.error("Failed to fetch vendors", error);
             } finally {
@@ -41,9 +41,9 @@ export default function VendorMarketplacePage() {
     }, []);
 
     // Compute unique cities for filter dropdown
-    const cities = ["All", ...Array.from(new Set(vendors.map((v) => v.city))).sort()];
+    const cities = ["All", ...Array.from(new Set((vendors || []).map((v) => v.city))).sort()];
 
-    const filteredVendors = vendors.filter((vendor) => {
+    const filteredVendors = (vendors || []).filter((vendor) => {
         const matchesSearch = vendor.business_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             vendor.bio.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesCategory = selectedCategory === "All" || vendor.category === selectedCategory;

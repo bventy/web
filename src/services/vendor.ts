@@ -26,7 +26,7 @@ export const vendorService = {
     },
     getVendors: async (): Promise<VendorProfile[]> => {
         const response = await api.get<VendorProfile[]>("/vendors");
-        return response.data;
+        return response.data || [];
     },
     getVendorBySlug: async (slug: string): Promise<VendorProfile> => {
         const response = await api.get<VendorProfile>(`/vendors/slug/${slug}`);

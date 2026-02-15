@@ -26,7 +26,7 @@ export default function MyEventsPage() {
             const fetchEvents = async () => {
                 try {
                     const data = await eventService.getEvents();
-                    setEvents(data);
+                    setEvents(data || []);
                 } catch (error) {
                     console.error("Failed to fetch events", error);
                 } finally {
@@ -78,7 +78,7 @@ export default function MyEventsPage() {
                 </div>
             ) : (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {events.map((event) => (
+                    {(events || []).map((event) => (
                         <Card key={event.id} className="overflow-hidden transition-all hover:shadow-md">
                             <CardHeader className="bg-muted/40 pb-4">
                                 <div className="flex justify-between items-start">
