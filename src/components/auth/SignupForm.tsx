@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/firebase";
-import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import {
     Form,
     FormControl,
@@ -48,7 +48,7 @@ export function SignupForm() {
         },
     });
 
-    const [verificationSent, setVerificationSent] = useState(false);
+    const [success, setSuccess] = useState(false);
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
@@ -58,10 +58,15 @@ export function SignupForm() {
             await updateProfile(userCredential.user, {
                 displayName: values.full_name,
             });
-            await sendEmailVerification(userCredential.user);
-            setVerificationSent(true);
+            // MVP: No email verification sent
+            setSuccess(true);
             const formContainer = document.querySelector('form');
             if (formContainer) formContainer.reset();
+
+            // Optional: Auto-redirect after short delay
+            setTimeout(() => {
+                router.push("/auth/login");
+            }, 2000);
         } catch (err: any) {
             console.error(err);
             if (err.code === 'auth/email-already-in-use') {
@@ -74,7 +79,7 @@ export function SignupForm() {
         }
     }
 
-    if (verificationSent) {
+    if (success) {
         return (
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
                 <div className="rounded-full bg-green-100 p-3 text-green-600 dark:bg-green-900/30 dark:text-green-400">
@@ -94,9 +99,9 @@ export function SignupForm() {
                         <polyline points="22 4 12 14.01 9 11.01" />
                     </svg>
                 </div>
-                <h3 className="text-xl font-semibold">Verification Email Sent</h3>
+                <h3 className="text-xl font-semibold">Account Created</h3>
                 <p className="text-muted-foreground">
-                    We've sent a verification email to your inbox. Please check your inbox and verify your account to continue.
+                    Your account has been created successfully. Redirecting to login...
                 </p>
                 <Button variant="outline" onClick={() => router.push("/auth/login")}>
                     Go to Login
