@@ -3,13 +3,12 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { UserProfile, userService } from "@/services/user";
 import { useRouter } from "next/navigation";
-import { auth } from "@/lib/firebase";
-import { onAuthStateChanged } from "firebase/auth";
 
 interface AuthContextType {
     user: UserProfile | null;
     loading: boolean;
-    logout: () => Promise<void>;
+    login: (token: string) => Promise<void>;
+    logout: () => void;
     isAuthenticated: boolean;
 }
 
@@ -20,30 +19,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-            try {
-                if (firebaseUser) {
-                    // Force token refresh to ensure we have valid claims if custom claims are used
-                    await firebaseUser.getIdToken(true);
-                    const profile = await userService.getMe();
-                    setUser(profile);
-                } else {
-                    setUser(null);
-                }
-            } catch (error) {
-                console.error("Failed to fetch user profile", error);
-                setUser(null);
-            } finally {
-                setLoading(false);
-            }
-        });
+    const fetchUser = async () => {
+        try {
+            const profile = await userService.getMe();
+            setUser(profile);
+        } catch (error) {
+            console.error("Failed to fetch user profile", error);
+            localStorage.removeItem("token");
+            setUser(null);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        return () => unsubscribe();
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            fetchUser();
+        } else {
+            setLoading(false);
+        }
     }, []);
 
-    const logout = async () => {
-        await auth.signOut();
+    const login = async (token: string) => {
+        localStorage.setItem("token", token);
+        await fetchUser();
+        router.push("/dashboard");
+    };
+
+    const logout = () => {
+        localStorage.removeItem("token");
         setUser(null);
         router.push("/auth/login");
     };
@@ -53,6 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             value={{
                 user,
                 loading,
+                login,
                 logout,
                 isAuthenticated: !!user,
             }}

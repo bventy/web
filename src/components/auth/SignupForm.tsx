@@ -4,8 +4,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { auth } from "@/lib/firebase";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import {
     Form,
     FormControl,
@@ -16,7 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-// import { authService } from "@/services/auth";
+import { authService } from "@/services/auth";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert"; // We might need an Alert component, or simpler div
@@ -36,6 +34,7 @@ const formSchema = z.object({
 
 export function SignupForm() {
     const router = useRouter();
+    const { login } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -48,66 +47,22 @@ export function SignupForm() {
         },
     });
 
-    const [success, setSuccess] = useState(false);
-
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
         setError(null);
         try {
-            const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-            await updateProfile(userCredential.user, {
-                displayName: values.full_name,
-            });
-            // MVP: No email verification sent
-            setSuccess(true);
-            const formContainer = document.querySelector('form');
-            if (formContainer) formContainer.reset();
-
-            // Optional: Auto-redirect after short delay
-            setTimeout(() => {
-                router.push("/auth/login");
-            }, 2000);
+            const response = await authService.signup(values);
+            await login(response.token);
         } catch (err: any) {
-            console.error(err);
-            if (err.code === 'auth/email-already-in-use') {
-                setError("Email is already in use.");
+            // Simple error handling
+            if (err.response && err.response.data && err.response.data.message) {
+                setError(err.response.data.message);
             } else {
                 setError("Something went wrong. Please try again.");
             }
         } finally {
             setIsLoading(false);
         }
-    }
-
-    if (success) {
-        return (
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-                <div className="rounded-full bg-green-100 p-3 text-green-600 dark:bg-green-900/30 dark:text-green-400">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-6 w-6"
-                    >
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                        <polyline points="22 4 12 14.01 9 11.01" />
-                    </svg>
-                </div>
-                <h3 className="text-xl font-semibold">Account Created</h3>
-                <p className="text-muted-foreground">
-                    Your account has been created successfully. Redirecting to login...
-                </p>
-                <Button variant="outline" onClick={() => router.push("/auth/login")}>
-                    Go to Login
-                </Button>
-            </div>
-        );
     }
 
     return (

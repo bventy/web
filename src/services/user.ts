@@ -12,11 +12,7 @@ export interface UserProfile {
 
 export const userService = {
     getMe: async (): Promise<UserProfile> => {
-        const response = await api.get<UserProfile>("/auth/me");
-        return response.data;
-    },
-    completeProfile: async (data: { full_name: string; username?: string }) => {
-        const response = await api.post("/auth/complete-profile", data);
+        const response = await api.get<UserProfile>("/me");
         return response.data;
     },
 };
