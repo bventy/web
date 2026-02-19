@@ -79,6 +79,15 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
 
             <div className="grid gap-6 md:grid-cols-3">
                 <div className="md:col-span-2 space-y-6">
+                    {event.cover_image_url && (
+                        <div className="relative w-full h-[300px] rounded-xl overflow-hidden mb-6">
+                            <img
+                                src={event.cover_image_url}
+                                alt={event.title}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                    )}
                     <div className="flex items-start justify-between">
                         <div>
                             <h1 className="text-4xl font-bold tracking-tight mb-2">{event.title}</h1>
