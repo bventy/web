@@ -30,6 +30,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
+import { FileUpload } from "@/components/ui/FileUpload";
 
 const formSchema = z.object({
     title: z.string().min(3, {
@@ -51,6 +52,7 @@ const formSchema = z.object({
         message: "Maximum budget cannot be negative",
     }),
     organizer_group_id: z.string().optional(),
+    cover_image_url: z.string().optional(),
 });
 
 export default function CreateEventPage() {
@@ -76,6 +78,7 @@ export default function CreateEventPage() {
             budget_min: 0,
             budget_max: 0,
             organizer_group_id: "none", // Use "none" as sentinel for optional select
+            cover_image_url: "",
         },
     });
 
@@ -85,7 +88,8 @@ export default function CreateEventPage() {
         try {
             const payload = {
                 ...values,
-                organizer_group_id: values.organizer_group_id === "none" ? undefined : values.organizer_group_id
+                organizer_group_id: values.organizer_group_id === "none" ? undefined : values.organizer_group_id,
+                cover_image_url: values.cover_image_url,
             };
             await eventService.createEvent(payload);
             router.push("/events");
@@ -120,6 +124,24 @@ export default function CreateEventPage() {
                 <CardContent>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                            <FormField
+                                control={form.control}
+                                name="cover_image_url"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Cover Image</FormLabel>
+                                        <FormControl>
+                                            <FileUpload
+                                                onUploaded={(url) => field.onChange(url)}
+                                                defaultUrl={field.value}
+                                                label="Upload Event Cover"
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
                             <FormField
                                 control={form.control}
                                 name="title"

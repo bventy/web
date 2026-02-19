@@ -78,17 +78,40 @@ export default function ProfilePage() {
 
     async function onSubmit(data: ProfileFormValues) {
         setIsSaving(true);
+        console.log("Submitting form data:", data);
+
         try {
-            await userService.updateProfile(data);
+            // Filter out empty strings for optional fields to avoid backend validation errors
+            // Backend likely rejects "" for phone/url/etc. 
+            const payload: any = {};
+
+            // 1. Always include required fields
+            payload.full_name = data.full_name;
+            payload.username = data.username;
+
+            // 2. Include optional fields ONLY if they are not empty
+            if (data.phone && data.phone.trim() !== "") payload.phone = data.phone.replace(/\s/g, ''); // Clean phone
+            if (data.city && data.city.trim() !== "") payload.city = data.city;
+            if (data.bio && data.bio.trim() !== "") payload.bio = data.bio;
+            if (data.profile_image_url && data.profile_image_url.trim() !== "") payload.profile_image_url = data.profile_image_url;
+
+            console.log("Final payload to send (Sanitized):", payload);
+
+            await userService.updateProfile(payload);
             toast.success("Profile updated successfully");
-            // Optionally refresh user context - handled by page reload or we can add a refresh method to context
             window.location.reload();
         } catch (error: any) {
-            console.error(error);
+            console.error("Profile update error object:", error);
+            console.error("Profile update response data:", error.response?.data);
+
             if (error.response?.data?.message) {
                 toast.error(error.response.data.message);
+            } else if (error.response?.data?.error) {
+                toast.error(error.response.data.error);
+            } else if (typeof error.response?.data === 'string') {
+                toast.error(`Error: ${error.response.data.slice(0, 50)}`);
             } else {
-                toast.error("Failed to update profile. Please try again.");
+                toast.error(`Failed to update profile. Status: ${error.response?.status}`);
             }
         } finally {
             setIsSaving(false);

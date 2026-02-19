@@ -14,6 +14,7 @@ export interface CreateGroupRequest {
     name: string;
     city: string;
     description: string;
+    banner_image_url?: string;
 }
 
 export const groupService = {

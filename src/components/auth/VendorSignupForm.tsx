@@ -11,7 +11,6 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-    FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,6 +28,7 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/context/AuthContext";
+import { FileUpload } from "@/components/ui/FileUpload";
 
 const formSchema = z.object({
     // User Details
@@ -57,6 +57,7 @@ const formSchema = z.object({
     whatsapp_link: z.string().url({
         message: "Please enter a valid URL.",
     }),
+    portfolio_image_url: z.string().optional(),
 });
 
 export function VendorSignupForm() {
@@ -76,6 +77,7 @@ export function VendorSignupForm() {
             city: "",
             bio: "",
             whatsapp_link: "",
+            portfolio_image_url: "",
         },
     });
 
@@ -100,6 +102,7 @@ export function VendorSignupForm() {
                 city: values.city,
                 bio: values.bio,
                 whatsapp_link: values.whatsapp_link,
+                portfolio_image_url: values.portfolio_image_url,
             });
 
             // 4. Redirect
@@ -235,6 +238,24 @@ export function VendorSignupForm() {
                                         <FormLabel>WhatsApp Link</FormLabel>
                                         <FormControl>
                                             <Input placeholder="https://wa.me/91..." {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="portfolio_image_url"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Portfolio Image</FormLabel>
+                                        <FormControl>
+                                            <FileUpload
+                                                onUploaded={(url) => field.onChange(url)}
+                                                defaultUrl={field.value}
+                                                label="Upload Portfolio Image"
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

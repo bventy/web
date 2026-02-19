@@ -22,6 +22,7 @@ import { groupService } from "@/services/group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileUpload } from "@/components/ui/FileUpload";
 
 const formSchema = z.object({
     name: z.string().min(3, {
@@ -33,6 +34,7 @@ const formSchema = z.object({
     description: z.string().min(10, {
         message: "Description must be at least 10 characters.",
     }),
+    banner_image_url: z.string().optional(),
 });
 
 export default function CreateGroupPage() {
@@ -46,6 +48,7 @@ export default function CreateGroupPage() {
             name: "",
             city: "",
             description: "",
+            banner_image_url: "",
         },
     });
 
@@ -53,7 +56,12 @@ export default function CreateGroupPage() {
         setIsLoading(true);
         setError(null);
         try {
-            await groupService.createGroup(values);
+            await groupService.createGroup({
+                name: values.name,
+                city: values.city,
+                description: values.description,
+                banner_image_url: values.banner_image_url,
+            });
             router.push("/groups");
         } catch (err: any) {
             if (err.response && err.response.data && err.response.data.message) {
@@ -86,6 +94,24 @@ export default function CreateGroupPage() {
                 <CardContent>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                            <FormField
+                                control={form.control}
+                                name="banner_image_url"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Banner Image</FormLabel>
+                                        <FormControl>
+                                            <FileUpload
+                                                onUploaded={(url) => field.onChange(url)}
+                                                defaultUrl={field.value}
+                                                label="Upload Group Banner"
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
                             <FormField
                                 control={form.control}
                                 name="name"

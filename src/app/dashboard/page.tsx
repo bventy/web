@@ -28,6 +28,8 @@ export default function DashboardPage() {
                 setProfile(data);
             } catch (error) {
                 console.error("Failed to fetch profile", error);
+                localStorage.removeItem("token");
+                router.push("/auth/login");
             } finally {
                 setLoading(false);
             }

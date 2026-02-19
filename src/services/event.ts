@@ -22,6 +22,7 @@ export interface CreateEventRequest {
     budget_min: number;
     budget_max: number;
     organizer_group_id?: string;
+    cover_image_url?: string;
 }
 
 export const eventService = {

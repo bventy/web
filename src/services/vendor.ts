@@ -6,6 +6,7 @@ export interface VendorProfileRequest {
     city: string;
     bio: string;
     whatsapp_link: string;
+    portfolio_image_url?: string;
 }
 
 export interface VendorProfile {
