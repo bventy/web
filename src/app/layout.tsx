@@ -21,6 +21,8 @@ import { AuthProvider } from "@/context/AuthContext";
 
 import { Toaster } from "@/components/ui/sonner";
 
+import { Analytics } from "@vercel/analytics/react";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -34,6 +36,7 @@ export default function RootLayout({
         <AuthProvider>
           {children}
           <Toaster />
+          <Analytics />
         </AuthProvider>
       </body>
     </html>
