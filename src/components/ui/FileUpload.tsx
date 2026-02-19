@@ -6,12 +6,13 @@ import { toast } from "sonner";
 import Image from "next/image";
 
 interface FileUploadProps {
-    onUploaded: (url: string) => void;
+    onUploaded?: (url: string) => void;
+    onFileSelect?: (file: File | null) => void;
     defaultUrl?: string;
     label?: string;
 }
 
-export function FileUpload({ onUploaded, defaultUrl, label = "Upload Image" }: FileUploadProps) {
+export function FileUpload({ onUploaded, onFileSelect, defaultUrl, label = "Upload Image" }: FileUploadProps) {
     const [preview, setPreview] = useState<string | null>(defaultUrl || null);
     const [isLoading, setIsLoading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -23,19 +24,26 @@ export function FileUpload({ onUploaded, defaultUrl, label = "Upload Image" }: F
         // Preview immediately
         const objectUrl = URL.createObjectURL(file);
         setPreview(objectUrl);
+
+        // If manual selection handling is requested (e.g., for auth forms), skip immediate upload
+        if (onFileSelect) {
+            onFileSelect(file);
+            return;
+        }
+
+        // Otherwise, upload immediately (for authenticated sessions)
         setIsLoading(true);
 
         try {
             const url = await mediaService.uploadMedia(file);
             console.log("Uploaded URL:", url);
-            onUploaded(url);
+            if (onUploaded) onUploaded(url);
             toast.success("Image uploaded successfully");
-            // Keep the preview as is, or update if the backend returns a different processed URL (usually same)
             setPreview(url);
         } catch (error) {
             console.error("Upload failed", error);
             toast.error("Failed to upload image");
-            setPreview(defaultUrl || null); // Revert on failure
+            setPreview(defaultUrl || null);
         } finally {
             setIsLoading(false);
         }
@@ -45,7 +53,8 @@ export function FileUpload({ onUploaded, defaultUrl, label = "Upload Image" }: F
         e.preventDefault();
         e.stopPropagation();
         setPreview(null);
-        onUploaded(""); // Clear value
+        if (onUploaded) onUploaded("");
+        if (onFileSelect) onFileSelect(null);
         if (fileInputRef.current) {
             fileInputRef.current.value = "";
         }

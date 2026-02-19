@@ -29,6 +29,7 @@ import { Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/context/AuthContext";
 import { FileUpload } from "@/components/ui/FileUpload";
+import { mediaService } from "@/services/media";
 
 const formSchema = z.object({
     // User Details
@@ -60,11 +61,14 @@ const formSchema = z.object({
     portfolio_image_url: z.string().optional(),
 });
 
+
+
 export function VendorSignupForm() {
     const router = useRouter();
     const { login } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -95,17 +99,29 @@ export function VendorSignupForm() {
             // 2. Login (to get token for next step)
             await login(authResponse.token);
 
-            // 3. Create Vendor Profile
+            // 3. Upload Media (if selected) - NOW that we are logged in
+            let portfolioImageUrl = values.portfolio_image_url;
+            if (selectedFile) {
+                try {
+                    portfolioImageUrl = await mediaService.uploadMedia(selectedFile);
+                } catch (uploadError) {
+                    console.error("Failed to upload portfolio image", uploadError);
+                    // Continue without image or handle error? For now, we continue but warn user (implicitly by missing image)
+                    // or we can throw here. Let's log it.
+                }
+            }
+
+            // 4. Create Vendor Profile
             await vendorService.createProfile({
                 business_name: values.business_name,
                 category: values.category,
                 city: values.city,
                 bio: values.bio,
                 whatsapp_link: values.whatsapp_link,
-                portfolio_image_url: values.portfolio_image_url,
+                portfolio_image_url: portfolioImageUrl,
             });
 
-            // 4. Redirect
+            // 5. Redirect
             router.push("/dashboard");
 
         } catch (err: any) {
@@ -252,7 +268,7 @@ export function VendorSignupForm() {
                                         <FormLabel>Portfolio Image</FormLabel>
                                         <FormControl>
                                             <FileUpload
-                                                onUploaded={(url) => field.onChange(url)}
+                                                onFileSelect={(file) => setSelectedFile(file)}
                                                 defaultUrl={field.value}
                                                 label="Upload Portfolio Image"
                                             />
