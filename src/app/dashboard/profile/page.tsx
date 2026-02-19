@@ -117,8 +117,7 @@ export default function ProfilePage() {
 
             await userService.updateProfile(payload);
             toast.success("Profile updated successfully");
-            await refetch(); // Refetch user data to update Avatar immediately
-            // window.location.reload(); // No need to reload if we refetch context
+            window.location.reload();
         } catch (error: any) {
             console.error("Profile update error object:", error);
             console.error("Profile update response data:", error.response?.data);
@@ -176,7 +175,10 @@ export default function ProfilePage() {
                         </CardHeader>
                         <CardContent className="flex flex-col items-center gap-4">
                             <Avatar className="h-32 w-32">
-                                <AvatarImage src={form.watch("profile_image_url") || user.profile_image_url || "/avatars/01.png"} />
+                                <AvatarImage
+                                    key={form.watch("profile_image_url") || user.profile_image_url}
+                                    src={form.watch("profile_image_url") || user.profile_image_url || "/avatars/01.png"}
+                                />
                                 <AvatarFallback className="text-4xl">
                                     {(user.full_name || user.username || "U").charAt(0).toUpperCase()}
                                 </AvatarFallback>
