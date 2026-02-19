@@ -11,6 +11,7 @@ export interface Event {
     budget_max: number;
     organizer_group_id?: string;
     status: string;
+    cover_image_url?: string;
     shortlist: VendorProfile[];
 }
 
