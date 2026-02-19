@@ -25,6 +25,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { FileUpload } from "@/components/ui/FileUpload";
+import { mediaService } from "@/services/media";
 
 const profileFormSchema = z.object({
     full_name: z.string().min(2, {
@@ -46,8 +48,9 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export default function ProfilePage() {
-    const { user, loading: authLoading } = useAuth();
+    const { user, loading: authLoading, refetch } = useAuth();
     const [isSaving, setIsSaving] = useState(false);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const router = useRouter();
 
     const form = useForm<ProfileFormValues>({
@@ -85,6 +88,19 @@ export default function ProfilePage() {
             // Backend likely rejects "" for phone/url/etc. 
             const payload: any = {};
 
+            // 0. Upload file if selected
+            let profileImageUrl = data.profile_image_url;
+            if (selectedFile) {
+                try {
+                    profileImageUrl = await mediaService.uploadMedia(selectedFile);
+                } catch (uploadError) {
+                    console.error("Failed to upload profile image", uploadError);
+                    toast.error("Failed to upload profile image");
+                    setIsSaving(false);
+                    return;
+                }
+            }
+
             // 1. Always include required fields
             payload.full_name = data.full_name;
             payload.username = data.username;
@@ -93,13 +109,16 @@ export default function ProfilePage() {
             if (data.phone && data.phone.trim() !== "") payload.phone = data.phone.replace(/\s/g, ''); // Clean phone
             if (data.city && data.city.trim() !== "") payload.city = data.city;
             if (data.bio && data.bio.trim() !== "") payload.bio = data.bio;
-            if (data.profile_image_url && data.profile_image_url.trim() !== "") payload.profile_image_url = data.profile_image_url;
+
+            // Use the potentially updated URL
+            if (profileImageUrl && profileImageUrl.trim() !== "") payload.profile_image_url = profileImageUrl;
 
             console.log("Final payload to send (Sanitized):", payload);
 
             await userService.updateProfile(payload);
             toast.success("Profile updated successfully");
-            window.location.reload();
+            await refetch(); // Refetch user data to update Avatar immediately
+            // window.location.reload(); // No need to reload if we refetch context
         } catch (error: any) {
             console.error("Profile update error object:", error);
             console.error("Profile update response data:", error.response?.data);
@@ -217,12 +236,16 @@ export default function ProfilePage() {
                                         name="profile_image_url"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Profile Image URL</FormLabel>
+                                                <FormLabel>Profile Picture</FormLabel>
                                                 <FormControl>
-                                                    <Input placeholder="https://example.com/avatar.jpg" {...field} />
+                                                    <FileUpload
+                                                        onFileSelect={(file) => setSelectedFile(file)}
+                                                        defaultUrl={field.value}
+                                                        label="Upload Profile Picture"
+                                                    />
                                                 </FormControl>
                                                 <FormDescription>
-                                                    Link to your profile picture (e.g. from GitHub, Gravatar, or image host).
+                                                    Your public avatar.
                                                 </FormDescription>
                                                 <FormMessage />
                                             </FormItem>
