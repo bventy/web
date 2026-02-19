@@ -70,7 +70,21 @@ export function VendorOnboardingForm() {
             await vendorService.createProfile(values);
             setSuccess(true);
         } catch (err: any) {
-            if (err.response && err.response.data && err.response.data.message) {
+            // Check for 409 Conflict
+            if (err.response && err.response.status === 409) {
+                // If 409, it means profile exists (or slug conflict).
+                // Let's try to UPDATE the profile with these values as a recovery mechanism.
+                try {
+                    await vendorService.updateProfile(values);
+                    setSuccess(true);
+                    return;
+                } catch (updateErr) {
+                    console.error("Failed to recover/update profile:", updateErr);
+                    // If update ALSO fails, then it's likely a slug conflict (name taken by someone else)
+                    setError("This Business Name or City combination is already taken. Please try a different name.");
+                    // Or if update failed for other reasons, show generic error
+                }
+            } else if (err.response && err.response.data && err.response.data.message) {
                 setError(err.response.data.message);
             } else {
                 setError("Failed to create profile. Please try again.");
@@ -80,7 +94,22 @@ export function VendorOnboardingForm() {
         }
     }
 
-    // ... success state ...
+    if (success) {
+        return (
+            <div className="flex flex-col items-center justify-center space-y-4 py-8 text-center">
+                <div className="rounded-full bg-green-100 p-3 dark:bg-green-900/20">
+                    <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
+                </div>
+                <h3 className="text-xl font-semibold">Profile Created!</h3>
+                <p className="max-w-xs text-muted-foreground">
+                    Your vendor profile has been set up successfully.
+                </p>
+                <Button asChild className="mt-4">
+                    <Link href="/vendor/dashboard">Go to Dashboard</Link>
+                </Button>
+            </div>
+        );
+    }
 
     return (
         <div className="grid gap-6">

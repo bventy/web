@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { eventService, Event } from "@/services/event";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -11,7 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export default function EventDetailPage({ params }: { params: { id: string } }) {
+export default function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = use(params);
     const { user, loading: authLoading } = useAuth();
     const router = useRouter();
     const [event, setEvent] = useState<Event | null>(null);
@@ -19,7 +20,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
 
     const fetchEvent = async () => {
         try {
-            const data = await eventService.getEventById(params.id);
+            const data = await eventService.getEventById(id);
             setEvent(data);
         } catch (error) {
             console.error("Failed to fetch event", error);
@@ -37,7 +38,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
         if (user) {
             fetchEvent();
         }
-    }, [user, authLoading, router, params.id]);
+    }, [user, authLoading, router, id]);
 
     const handleRemoveShortlist = async (vendorId: string) => {
         if (!event) return;

@@ -63,8 +63,15 @@ export default function VendorDashboardPage() {
                         gallery_images: vendorData.gallery_images || [],
                         portfolio_files: vendorData.portfolio_files || []
                     });
-                } catch (err) {
+                } catch (err: any) {
                     console.error("Failed to fetch vendor profile", err);
+                    // If vendor profile not found (404), redirect to onboarding
+                    // This handles cases where user flag says true but profile is missing
+                    if (err.response && err.response.status === 404) {
+                        toast.error("Vendor profile not found. Please complete onboarding.");
+                        router.push("/vendor/onboard");
+                        return;
+                    }
                     toast.error("Failed to load vendor profile");
                 }
             } catch (error) {
