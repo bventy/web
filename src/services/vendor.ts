@@ -19,11 +19,18 @@ export interface VendorProfile {
     whatsapp_link: string;
     profile_picture?: string;
     verified: boolean;
+    // New fields
+    portfolio_image_url?: string;
+    gallery_images?: string[];
+    portfolio_files?: any[]; // JSONB array
 }
 
 export const vendorService = {
     createProfile: async (data: VendorProfileRequest): Promise<void> => {
         await api.post("/vendor/onboard", data);
+    },
+    updateProfile: async (data: Partial<VendorProfileRequest> & { gallery_images?: string[]; portfolio_files?: any[] }): Promise<void> => {
+        await api.put("/vendor/me", data);
     },
     getVendors: async (): Promise<VendorProfile[]> => {
         const response = await api.get<VendorProfile[]>("/vendors");
@@ -31,6 +38,18 @@ export const vendorService = {
     },
     getVendorBySlug: async (slug: string): Promise<VendorProfile> => {
         const response = await api.get<VendorProfile>(`/vendors/slug/${slug}`);
-        return response.data;
+        const data = response.data;
+        // Ensure arrays are initialized if null
+        if (!data.gallery_images) data.gallery_images = [];
+        if (!data.portfolio_files) data.portfolio_files = [];
+        return data;
     },
+    getMyProfile: async (): Promise<VendorProfile> => {
+        const response = await api.get<VendorProfile>("/vendor/me");
+        const data = response.data;
+        // Ensure arrays are initialized if null
+        if (!data.gallery_images) data.gallery_images = [];
+        if (!data.portfolio_files) data.portfolio_files = [];
+        return data;
+    }
 };
