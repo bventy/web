@@ -24,6 +24,7 @@ import {
 import { useState } from "react";
 import { authService } from "@/services/auth";
 import { vendorService } from "@/services/vendor";
+import { userService } from "@/services/user";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -104,6 +105,7 @@ export function VendorSignupForm() {
             if (selectedFile) {
                 try {
                     portfolioImageUrl = await mediaService.uploadMedia(selectedFile);
+                    try { await userService.updateProfile({ profile_image_url: portfolioImageUrl }); } catch (e) { console.error("Sync failed", e); }
                 } catch (uploadError) {
                     console.error("Failed to upload portfolio image", uploadError);
                     // Continue without image or handle error? For now, we continue but warn user (implicitly by missing image)
