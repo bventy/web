@@ -7,8 +7,9 @@ import { useRouter } from "next/navigation";
 interface AuthContextType {
     user: UserProfile | null;
     loading: boolean;
-    login: (token: string) => Promise<void>;
+    login: (token: string, shouldRedirect?: boolean) => Promise<void>;
     logout: () => void;
+    refetch: () => Promise<void>;
     isAuthenticated: boolean;
 }
 
@@ -41,10 +42,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, []);
 
-    const login = async (token: string) => {
+    const login = async (token: string, shouldRedirect = true) => {
         localStorage.setItem("token", token);
         await fetchUser();
-        router.push("/dashboard");
+        if (shouldRedirect) {
+            router.push("/dashboard");
+        }
     };
 
     const logout = () => {
@@ -60,6 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 loading,
                 login,
                 logout,
+                refetch: fetchUser,
                 isAuthenticated: !!user,
             }}
         >

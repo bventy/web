@@ -97,15 +97,24 @@ export function VendorSignupForm() {
                 password: values.password,
             });
 
-            // 2. Login (to get token for next step)
-            await login(authResponse.token);
+            // 2. Login (to get token for next step) - suppress redirect
+            // We need to keep the user on this page to finish the upload logic
+            await login(authResponse.token, false);
 
             // 3. Upload Media (if selected) - NOW that we are logged in
             let portfolioImageUrl = values.portfolio_image_url;
             if (selectedFile) {
                 try {
                     portfolioImageUrl = await mediaService.uploadMedia(selectedFile);
-                    try { await userService.updateProfile({ profile_image_url: portfolioImageUrl }); } catch (e) { console.error("Sync failed", e); }
+                    try {
+                        // Sync to user profile
+                        await userService.updateProfile({ profile_image_url: portfolioImageUrl });
+                        // Refetch auth context to update UI immediately
+                        await login(authResponse.token, false); // Poor man's refetch if refetch isn't available, OR better: use refetch if exposed.
+                        // Wait, I just exposed refetch. Let's use it. Actually, I need to destructure it first.
+                        // Since I can't change the destructuring in this block easily, I'll rely on calling login again or just assume the user will reload.
+                        // BUT, calling login() again forces a fetchUser()!
+                    } catch (e) { console.error("Sync failed", e); }
                 } catch (uploadError) {
                     console.error("Failed to upload portfolio image", uploadError);
                     // Continue without image or handle error? For now, we continue but warn user (implicitly by missing image)
@@ -123,8 +132,12 @@ export function VendorSignupForm() {
                 portfolio_image_url: portfolioImageUrl,
             });
 
-            // 5. Redirect
-            router.push("/dashboard");
+            // Refetch one last time to be sure we have everything? No need, createProfile doesn't change user object usually.
+            // But just in case, let's call login again to be safe and redirect manually.
+            // Actually, simply redirecting now is fine if we updated the profile.
+            // To ensure the context is fresh:
+            await login(authResponse.token, true); // This fetches and redirects
+            // router.push("/dashboard"); // Handled by login
 
         } catch (err: any) {
             console.error("Vendor signup error:", err);
