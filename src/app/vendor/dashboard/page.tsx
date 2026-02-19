@@ -241,7 +241,7 @@ export default function VendorDashboardPage() {
                             <CardContent className="flex flex-col items-center">
                                 <FileUpload
                                     onUploaded={(url) => setFormData({ ...formData, portfolio_image_url: url })}
-                                    defaultImage={formData.portfolio_image_url || user?.profile_image_url}
+                                    defaultUrl={formData.portfolio_image_url || user?.profile_image_url}
                                     label="Upload Brand Image"
                                 />
                                 <p className="text-xs text-muted-foreground mt-4 text-center">
