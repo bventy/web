@@ -54,9 +54,10 @@ export function PortfolioUpload({ files = [], onChange, maxFiles = 20 }: Portfol
             }
             onChange(newFiles);
             toast.success("Portfolio updated successfully");
-        } catch (error) {
+        } catch (error: any) {
             console.error("Portfolio upload failed", error);
-            toast.error("Failed to upload some files");
+            const msg = error.response?.data?.error || "Failed to upload some files";
+            toast.error(msg);
         } finally {
             setIsUploading(false);
             e.target.value = "";

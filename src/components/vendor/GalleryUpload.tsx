@@ -38,9 +38,10 @@ export function GalleryUpload({ images = [], onChange, maxImages = 25 }: Gallery
             }
             onChange(newImages);
             toast.success("Gallery updated successfully");
-        } catch (error) {
+        } catch (error: any) {
             console.error("Gallery upload failed", error);
-            toast.error("Failed to upload some images");
+            const msg = error.response?.data?.error || "Failed to upload some images";
+            toast.error(msg);
         } finally {
             setIsUploading(false);
             // Reset input
