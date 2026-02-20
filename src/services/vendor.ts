@@ -20,6 +20,8 @@ export interface VendorProfile {
     profile_picture?: string;
     primary_profile_image_url?: string;
     verified: boolean;
+    owner_full_name?: string;
+    owner_profile_image?: string;
     // New fields
     portfolio_image_url?: string;
     gallery_images?: string[];

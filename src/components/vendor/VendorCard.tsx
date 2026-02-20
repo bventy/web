@@ -12,9 +12,11 @@ interface VendorCardProps {
 
 export function VendorCard({ vendor }: VendorCardProps) {
     const images = vendor.gallery_images || [];
-    const coverImage = images.length > 0
-        ? images[0]
-        : (vendor.portfolio_image_url || vendor.profile_picture || vendor.primary_profile_image_url); // Fallback hierarchy
+    const coverImage = images.length > 0 ? images[0] : null;
+
+    // Brand Image Fallback Hierarchy: uploaded brand -> personal profile -> initials
+    const brandImage = vendor.portfolio_image_url || vendor.owner_profile_image;
+    const initials = (vendor.owner_full_name || vendor.business_name || "V").charAt(0).toUpperCase();
 
     return (
         <Card className="flex h-full flex-col overflow-hidden transition-all hover:shadow-md group">
@@ -28,7 +30,7 @@ export function VendorCard({ vendor }: VendorCardProps) {
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                 ) : (
-                    <div className="flex h-full w-full items-center justify-center">
+                    <div className="flex h-full w-full items-center justify-center bg-slate-100 dark:bg-slate-900">
                         <Store className="h-10 w-10 text-muted-foreground/20" />
                     </div>
                 )}
@@ -39,16 +41,16 @@ export function VendorCard({ vendor }: VendorCardProps) {
                     <div className="flex items-center gap-3 min-w-0">
                         {/* Profile Image */}
                         <div className="relative h-10 w-10 flex-shrink-0 rounded-full border-2 border-background overflow-hidden shadow-sm bg-muted ring-1 ring-muted">
-                            {vendor.portfolio_image_url ? (
+                            {brandImage ? (
                                 <Image
-                                    src={vendor.portfolio_image_url}
+                                    src={brandImage}
                                     alt={vendor.business_name}
                                     fill
                                     className="object-cover"
                                 />
                             ) : (
-                                <div className="flex h-full w-full items-center justify-center bg-slate-100 dark:bg-slate-800">
-                                    <Store className="h-4 w-4 text-muted-foreground" />
+                                <div className="flex h-full w-full items-center justify-center bg-slate-100 dark:bg-slate-800 text-xs font-bold text-muted-foreground">
+                                    {initials}
                                 </div>
                             )}
                         </div>

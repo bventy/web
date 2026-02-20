@@ -246,13 +246,25 @@ export default function VendorDashboardPage() {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="flex flex-col items-center">
-                                <FileUpload
-                                    onUploaded={(url) => setFormData({ ...formData, portfolio_image_url: url })}
-                                    defaultUrl={formData.portfolio_image_url || user?.profile_image_url}
-                                    label="Upload Brand Image"
-                                />
+                                {formData.portfolio_image_url || user?.profile_image_url ? (
+                                    <FileUpload
+                                        onUploaded={(url) => setFormData({ ...formData, portfolio_image_url: url })}
+                                        defaultUrl={formData.portfolio_image_url || user?.profile_image_url}
+                                        label="Upload Brand Image"
+                                    />
+                                ) : (
+                                    <div className="space-y-4 flex flex-col items-center w-full">
+                                        <div className="h-32 w-32 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-3xl font-bold text-muted-foreground border-2 border-dashed border-muted-foreground/20">
+                                            {(user?.full_name || user?.username || "V").charAt(0).toUpperCase()}
+                                        </div>
+                                        <FileUpload
+                                            onUploaded={(url) => setFormData({ ...formData, portfolio_image_url: url })}
+                                            label="Upload Brand Image"
+                                        />
+                                    </div>
+                                )}
                                 <p className="text-xs text-muted-foreground mt-4 text-center">
-                                    If not set, we'll use your personal profile picture.
+                                    If not set, we'll use your personal profile picture or initials.
                                 </p>
                             </CardContent>
                         </Card>
