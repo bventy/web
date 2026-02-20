@@ -21,7 +21,7 @@ import { AuthProvider } from "@/context/AuthContext";
 
 import { Toaster } from "@/components/ui/sonner";
 
-import { Analytics } from "@vercel/analytics/react";
+import { Analytics } from "@vercel/analytics/next";
 
 export default function RootLayout({
   children,
