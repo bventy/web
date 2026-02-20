@@ -14,7 +14,7 @@ export function VendorCard({ vendor }: VendorCardProps) {
     const images = vendor.gallery_images || [];
     const coverImage = images.length > 0
         ? images[0]
-        : null;
+        : (vendor.portfolio_image_url || vendor.profile_picture || vendor.primary_profile_image_url); // Fallback hierarchy
 
     return (
         <Card className="flex h-full flex-col overflow-hidden transition-all hover:shadow-md group">
