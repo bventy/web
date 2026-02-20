@@ -17,16 +17,21 @@ import { Check, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminVendorsPage() {
-    const [vendors, setVendors] = useState<VendorProfile[]>([]);
+    const [pendingVendors, setPendingVendors] = useState<VendorProfile[]>([]);
+    const [verifiedVendors, setVerifiedVendors] = useState<VendorProfile[]>([]);
     const [loading, setLoading] = useState(true);
 
     const fetchVendors = async () => {
         try {
-            const data = await adminService.getPendingVendors();
-            setVendors(data);
+            const [pending, verified] = await Promise.all([
+                adminService.getVendors("pending"),
+                adminService.getVendors("verified"),
+            ]);
+            setPendingVendors(pending);
+            setVerifiedVendors(verified);
         } catch (error) {
-            console.error("Failed to fetch pending vendors", error);
-            toast.error("Failed to fetch pending vendors");
+            console.error("Failed to fetch vendors", error);
+            toast.error("Failed to fetch vendors");
         } finally {
             setLoading(false);
         }
@@ -40,7 +45,13 @@ export default function AdminVendorsPage() {
         try {
             await adminService.approveVendor(id);
             toast.success("Vendor approved successfully");
-            setVendors((prev) => prev.filter((v) => v.id !== id));
+            setPendingVendors((prev) => prev.filter((v) => v.id !== id));
+            // Optionally move to verified list immediately, but fetching again or manual move ensures consistency
+            // For better UX, let's manually move it to verified list if we have the object
+            const approvedVendor = pendingVendors.find(v => v.id === id);
+            if (approvedVendor) {
+                setVerifiedVendors(prev => [...prev, { ...approvedVendor, status: 'verified' }]);
+            }
         } catch (error) {
             console.error("Failed to approve vendor", error);
             toast.error("Failed to approve vendor");
@@ -51,7 +62,7 @@ export default function AdminVendorsPage() {
         try {
             await adminService.rejectVendor(id);
             toast.success("Vendor rejected");
-            setVendors((prev) => prev.filter((v) => v.id !== id));
+            setPendingVendors((prev) => prev.filter((v) => v.id !== id));
         } catch (error) {
             console.error("Failed to reject vendor", error);
             toast.error("Failed to reject vendor");
@@ -67,74 +78,130 @@ export default function AdminVendorsPage() {
     }
 
     return (
-        <div className="flex flex-col gap-4">
-            <h1 className="text-3xl font-bold tracking-tight">Pending Vendors</h1>
-            <div className="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-[100px]">Image</TableHead>
-                            <TableHead>Business Name</TableHead>
-                            <TableHead>City</TableHead>
-                            <TableHead>Category</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {vendors.length === 0 ? (
+        <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-4">
+                <h1 className="text-3xl font-bold tracking-tight">Pending Vendors</h1>
+                <div className="rounded-md border bg-white">
+                    <Table>
+                        <TableHeader>
                             <TableRow>
-                                <TableCell colSpan={5} className="h-24 text-center">
-                                    No pending vendors.
-                                </TableCell>
+                                <TableHead className="w-[100px]">Image</TableHead>
+                                <TableHead>Business Name</TableHead>
+                                <TableHead>City</TableHead>
+                                <TableHead>Category</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
-                        ) : (
-                            vendors.map((vendor) => (
-                                <TableRow key={vendor.id}>
-                                    <TableCell>
-                                        <Avatar>
-                                            <AvatarImage
-                                                src={vendor.primary_profile_image_url}
-                                                alt={vendor.business_name}
-                                            />
-                                            <AvatarFallback>
-                                                {vendor.business_name.charAt(0)}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                    </TableCell>
-                                    <TableCell className="font-medium">
-                                        {vendor.business_name}
-                                    </TableCell>
-                                    <TableCell>{vendor.city}</TableCell>
-                                    <TableCell className="capitalize">
-                                        {vendor.category}
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <div className="flex justify-end gap-2">
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                                                onClick={() => handleApprove(vendor.id)}
-                                            >
-                                                <Check className="h-4 w-4" />
-                                                <span className="sr-only">Approve</span>
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                                onClick={() => handleReject(vendor.id)}
-                                            >
-                                                <X className="h-4 w-4" />
-                                                <span className="sr-only">Reject</span>
-                                            </Button>
-                                        </div>
+                        </TableHeader>
+                        <TableBody>
+                            {pendingVendors.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="h-24 text-center">
+                                        No pending vendors.
                                     </TableCell>
                                 </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
+                            ) : (
+                                pendingVendors.map((vendor) => (
+                                    <TableRow key={vendor.id}>
+                                        <TableCell>
+                                            <Avatar>
+                                                <AvatarImage
+                                                    src={vendor.primary_profile_image_url}
+                                                    alt={vendor.business_name}
+                                                />
+                                                <AvatarFallback>
+                                                    {vendor.business_name?.charAt(0) || "?"}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                        </TableCell>
+                                        <TableCell className="font-medium">
+                                            {vendor.business_name}
+                                        </TableCell>
+                                        <TableCell>{vendor.city}</TableCell>
+                                        <TableCell className="capitalize">
+                                            {vendor.category}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex justify-end gap-2">
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                                    onClick={() => handleApprove(vendor.id)}
+                                                >
+                                                    <Check className="h-4 w-4" />
+                                                    <span className="sr-only">Approve</span>
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                    onClick={() => handleReject(vendor.id)}
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                    <span className="sr-only">Reject</span>
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+            </div>
+
+            <div className="flex flex-col gap-4">
+                <h1 className="text-3xl font-bold tracking-tight">Verified Vendors</h1>
+                <div className="rounded-md border bg-white">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-[100px]">Image</TableHead>
+                                <TableHead>Business Name</TableHead>
+                                <TableHead>City</TableHead>
+                                <TableHead>Category</TableHead>
+                                <TableHead className="text-right">Status</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {verifiedVendors.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="h-24 text-center">
+                                        No verified vendors found.
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                verifiedVendors.map((vendor) => (
+                                    <TableRow key={vendor.id}>
+                                        <TableCell>
+                                            <Avatar>
+                                                <AvatarImage
+                                                    src={vendor.primary_profile_image_url}
+                                                    alt={vendor.business_name}
+                                                />
+                                                <AvatarFallback>
+                                                    {vendor.business_name?.charAt(0) || "?"}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                        </TableCell>
+                                        <TableCell className="font-medium">
+                                            {vendor.business_name}
+                                        </TableCell>
+                                        <TableCell>{vendor.city}</TableCell>
+                                        <TableCell className="capitalize">
+                                            {vendor.category}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <span className="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                                Verified
+                                            </span>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
             </div>
         </div>
     );

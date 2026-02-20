@@ -2,8 +2,10 @@ import { api } from "@/lib/api";
 import { VendorProfile } from "./vendor";
 
 export const adminService = {
-    getPendingVendors: async (): Promise<VendorProfile[]> => {
-        const response = await api.get<VendorProfile[]>("/admin/vendors/pending");
+    getVendors: async (status?: string): Promise<VendorProfile[]> => {
+        const response = await api.get<VendorProfile[]>("/admin/vendors", {
+            params: { status },
+        });
         return response.data;
     },
     approveVendor: async (id: string): Promise<void> => {
