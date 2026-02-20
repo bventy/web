@@ -75,11 +75,10 @@ export default function VendorProfilePage() {
         try {
             await eventService.shortlistVendor(selectedEventId, vendor.id);
             setDialogOpen(false);
-            // Ideally show a toast here
-            alert("Vendor shortlisted successfully!");
+            toast.success("Vendor shortlisted successfully!");
         } catch (error) {
             console.error("Failed to shortlist", error);
-            alert("Failed to shortlist vendor.");
+            toast.error("Failed to shortlist vendor.");
         } finally {
             setShortlistLoading(false);
         }
