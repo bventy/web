@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function EventDetailPage() {
+    // using useParams to ensure id is available in client component
     const params = useParams();
     const id = params?.id as string;
     const { user, loading: authLoading } = useAuth();
