@@ -6,10 +6,21 @@ export const adminService = {
         const response = await api.get<VendorProfile[]>("/admin/vendors/pending");
         return response.data;
     },
-    verifyVendor: async (id: string): Promise<void> => {
-        await api.post(`/admin/vendors/${id}/verify`);
+    approveVendor: async (id: string): Promise<void> => {
+        await api.patch(`/admin/vendors/${id}/approve`);
     },
     rejectVendor: async (id: string): Promise<void> => {
-        await api.post(`/admin/vendors/${id}/reject`);
+        await api.patch(`/admin/vendors/${id}/reject`);
+    },
+    getStats: async (): Promise<any> => {
+        const response = await api.get("/admin/stats");
+        return response.data;
+    },
+    getUsers: async (): Promise<any[]> => {
+        const response = await api.get("/admin/users");
+        return response.data;
+    },
+    updateUserRole: async (id: string, role: string): Promise<void> => {
+        await api.patch(`/admin/users/${id}/role`, { role });
     },
 };

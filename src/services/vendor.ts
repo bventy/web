@@ -18,6 +18,7 @@ export interface VendorProfile {
     bio: string;
     whatsapp_link: string;
     profile_picture?: string;
+    primary_profile_image_url?: string;
     verified: boolean;
     // New fields
     portfolio_image_url?: string;

@@ -31,6 +31,11 @@ export function Navbar() {
                             <Button variant="ghost" asChild>
                                 <Link href="/dashboard">Dashboard</Link>
                             </Button>
+                            {["admin", "super_admin"].includes(user.role) && (
+                                <Button variant="ghost" asChild>
+                                    <Link href="/admin">Admin</Link>
+                                </Button>
+                            )}
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
