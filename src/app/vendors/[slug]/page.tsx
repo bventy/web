@@ -124,11 +124,12 @@ export default function VendorProfilePage() {
                     </div>
                 </div>
 
+
                 <div className="container mx-auto max-w-4xl px-4 py-12">
 
                     <div className="grid gap-8 md:grid-cols-[2fr_1fr]">
                         {/* Left Column: Details */}
-                        <div className="space-y-6">
+                        <div className="space-y-8">
                             <div>
                                 <div className="flex items-center gap-3 mb-2">
                                     <Badge variant="outline" className="text-sm font-normal">{vendor.category}</Badge>
@@ -151,6 +152,50 @@ export default function VendorProfilePage() {
                                     {vendor.bio}
                                 </p>
                             </div>
+
+                            {/* Gallery Section */}
+                            {vendor.gallery_images && vendor.gallery_images.length > 0 && (
+                                <div>
+                                    <h3 className="text-xl font-semibold mb-4">Gallery</h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                        {vendor.gallery_images.map((img, idx) => (
+                                            <div key={idx} className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
+                                                <img
+                                                    src={img}
+                                                    alt={`${vendor.business_name} gallery ${idx + 1}`}
+                                                    className="object-cover w-full h-full hover:scale-105 transition-transform duration-300"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Portfolio Section */}
+                            {vendor.portfolio_files && vendor.portfolio_files.length > 0 && (
+                                <div>
+                                    <h3 className="text-xl font-semibold mb-4">Portfolio & Documents</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {vendor.portfolio_files.map((file: any, idx) => (
+                                            <a
+                                                key={idx}
+                                                href={file.file_url || file.url} // Handle various possible structures
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors group"
+                                            >
+                                                <div className="h-10 w-10 rounded bg-red-50 text-red-600 flex items-center justify-center mr-3 group-hover:bg-red-100 transition-colors">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /></svg>
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="font-medium text-sm truncate">{file.title || file.name || `Document ${idx + 1}`}</p>
+                                                    <p className="text-xs text-muted-foreground">PDF Document</p>
+                                                </div>
+                                            </a>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Right Column: CTA Card */}
