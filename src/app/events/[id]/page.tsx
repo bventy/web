@@ -1,18 +1,19 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState } from "react";
 import { eventService, Event } from "@/services/event";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Loader2, ArrowLeft, MapPin, Calendar, DollarSign, Trash2, Search } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export default function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = use(params);
+export default function EventDetailPage() {
+    const params = useParams();
+    const id = params?.id as string;
     const { user, loading: authLoading } = useAuth();
     const router = useRouter();
     const [event, setEvent] = useState<Event | null>(null);
