@@ -119,7 +119,7 @@ export default function VendorMarketplacePage() {
                 ) : filteredVendors.length > 0 ? (
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         {filteredVendors.map((vendor) => (
-                            <VendorCard key={vendor.id} vendor={vendor} />
+                            <VendorCard key={vendor.id || vendor.slug} vendor={vendor} />
                         ))}
                     </div>
                 ) : (
