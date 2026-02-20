@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -37,6 +38,11 @@ export default function RootLayout({
           {children}
           <Toaster />
           <Analytics />
+          <Script
+            async
+            src="https://cloud.umami.is/script.js"
+            data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+          />
         </AuthProvider>
       </body>
     </html>
