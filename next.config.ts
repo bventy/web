@@ -17,6 +17,14 @@ const nextConfig: NextConfig = {
         source: "/api/:path*",
         destination: "https://bventy-api.onrender.com/:path*",
       },
+      {
+        source: "/stats/script.js",
+        destination: "https://cloud.umami.is/script.js",
+      },
+      {
+        source: "/stats/api/send",
+        destination: "https://cloud.umami.is/api/send",
+      },
     ];
   },
 };
