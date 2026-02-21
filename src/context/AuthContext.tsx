@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { UserProfile, userService } from "@/services/user";
 import { useRouter } from "next/navigation";
+import posthog from "posthog-js";
 
 interface AuthContextType {
     user: UserProfile | null;
@@ -24,6 +25,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
             const profile = await userService.getMe();
             setUser(profile);
+
+            if (profile && profile.id) {
+                posthog.identify(profile.id, {
+                    email: profile.email,
+                    name: profile.full_name,
+                    role: profile.role,
+                });
+            }
         } catch (error) {
             console.error("Failed to fetch user profile", error);
             localStorage.removeItem("token");
@@ -53,6 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const logout = () => {
         localStorage.removeItem("token");
         setUser(null);
+        posthog.reset();
         router.push("/auth/login");
     };
 
