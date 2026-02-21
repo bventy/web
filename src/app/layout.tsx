@@ -23,6 +23,8 @@ import { Toaster } from "@/components/ui/sonner";
 
 import { Analytics } from "@vercel/analytics/react";
 import UmamiAnalytics from "@/components/UmamiAnalytics";
+import PostHogPageView from "@/components/PostHogPageView";
+import { Suspense } from "react";
 
 export default function RootLayout({
   children,
@@ -39,6 +41,9 @@ export default function RootLayout({
           <Toaster />
           <Analytics />
           <UmamiAnalytics />
+          <Suspense fallback={null}>
+            <PostHogPageView />
+          </Suspense>
         </AuthProvider>
       </body>
     </html>
