@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert"; // We might need an Alert component, or simpler div
 import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 
 const formSchema = z.object({
     full_name: z.string().min(2, {
@@ -119,6 +120,15 @@ export function SignupForm() {
                         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Create Account
                     </Button>
+
+                    <p className="text-center text-sm text-neutral-500 mt-4">
+                        By signing up, you agree to our{" "}
+                        <Link href="/privacy" className="underline underline-offset-4 hover:text-neutral-900 dark:hover:text-neutral-300">
+                            Privacy Policy
+                        </Link>
+                        .
+                    </p>
+
                 </form>
             </Form>
         </div>

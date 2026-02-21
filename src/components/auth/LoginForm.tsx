@@ -102,6 +102,15 @@ export function LoginForm() {
                         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Sign In
                     </Button>
+
+                    <p className="text-center text-sm text-neutral-500 mt-4">
+                        By signing in, you agree to our{" "}
+                        <Link href="/privacy" className="underline underline-offset-4 hover:text-neutral-900 dark:hover:text-neutral-300">
+                            Privacy Policy
+                        </Link>
+                        .
+                    </p>
+
                 </form>
             </Form>
         </div>
