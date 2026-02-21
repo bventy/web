@@ -25,6 +25,18 @@ const nextConfig: NextConfig = {
         source: "/stats/api/send",
         destination: "https://cloud.umami.is/api/send",
       },
+      {
+        source: "/ingest/static/:path*",
+        destination: "https://us-assets.i.posthog.com/static/:path*",
+      },
+      {
+        source: "/ingest/:path*",
+        destination: "https://us.i.posthog.com/:path*",
+      },
+      {
+        source: "/ingest/decide",
+        destination: "https://us.i.posthog.com/decide",
+      },
     ];
   },
 };
