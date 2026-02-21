@@ -30,6 +30,14 @@ const nextConfig: NextConfig = {
         destination: "https://us-assets.i.posthog.com/static/:path*",
       },
       {
+        source: "/ingest/s/:path*",
+        destination: "https://us.i.posthog.com/s/:path*",
+      },
+      {
+        source: "/ingest/e/:path*",
+        destination: "https://us.i.posthog.com/e/:path*",
+      },
+      {
         source: "/ingest/:path*",
         destination: "https://us.i.posthog.com/:path*",
       },
