@@ -22,6 +22,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "@/components/ui/sonner";
 
 import { Analytics } from "@vercel/analytics/react";
+import UmamiAnalytics from "@/components/UmamiAnalytics";
 
 export default function RootLayout({
   children,
@@ -30,9 +31,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <script defer src="https://cloud.umami.is/script.js" data-website-id="3e89ac7f-6f2d-4006-a387-316d10695e85"></script>
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -40,6 +38,7 @@ export default function RootLayout({
           {children}
           <Toaster />
           <Analytics />
+          <UmamiAnalytics />
         </AuthProvider>
       </body>
     </html>
