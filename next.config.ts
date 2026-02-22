@@ -18,31 +18,31 @@ const nextConfig: NextConfig = {
         destination: "https://bventy-api.onrender.com/:path*",
       },
       {
-        source: "/a/u/script.js",
+        source: "/metrics/script.js",
         destination: "https://cloud.umami.is/script.js",
       },
       {
-        source: "/a/u/api/send",
+        source: "/metrics/api/send",
         destination: "https://cloud.umami.is/api/send",
       },
       {
-        source: "/a/p/static/:path*",
+        source: "/events/static/:path*",
         destination: "https://us-assets.i.posthog.com/static/:path*",
       },
       {
-        source: "/a/p/s/:path*",
+        source: "/events/s/:path*",
         destination: "https://us.i.posthog.com/s/:path*",
       },
       {
-        source: "/a/p/e/:path*",
+        source: "/events/e/:path*",
         destination: "https://us.i.posthog.com/e/:path*",
       },
       {
-        source: "/a/p/decide",
+        source: "/events/decide",
         destination: "https://us.i.posthog.com/decide",
       },
       {
-        source: "/a/p/:path*",
+        source: "/events/:path*",
         destination: "https://us.i.posthog.com/:path*",
       },
     ];

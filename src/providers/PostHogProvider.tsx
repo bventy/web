@@ -8,7 +8,7 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (typeof window !== 'undefined') {
             posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-                api_host: '/a/p',
+                api_host: '/events',
                 ui_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
                 defaults: '2026-01-30',
                 capture_pageview: false // Disable automatic pageview capture, as we capture manually
