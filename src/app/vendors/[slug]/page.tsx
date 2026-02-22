@@ -371,7 +371,9 @@ export default function VendorProfilePage() {
                                                             <p className="text-[10px] text-muted-foreground">When do you need a response by?</p>
                                                         </div>
                                                         <div className="space-y-2">
-                                                            <Label>Additional Message (Optional)</Label>
+                                                            <div className="flex items-center justify-between">
+                                                                <Label>Additional Message <span className="text-red-500">*</span></Label>
+                                                            </div>
                                                             <Textarea
                                                                 placeholder="Tell the vendor more about your requirements..."
                                                                 value={quoteMessage}
@@ -383,7 +385,10 @@ export default function VendorProfilePage() {
                                                 )}
                                                 {!isCreatingEventInQuote && (
                                                     <DialogFooter>
-                                                        <Button onClick={handleQuoteRequest} disabled={!selectedEventId || quoteLoading}>
+                                                        <Button
+                                                            onClick={handleQuoteRequest}
+                                                            disabled={!selectedEventId || !quoteMessage.trim() || quoteLoading}
+                                                        >
                                                             {quoteLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                                             Send Request
                                                         </Button>
@@ -471,8 +476,8 @@ export default function VendorProfilePage() {
                     </div>
 
                 </div>
-            </main>
+            </main >
             <Footer />
-        </div>
+        </div >
     );
 }

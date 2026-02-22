@@ -500,6 +500,7 @@ export default function VendorDashboardPage() {
                                                                 [quote.id]: { ...responses[quote.id], attachment: url }
                                                             })}
                                                             label="Upload Quote/Rate Card"
+                                                            accept="image/*,application/pdf"
                                                         />
                                                         {responses[quote.id]?.attachment && (
                                                             <p className="text-xs text-green-600">File uploaded successfully.</p>
