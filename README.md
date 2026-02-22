@@ -1,86 +1,65 @@
-# Bventy Web
+# bventy-web
 
-The premium, high-performance frontend for the [Bventy](https://bventy.in) marketplace. Built with Next.js 15, React 19, and Tailwind CSS 4.
+## Philosophy
 
-[![Next.js](https://img.shields.io/badge/Next.js-15+-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19+-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4+-06B6D4?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
-[![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](LICENSE)
+Bventy Web is the presentation layer of a marketplace designed for high-quality, intentional interaction. We reject the pattern of cluttered, high-pressure UIs in favor of a clean, typography-driven experience that respects the user's focus.
 
-## ✨ Overview
+Our design focuses on:
+- Clarity of intent: Every screen is designed to facilitate a specific step in the marketplace lifecycle.
+- Minimalist aesthetic: Removing distractions to let service offerings and event requirements stand out.
+- Responsive utility: A seamless experience whether building an event on a desktop or managing quotes on a mobile device.
+- Transparent flow: Users always know exactly where they are in the process of discovery, negotiation, or fulfillment.
 
-Bventy Web is a sophisticated marketplace frontend designed to provide a seamless, premium experience for both event organizers and service vendors. It features a modern, typography-driven UI, smooth interactive flows, and real-time data synchronization with the Bventy API.
+## Architecture Overview
 
-### Key Features
-- **Two-Sided Marketplace**: Dedicated dashboards for Organizers (demand) and Vendors (supply).
-- **Quote Lifecycle**: Interactive system for requesting, responding to, and managing quotes.
-- **Dynamic Vendor Profiles**: Rich gallery and portfolio management for vendors.
-- **Admin Analytics**: Powerful data visualization layer for platform growth and marketplace metrics.
-- **Modern Tech Architecture**: Leverages React 19's latest features and Next.js App Router for optimal performance.
+The frontend is a modern Next.js 15 application using the App Router. It is designed for speed, modularity, and maintainability.
 
-## 🚀 Tech Stack
-- **Framework**: Next.js 15+ (App Router)
-- **Library**: React 19
-- **Styling**: Tailwind CSS 4 (Vanilla CSS philosophy)
-- **UI Components**: Radix UI / Heroicons / Lucide
-- **Animations**: Framer Motion
-- **State Management**: React Context (Auth)
-- **Tracking**: PostHog & Umami
+- Frontend: Next.js 15 with React 19.
+- Styling: Tailwind CSS 4 for lean, performant design.
+- Components: Radix UI primitives for accessible, robust interaction.
+- State: React Context for unified authentication and session management.
+- API: Custom service layer using Axios with built-in security interceptors.
 
-## 📁 Project Structure
-```text
-.
-├── src/
-│   ├── app/            # Next.js App Router (Pages & Layouts)
-│   ├── components/     # Reusable UI & Domain Components
-│   │   ├── ui/         # Base design system components
-│   │   ├── auth/       # Authentication forms
-│   │   ├── events/     # Event-specific components
-│   │   └── vendor/     # Vendor dashboard components
-│   ├── context/        # React Context (AuthContext)
-│   ├── services/       # API abstraction layer (Axios)
-│   ├── lib/            # Utility functions
-│   └── types/          # TypeScript interfaces
-├── public/             # Static assets
-└── docs/               # Detailed technical documentation
-```
+## Marketplace Lifecycle
 
-## 🚥 Getting Started
+The frontend supports the core Bventy workflow:
 
-### Prerequisites
-- Node.js 18.x or higher
-- NPM / PNPM / Bun
-- Access to a running [Bventy API](https://github.com/bventy/backend)
+1. Discovery: Search and browse verified vendors through a calm, high-contrast interface.
+2. Request Quote: A mandatory-message request flow that ensures vendors have the context they need.
+3. Vendor Responds: A dedicated dashboard for vendors to provide pricing and rate cards (PDF/Image).
+4. Organizer Accepts: A simple approval flow for organizers once terms are agreed upon.
+5. Contact Unlock: Secure revealing of contact details after mutual acceptance.
+6. Expiry + Archive: Automated cleanup of old requests to maintain dashboard focus.
 
-### Quick Start
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/bventy/web.git
-   cd bventy-web
-   ```
-2. **Setup environment variables**:
-   Create a `.env.local` file. See [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md) for details.
-3. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-4. **Run the development server**:
-   ```bash
-   npm run dev
-   ```
-   Open [http://localhost:3000](http://localhost:3000) to see the result.
+## Privacy & Data
 
-## 📖 Documentation
-- [Architecture](docs/ARCHITECTURE.md) - Deep dive into patterns and state.
-- [Contributing](docs/CONTRIBUTING.md) - Component guidelines and setup.
-- [Environment Variables](docs/ENVIRONMENT.md) - Configuration reference.
+We prioritize transparency in how user data is handled in the browser.
+- No hidden tracking: Operational metrics are gathered to ensure system stability.
+- Client-side Security: User contact data is only fetched from the API when the quote state permits it.
+- Minimalism: We avoid invasive session recording or third-party behavioral analytics.
 
-## 🎨 Design Philosophy
-Bventy follows a **minimalst, high-end aesthetic**:
-- Focus on typography and whitespace.
-- Subtle micro-animations via Framer Motion.
-- Pure black/white/slate palette with vibrant accents for status indicators.
-- Responsive by default using Tailwind's adaptive container system.
+## License Explanation
+
+This project is licensed under the Apache License 2.0 with the Commons Clause restriction.
+
+The source code is open for modification and private use. However, the Commons Clause prohibits selling the software or providing it as a commercial service (SaaS) without written permission. This allows the project to grow while protecting its long-term independence.
+
+## Contributing
+
+We welcome improvements that help make Bventy more useful and stable.
+- Design: We value contributions that maintain our minimalist, human-first aesthetic.
+- Functionality: PRs for performance tuning and bug fixes are encouraged.
+- Roadmap: Our development goals are openly documented in the repository.
+
+## Roadmap
+
+Planned improvements for the frontend experience. No timelines are promised.
+
+- Refined quote management UI
+- Vendor review and rating interfaces
+- Performance scoring visualizations
+- Payment and escrow integration (future)
+- Financial dashboard for vendors (future)
 
 ---
-© 2026 Bventy. All rights reserved.
+© 2026 Bventy.
