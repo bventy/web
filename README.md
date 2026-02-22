@@ -4,11 +4,11 @@ Official Site: [bventy.com](https://bventy.com)
 License: [AGPL-3.0](LICENSE)
 Trademark Policy: [TRADEMARK.md](TRADEMARK.md)
 
-## What This Is
+## The Bventy Platform
 
 Bventy is a structured marketplace platform designed to improve how event organizers and service vendors connect. 
 
-This repository contains the interface layer—a Next.js application that provides a calm, deliberate experience for finding vendors, managing quote requests, and finalizing event details. We prioritize accessibility and performance to ensure a smooth professional interaction.
+This repository contains the interface layer, a Next.js application that provides a calm, deliberate experience for finding vendors, managing quote requests, and finalizing event details. We prioritize accessibility and performance to ensure a smooth professional interaction.
 
 ### The Role of the Interface
 
