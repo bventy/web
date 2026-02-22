@@ -60,6 +60,10 @@ export default function VendorProfilePage() {
     const [isCreatingEventInQuote, setIsCreatingEventInQuote] = useState(false);
     const [isCreatingEventInShortlist, setIsCreatingEventInShortlist] = useState(false);
 
+    // New Quote fields
+    const [specialRequirements, setSpecialRequirements] = useState("");
+    const [deadline, setDeadline] = useState("");
+
     useEffect(() => {
         const fetchVendor = async () => {
             try {
@@ -93,7 +97,7 @@ export default function VendorProfilePage() {
         }
     }, [user]);
 
-    const hasActiveQuote = myQuotes.some(q => q.vendor_id === vendor?.id && (q.status === 'quoted' || q.status === 'accepted'));
+
 
     useEffect(() => {
         if (selectedEventId) {
@@ -118,7 +122,9 @@ export default function VendorProfilePage() {
                 vendor_id: vendor.id,
                 event_id: selectedEventId,
                 budget_range: quoteBudget || "Not specified",
-                message: quoteMessage
+                message: quoteMessage,
+                special_requirements: specialRequirements,
+                deadline: deadline || undefined
             });
             setQuoteDialogOpen(false);
             setQuoteMessage("");
@@ -347,6 +353,24 @@ export default function VendorProfilePage() {
                                                             />
                                                         </div>
                                                         <div className="space-y-2">
+                                                            <Label>Special Requirements (Optional)</Label>
+                                                            <Textarea
+                                                                placeholder="e.g. Stage size, specific equipment, dietary needs..."
+                                                                value={specialRequirements}
+                                                                onChange={(e) => setSpecialRequirements(e.target.value)}
+                                                                rows={2}
+                                                            />
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <Label>Response Deadline (Optional)</Label>
+                                                            <Input
+                                                                type="date"
+                                                                value={deadline}
+                                                                onChange={(e) => setDeadline(e.target.value)}
+                                                            />
+                                                            <p className="text-[10px] text-muted-foreground">When do you need a response by?</p>
+                                                        </div>
+                                                        <div className="space-y-2">
                                                             <Label>Additional Message (Optional)</Label>
                                                             <Textarea
                                                                 placeholder="Tell the vendor more about your requirements..."
@@ -373,29 +397,6 @@ export default function VendorProfilePage() {
                                         </Button>
                                     )}
 
-                                    {hasActiveQuote ? (
-                                        <>
-                                            <Button variant="outline" className="w-full" size="lg" asChild>
-                                                <a
-                                                    href={vendor.whatsapp_link}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="flex items-center justify-center gap-2"
-                                                    onClick={() => trackService.trackContactClick(vendor.id)}
-                                                >
-                                                    <MessageCircle className="h-5 w-5" />
-                                                    Contact via WhatsApp
-                                                </a>
-                                            </Button>
-                                            <p className="text-xs text-center text-muted-foreground mt-2">
-                                                Response time: Usually within 1 hour
-                                            </p>
-                                        </>
-                                    ) : (
-                                        <p className="text-xs text-center border rounded py-3 bg-muted/20 text-muted-foreground mt-4">
-                                            Request a quote to unlock direct WhatsApp contact.
-                                        </p>
-                                    )}
                                 </div>
 
                                 <div className="pt-4 border-t">

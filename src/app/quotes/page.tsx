@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { QuoteContact } from "@/services/quote";
 import {
     Dialog,
     DialogContent,
@@ -22,6 +23,7 @@ import {
     DialogTitle,
     DialogFooter,
 } from "@/components/ui/dialog";
+import { FileText, Phone, Mail, MessageCircle } from "lucide-react";
 
 export default function MyQuotesPage() {
     const { user, loading: authLoading } = useAuth();
@@ -32,6 +34,11 @@ export default function MyQuotesPage() {
 
     const [selectedQuote, setSelectedQuote] = useState<any | null>(null);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
+    // Contact Modal
+    const [contactInfo, setContactInfo] = useState<QuoteContact | null>(null);
+    const [isContactOpen, setIsContactOpen] = useState(false);
+    const [contactLoading, setContactLoading] = useState(false);
 
     const openDetails = (quote: any) => {
         setSelectedQuote(quote);
@@ -58,6 +65,38 @@ export default function MyQuotesPage() {
             toast.error("Failed to load quotes.");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleContactVendor = async (quote: any) => {
+        setSelectedQuote(quote);
+        setContactLoading(true);
+        setIsContactOpen(true);
+        try {
+            const info = await quoteService.getQuoteContact(quote.id);
+            setContactInfo(info);
+        } catch (error: any) {
+            console.error("Failed to fetch contact info", error);
+            const msg = error.response?.data?.error || "Failed to fetch contact information.";
+            toast.error(msg);
+            setIsContactOpen(false);
+        } finally {
+            setContactLoading(false);
+        }
+    };
+
+    const handleRequestRevision = async (id: string) => {
+        setActionLoading(id + "-revision");
+        try {
+            await quoteService.requestRevision(id);
+            toast.success("Revision requested successfully!");
+            setIsDetailsOpen(false);
+            await fetchQuotes();
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to request revision.");
+        } finally {
+            setActionLoading(null);
         }
     };
 
@@ -170,18 +209,27 @@ export default function MyQuotesPage() {
                                                         variant={
                                                             quote.status === 'accepted' ? 'default' :
                                                                 quote.status === 'rejected' ? 'destructive' :
-                                                                    quote.status === 'quoted' ? 'secondary' : 'outline'
+                                                                    quote.status === 'responded' ? 'secondary' :
+                                                                        quote.status === 'revision_requested' ? 'outline' : 'outline'
                                                         }
                                                         className="capitalize"
                                                     >
-                                                        {quote.status}
+                                                        {quote.status.replace('_', ' ')}
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button size="sm" variant="ghost" className="h-8 shadow-none" onClick={(e) => { e.stopPropagation(); openDetails(quote); }}>
-                                                        <Eye className="h-4 w-4 mr-2" />
-                                                        View Details
-                                                    </Button>
+                                                    <div className="flex justify-end gap-2">
+                                                        {quote.status === 'accepted' && (
+                                                            <Button size="sm" variant="outline" className="h-8 shadow-none text-green-600 hover:text-green-700 hover:bg-green-50" onClick={(e) => { e.stopPropagation(); handleContactVendor(quote); }}>
+                                                                <Phone className="h-4 w-4 mr-2" />
+                                                                Contact
+                                                            </Button>
+                                                        )}
+                                                        <Button size="sm" variant="ghost" className="h-8 shadow-none" onClick={(e) => { e.stopPropagation(); openDetails(quote); }}>
+                                                            <Eye className="h-4 w-4 mr-2" />
+                                                            View
+                                                        </Button>
+                                                    </div>
                                                 </TableCell>
                                             </TableRow>
                                         );
@@ -229,11 +277,12 @@ export default function MyQuotesPage() {
                                             variant={
                                                 selectedQuote.status === 'accepted' ? 'default' :
                                                     selectedQuote.status === 'rejected' ? 'destructive' :
-                                                        selectedQuote.status === 'quoted' ? 'secondary' : 'outline'
+                                                        selectedQuote.status === 'responded' ? 'secondary' :
+                                                            selectedQuote.status === 'revision_requested' ? 'outline' : 'outline'
                                             }
                                             className="capitalize"
                                         >
-                                            {selectedQuote.status}
+                                            {selectedQuote.status.replace('_', ' ')}
                                         </Badge>
                                     </div>
 
@@ -254,9 +303,23 @@ export default function MyQuotesPage() {
                                             <div>
                                                 <p className="text-sm font-medium text-muted-foreground mb-1">Message from Vendor</p>
                                                 <div className="bg-primary/5 border border-primary/20 p-3 rounded-md text-sm whitespace-pre-wrap">
-                                                    {selectedQuote.response || "No response details."}
+                                                    {selectedQuote.vendor_response || "No response details."}
                                                 </div>
                                             </div>
+                                            {selectedQuote.attachment_url && (
+                                                <div>
+                                                    <p className="text-sm font-medium text-muted-foreground mb-1">Attachment</p>
+                                                    <a
+                                                        href={selectedQuote.attachment_url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center p-3 border rounded-md hover:bg-muted/50 transition-colors group"
+                                                    >
+                                                        <FileText className="h-5 w-5 text-primary mr-2" />
+                                                        <span className="text-sm font-medium">View Quote Attachment</span>
+                                                    </a>
+                                                </div>
+                                            )}
                                             {selectedQuote.responded_at && (
                                                 <p className="text-xs text-muted-foreground">
                                                     Responded on {new Date(selectedQuote.responded_at).toLocaleString()}
@@ -265,31 +328,136 @@ export default function MyQuotesPage() {
                                         </div>
                                     )}
                                 </div>
+                                {(selectedQuote.special_requirements || selectedQuote.deadline) && (
+                                    <div className="pt-4 border-t space-y-3">
+                                        <h4 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">Request Details</h4>
+                                        {selectedQuote.special_requirements && (
+                                            <div>
+                                                <p className="text-xs font-medium text-muted-foreground">Special Requirements</p>
+                                                <p className="text-sm">{selectedQuote.special_requirements}</p>
+                                            </div>
+                                        )}
+                                        {selectedQuote.deadline && (
+                                            <div>
+                                                <p className="text-xs font-medium text-muted-foreground">Required By</p>
+                                                <p className="text-sm">{new Date(selectedQuote.deadline).toLocaleDateString()}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         )}
 
-                        {selectedQuote?.status === 'quoted' && (
-                            <DialogFooter className="gap-2 sm:gap-0">
+                        {selectedQuote?.status === 'responded' && (
+                            <DialogFooter className="flex flex-col sm:flex-row gap-2">
                                 <Button
                                     type="button"
                                     variant="outline"
                                     disabled={!!actionLoading}
-                                    onClick={() => handleReject(selectedQuote.id)}
-                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                    onClick={() => handleRequestRevision(selectedQuote.id)}
+                                    className="flex-1"
                                 >
-                                    {actionLoading === selectedQuote.id + "-reject" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <X className="h-4 w-4 mr-2" />}
-                                    Reject
+                                    {actionLoading === selectedQuote.id + "-revision" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
+                                    Request Revision
                                 </Button>
-                                <Button
-                                    type="button"
-                                    disabled={!!actionLoading}
-                                    onClick={() => handleAccept(selectedQuote.id)}
-                                >
-                                    {actionLoading === selectedQuote.id + "-accept" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Check className="h-4 w-4 mr-2" />}
-                                    Accept Quote
+                                <div className="flex gap-2 flex-1">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        disabled={!!actionLoading}
+                                        onClick={() => handleReject(selectedQuote.id)}
+                                        className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                    >
+                                        {actionLoading === selectedQuote.id + "-reject" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <X className="h-4 w-4 mr-2" />}
+                                        Reject
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        disabled={!!actionLoading}
+                                        onClick={() => handleAccept(selectedQuote.id)}
+                                        className="flex-1"
+                                    >
+                                        {actionLoading === selectedQuote.id + "-accept" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Check className="h-4 w-4 mr-2" />}
+                                        Accept
+                                    </Button>
+                                </div>
+                            </DialogFooter>
+                        )}
+                        {selectedQuote?.status === 'accepted' && (
+                            <DialogFooter>
+                                <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => handleContactVendor(selectedQuote)}>
+                                    <Phone className="h-4 w-4 mr-2" />
+                                    Contact Vendor
                                 </Button>
                             </DialogFooter>
                         )}
+                    </DialogContent>
+                </Dialog>
+
+                {/* Contact Dialog */}
+                <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
+                    <DialogContent className="sm:max-w-[400px]">
+                        <DialogHeader>
+                            <DialogTitle>Vendor Contact Information</DialogTitle>
+                            <DialogDescription>
+                                Secure communication unlocked for {selectedQuote?.vendor_name}
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        {contactLoading ? (
+                            <div className="py-12 flex justify-center">
+                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                            </div>
+                        ) : contactInfo ? (
+                            <div className="space-y-6 py-4">
+                                <div className="space-y-4">
+                                    <div className="flex items-center p-3 border rounded-lg bg-green-50/50 border-green-100">
+                                        <MessageCircle className="h-5 w-5 text-green-600 mr-3" />
+                                        <div className="flex-1">
+                                            <p className="text-xs text-muted-foreground uppercase font-semibold">WhatsApp</p>
+                                            <a href={contactInfo.vendor.whatsapp} target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:underline text-green-700">
+                                                Click to chat on WhatsApp
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center p-3 border rounded-lg">
+                                        <Phone className="h-5 w-5 text-primary mr-3" />
+                                        <div className="flex-1">
+                                            <p className="text-xs text-muted-foreground uppercase font-semibold">Phone Number</p>
+                                            <a href={`tel:${contactInfo.vendor.phone}`} className="text-sm font-medium hover:underline">
+                                                {contactInfo.vendor.phone || "Not provided"}
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center p-3 border rounded-lg">
+                                        <Mail className="h-5 w-5 text-primary mr-3" />
+                                        <div className="flex-1">
+                                            <p className="text-xs text-muted-foreground uppercase font-semibold">Email Address</p>
+                                            <a href={`mailto:${contactInfo.vendor.email}`} className="text-sm font-medium hover:underline">
+                                                {contactInfo.vendor.email || "Not provided"}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="p-3 bg-blue-50/50 border border-blue-100 rounded-lg">
+                                    <p className="text-xs text-blue-700 leading-relaxed">
+                                        <strong>Pro-tip:</strong> Mention your Event Name ({selectedQuote?.event_title}) when contacting the vendor to help them identify your request.
+                                    </p>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="py-8 text-center text-sm text-muted-foreground">
+                                Failed to load contact information.
+                            </div>
+                        )}
+                        <DialogFooter>
+                            <Button variant="ghost" onClick={() => setIsContactOpen(false)} className="w-full">
+                                Close
+                            </Button>
+                        </DialogFooter>
                     </DialogContent>
                 </Dialog>
             </main>

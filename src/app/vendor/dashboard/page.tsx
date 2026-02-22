@@ -14,12 +14,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ArrowLeft, Store, Save, ExternalLink } from "lucide-react";
+import { Loader2, ArrowLeft, Store, Save, ExternalLink, Phone, Mail, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { FileUpload } from "@/components/ui/FileUpload";
 import { GalleryUpload } from "@/components/vendor/GalleryUpload";
 import { PortfolioUpload } from "@/components/vendor/PortfolioUpload";
 import Link from "next/link";
+import { QuoteContact } from "@/services/quote";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "@/components/ui/dialog";
 
 export default function VendorDashboardPage() {
     const router = useRouter();
@@ -32,7 +41,13 @@ export default function VendorDashboardPage() {
     const [activeTab, setActiveTab] = useState<'profile' | 'quotes'>('profile');
     const [quoteRequests, setQuoteRequests] = useState<any[]>([]);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
-    const [responses, setResponses] = useState<Record<string, { price: string, message: string }>>({});
+    const [responses, setResponses] = useState<Record<string, { price: string, message: string, attachment: string }>>({});
+
+    // Contact Modal
+    const [selectedQuote, setSelectedQuote] = useState<any | null>(null);
+    const [contactInfo, setContactInfo] = useState<QuoteContact | null>(null);
+    const [isContactOpen, setIsContactOpen] = useState(false);
+    const [contactLoading, setContactLoading] = useState(false);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -126,7 +141,7 @@ export default function VendorDashboardPage() {
 
         setActionLoading(id);
         try {
-            await quoteService.respondToQuote(id, Number(responseData.price), responseData.message);
+            await quoteService.respondToQuote(id, Number(responseData.price), responseData.message, responseData.attachment);
             toast.success("Quote response sent!");
             const data = await quoteService.getQuoteRequests();
             setQuoteRequests(data);
@@ -135,6 +150,23 @@ export default function VendorDashboardPage() {
             toast.error("Failed to send response.");
         } finally {
             setActionLoading(null);
+        }
+    };
+
+    const handleContactVendor = async (quote: any) => {
+        setSelectedQuote(quote);
+        setContactLoading(true);
+        setIsContactOpen(true);
+        try {
+            const info = await quoteService.getQuoteContact(quote.id);
+            setContactInfo(info);
+        } catch (error: any) {
+            console.error("Failed to fetch contact info", error);
+            const msg = error.response?.data?.error || "Failed to fetch contact information.";
+            toast.error(msg);
+            setIsContactOpen(false);
+        } finally {
+            setContactLoading(false);
         }
     };
 
@@ -193,9 +225,9 @@ export default function VendorDashboardPage() {
                         className={`pb-3 border-b-2 font-medium text-sm transition-colors ${activeTab === 'quotes' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
                     >
                         Quote Requests
-                        {quoteRequests.filter(q => q.status === 'pending').length > 0 && (
+                        {quoteRequests.filter(q => q.status === 'pending' || q.status === 'revision_requested').length > 0 && (
                             <span className="ml-2 bg-primary text-primary-foreground text-[10px] py-0.5 px-2 rounded-full">
-                                {quoteRequests.filter(q => q.status === 'pending').length}
+                                {quoteRequests.filter(q => q.status === 'pending' || q.status === 'revision_requested').length}
                             </span>
                         )}
                     </button>
@@ -366,8 +398,16 @@ export default function VendorDashboardPage() {
                                                     Requested by: {quote.organizer_name} • {quote.created_at ? new Date(quote.created_at).toLocaleDateString() : 'Unknown Date'}
                                                 </CardDescription>
                                             </div>
-                                            <Badge variant={quote.status === 'pending' ? 'outline' : 'secondary'} className="capitalize">
-                                                {quote.status}
+                                            <Badge
+                                                variant={
+                                                    quote.status === 'pending' ? 'outline' :
+                                                        quote.status === 'accepted' ? 'default' :
+                                                            quote.status === 'responded' ? 'secondary' :
+                                                                quote.status === 'revision_requested' ? 'destructive' : 'secondary'
+                                                }
+                                                className="capitalize"
+                                            >
+                                                {quote.status.replace('_', ' ')}
                                             </Badge>
                                         </div>
                                     </CardHeader>
@@ -384,9 +424,22 @@ export default function VendorDashboardPage() {
                                                 <p>{quote.budget_range}</p>
                                             </div>
                                         )}
+                                        {quote.special_requirements && (
+                                            <div className="bg-primary/5 border border-primary/20 p-4 rounded-md text-sm">
+                                                <p className="font-semibold mb-1 text-primary">Special Requirements:</p>
+                                                <p>{quote.special_requirements}</p>
+                                            </div>
+                                        )}
+                                        {quote.deadline && (
+                                            <div className="bg-muted p-4 rounded-md text-sm flex justify-between items-center">
+                                                <p className="font-semibold text-muted-foreground">Response Deadline:</p>
+                                                <p className="font-medium text-red-600">{new Date(quote.deadline).toLocaleDateString()}</p>
+                                            </div>
+                                        )}
 
-                                        {quote.status === 'pending' && (
+                                        {(quote.status === 'pending' || quote.status === 'revision_requested') && (
                                             <div className="space-y-4 border-t pt-4 mt-4">
+                                                <h4 className="font-semibold text-sm">Send Response</h4>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <div className="space-y-2">
                                                         <Label>Your Quoted Price (₹)</Label>
@@ -412,21 +465,58 @@ export default function VendorDashboardPage() {
                                                         })}
                                                     />
                                                 </div>
+                                                <div className="space-y-2">
+                                                    <Label>Attachment (Optional - PDF or Image)</Label>
+                                                    <FileUpload
+                                                        onUploaded={(url) => setResponses({
+                                                            ...responses,
+                                                            [quote.id]: { ...responses[quote.id], attachment: url }
+                                                        })}
+                                                        label="Upload Quote/Rate Card"
+                                                    />
+                                                    {responses[quote.id]?.attachment && (
+                                                        <p className="text-xs text-green-600">File uploaded successfully.</p>
+                                                    )}
+                                                </div>
                                                 <Button
                                                     onClick={() => handleRespond(quote.id)}
                                                     disabled={!responses[quote.id]?.price || actionLoading === quote.id}
+                                                    className="w-full md:w-auto"
                                                 >
                                                     {actionLoading === quote.id && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                                    Send Quote Response
+                                                    {quote.status === 'revision_requested' ? "Send Revised Quote" : "Send Quote Response"}
                                                 </Button>
                                             </div>
                                         )}
 
-                                        {quote.status !== 'pending' && quote.quoted_price && (
+                                        {quote.status === 'accepted' && (
+                                            <div className="bg-green-50 border border-green-200 p-4 rounded-md mt-4">
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <div className="h-2 w-2 rounded-full bg-green-500" />
+                                                    <p className="font-bold text-green-800">Quote Accepted!</p>
+                                                </div>
+                                                <p className="text-sm text-green-700 mb-4">The organizer has accepted your quote. You can now contact them directly.</p>
+                                                <div className="flex flex-wrap gap-2">
+                                                    <Button variant="outline" size="sm" className="bg-white" onClick={() => handleContactVendor(quote)}>
+                                                        <ExternalLink className="mr-2 h-4 w-4" />
+                                                        View Organizer Contact
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {quote.status !== 'pending' && quote.status !== 'revision_requested' && quote.quoted_price && (
                                             <div className="bg-primary/5 p-4 rounded-md mt-4 border border-primary/10">
                                                 <p className="font-semibold mb-1">Your response:</p>
                                                 <p className="font-medium">Quote: ₹{quote.quoted_price}</p>
                                                 {quote.vendor_response && <p className="text-sm mt-2 text-muted-foreground">{quote.vendor_response}</p>}
+                                                {quote.attachment_url && (
+                                                    <div className="mt-3">
+                                                        <a href={quote.attachment_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1">
+                                                            <ExternalLink className="h-3 w-3" /> View Attachment
+                                                        </a>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </CardContent>
@@ -436,6 +526,58 @@ export default function VendorDashboardPage() {
                     </div>
                 )}
             </main>
+
+            {/* Contact Dialog */}
+            <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
+                <DialogContent className="sm:max-w-[400px]">
+                    <DialogHeader>
+                        <DialogTitle>Organizer Contact Information</DialogTitle>
+                        <DialogDescription>
+                            Direct communication unlocked with {contactInfo?.organizer.name} for {selectedQuote?.event_title}
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    {contactLoading ? (
+                        <div className="py-12 flex justify-center">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        </div>
+                    ) : contactInfo ? (
+                        <div className="space-y-6 py-4">
+                            <div className="space-y-4">
+                                <div className="flex items-center p-3 border rounded-lg">
+                                    <Phone className="h-5 w-5 text-primary mr-3" />
+                                    <div className="flex-1">
+                                        <p className="text-xs text-muted-foreground uppercase font-semibold">Phone Number</p>
+                                        <a href={`tel:${contactInfo.organizer.phone}`} className="text-sm font-medium hover:underline">
+                                            {contactInfo.organizer.phone || "Not provided"}
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center p-3 border rounded-lg">
+                                    <Mail className="h-5 w-5 text-primary mr-3" />
+                                    <div className="flex-1">
+                                        <p className="text-xs text-muted-foreground uppercase font-semibold">Email Address</p>
+                                        <a href={`mailto:${contactInfo.organizer.email}`} className="text-sm font-medium hover:underline">
+                                            {contactInfo.organizer.email || "Not provided"}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="py-8 text-center text-sm text-muted-foreground">
+                            Failed to load contact information.
+                        </div>
+                    )}
+                    <DialogFooter>
+                        <Button variant="ghost" onClick={() => setIsContactOpen(false)} className="w-full">
+                            Close
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
             <Footer />
         </div>
     );
