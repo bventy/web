@@ -2,83 +2,88 @@
 
 import { useEffect, useState } from "react";
 import { adminService } from "@/services/admin";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Store, Calendar, Clock } from "lucide-react";
-
-interface AdminStats {
-    total_users: number;
-    total_vendors: number;
-    pending_vendors: number;
-    total_events: number;
-}
+import { OverviewCards, OverviewData } from "@/components/admin/OverviewCards";
+import { GrowthCharts, GrowthData } from "@/components/admin/GrowthCharts";
+import { EventBreakdown, EventBreakdownData } from "@/components/admin/EventBreakdown";
+import { VendorPerformance, VendorPerformanceData } from "@/components/admin/VendorPerformance";
+import { RiskSection } from "@/components/admin/RiskSection";
 
 export default function AdminOverviewPage() {
-    const [stats, setStats] = useState<AdminStats | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [overviewData, setOverviewData] = useState<OverviewData | undefined>();
+    const [growthData, setGrowthData] = useState<GrowthData | undefined>();
+    const [eventData, setEventData] = useState<EventBreakdownData | undefined>();
+    const [vendorData, setVendorData] = useState<VendorPerformanceData | undefined>();
+
+    const [loadingOverview, setLoadingOverview] = useState(true);
+    const [loadingGrowth, setLoadingGrowth] = useState(true);
+    const [loadingEvents, setLoadingEvents] = useState(true);
+    const [loadingVendors, setLoadingVendors] = useState(true);
 
     useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const data = await adminService.getStats();
-                setStats(data);
-            } catch (error) {
-                console.error("Failed to fetch admin stats", error);
-            } finally {
-                setLoading(false);
-            }
+        const fetchAll = () => {
+            adminService.getMetricsOverview()
+                .then(setOverviewData)
+                .catch(console.error)
+                .finally(() => setLoadingOverview(false));
+
+            adminService.getMetricsGrowth()
+                .then(setGrowthData)
+                .catch(console.error)
+                .finally(() => setLoadingGrowth(false));
+
+            adminService.getMetricsEvents()
+                .then(setEventData)
+                .catch(console.error)
+                .finally(() => setLoadingEvents(false));
+
+            adminService.getMetricsVendors()
+                .then(setVendorData)
+                .catch(console.error)
+                .finally(() => setLoadingVendors(false));
         };
 
-        fetchStats();
+        fetchAll();
     }, []);
 
-    if (loading) {
-        return <div>Loading stats...</div>;
-    }
-
-    if (!stats) {
-        return <div>Failed to load stats.</div>;
-    }
-
     return (
-        <div className="flex flex-col gap-4">
-            <h1 className="text-3xl font-bold tracking-tight">Dashboard Overview</h1>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{stats.total_users}</div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Vendors</CardTitle>
-                        <Store className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{stats.total_vendors}</div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Pending Vendors</CardTitle>
-                        <Clock className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{stats.pending_vendors}</div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Events</CardTitle>
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{stats.total_events}</div>
-                    </CardContent>
-                </Card>
+        <div className="flex flex-col gap-8 pb-10">
+            <div>
+                <h1 className="text-3xl font-bold tracking-tight">Analytics Control Center</h1>
+                <p className="text-muted-foreground mt-2">
+                    Monitor platform performance, user growth, and vendor activity.
+                </p>
+            </div>
+
+            <section className="space-y-4">
+                <h2 className="text-xl font-semibold tracking-tight">Overview</h2>
+                <OverviewCards data={overviewData} loading={loadingOverview} />
+            </section>
+
+            <section className="space-y-4">
+                <GrowthCharts data={growthData} loading={loadingGrowth} />
+            </section>
+
+            <div className="grid gap-8 grid-cols-1 xl:grid-cols-3">
+                <div className="xl:col-span-2 space-y-8">
+                    <section className="space-y-4">
+                        <h2 className="text-xl font-semibold tracking-tight">Event Intelligence</h2>
+                        <EventBreakdown data={eventData} loading={loadingEvents} />
+                    </section>
+
+                    <section className="space-y-4">
+                        <VendorPerformance data={vendorData} loading={loadingVendors} />
+                    </section>
+                </div>
+
+                <div className="xl:col-span-1 space-y-8">
+                    <section className="space-y-4">
+                        <h2 className="text-xl font-semibold tracking-tight">Platform Risks</h2>
+                        <RiskSection
+                            pendingCount={overviewData?.pending_vendors ?? 0}
+                            loading={loadingOverview}
+                        />
+                    </section>
+                </div>
             </div>
         </div>
     );

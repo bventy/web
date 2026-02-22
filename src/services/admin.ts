@@ -14,8 +14,20 @@ export const adminService = {
     rejectVendor: async (id: string): Promise<void> => {
         await api.patch(`/admin/vendors/${id}/reject`);
     },
-    getStats: async (): Promise<any> => {
-        const response = await api.get("/admin/stats");
+    getMetricsOverview: async (): Promise<any> => {
+        const response = await api.get("/admin/metrics/overview");
+        return response.data;
+    },
+    getMetricsGrowth: async (): Promise<any> => {
+        const response = await api.get("/admin/metrics/growth");
+        return response.data;
+    },
+    getMetricsEvents: async (): Promise<any> => {
+        const response = await api.get("/admin/metrics/events");
+        return response.data;
+    },
+    getMetricsVendors: async (): Promise<any> => {
+        const response = await api.get("/admin/metrics/vendors");
         return response.data;
     },
     getUsers: async (): Promise<any[]> => {
