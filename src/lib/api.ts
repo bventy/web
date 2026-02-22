@@ -18,8 +18,11 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 && typeof window !== "undefined") {
-      localStorage.removeItem("token");
-      window.location.href = "/auth/login";
+      // Don't redirect if we're already on an auth page
+      if (!window.location.pathname.startsWith('/auth/')) {
+        localStorage.removeItem("token");
+        window.location.href = "/auth/login";
+      }
     }
     return Promise.reject(error);
   }

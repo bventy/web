@@ -8,15 +8,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
-    const { isAuthenticated, loading } = useAuth();
-    const router = useRouter();
-
-    useEffect(() => {
-        if (!loading && isAuthenticated) {
-            router.push("/dashboard");
-        }
-    }, [isAuthenticated, loading, router]);
-
     return (
         <div className="container relative flex h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-1 lg:px-0">
             <div className="lg:p-8">
