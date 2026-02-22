@@ -1,65 +1,91 @@
-# bventy-web
+# Bventy
 
-## Philosophy
+## What This Is
 
-Bventy Web is the presentation layer of a marketplace designed for high-quality, intentional interaction. We reject the pattern of cluttered, high-pressure UIs in favor of a clean, typography-driven experience that respects the user's focus.
+Bventy is a structured marketplace platform designed to improve how event organizers and service vendors connect. 
 
-Our design focuses on:
-- Clarity of intent: Every screen is designed to facilitate a specific step in the marketplace lifecycle.
-- Minimalist aesthetic: Removing distractions to let service offerings and event requirements stand out.
-- Responsive utility: A seamless experience whether building an event on a desktop or managing quotes on a mobile device.
-- Transparent flow: Users always know exactly where they are in the process of discovery, negotiation, or fulfillment.
+This repository contains the interface layer—a Next.js application that provides a calm, deliberate experience for finding vendors, managing quote requests, and finalizng event details.
 
-## Architecture Overview
+---
 
-The frontend is a modern Next.js 15 application using the App Router. It is designed for speed, modularity, and maintainability.
+## Design Principles
 
-- Frontend: Next.js 15 with React 19.
-- Styling: Tailwind CSS 4 for lean, performant design.
-- Components: Radix UI primitives for accessible, robust interaction.
-- State: React Context for unified authentication and session management.
-- API: Custom service layer using Axios with built-in security interceptors.
+- **Gated communication**: Contact details are protected until a quote is explicitly accepted.
+- **Structured quote workflow**: A predictable sequence of steps from request to fulfillment.
+- **Vendor dignity**: Providing vendors with the context they need to price their services fairly.
+- **Contact expiry by design**: Communication channels automatically close when their purpose is fulfilled or a deadline passes.
+- **Privacy-first architecture**: Data collection is limited to what is necessary for platform operations.
+- **Transparent analytics**: Insights are focused on system health and marketplace trends, not user behavior tracking.
+
+---
 
 ## Marketplace Lifecycle
 
-The frontend supports the core Bventy workflow:
+The system is built around a deliberate lifecycle to maintain clarity and focus:
 
-1. Discovery: Search and browse verified vendors through a calm, high-contrast interface.
-2. Request Quote: A mandatory-message request flow that ensures vendors have the context they need.
-3. Vendor Responds: A dedicated dashboard for vendors to provide pricing and rate cards (PDF/Image).
-4. Organizer Accepts: A simple approval flow for organizers once terms are agreed upon.
-5. Contact Unlock: Secure revealing of contact details after mutual acceptance.
-6. Expiry + Archive: Automated cleanup of old requests to maintain dashboard focus.
+*   **Discovery**: Organizers find vendors whose work aligns with their event needs.
+*   **Request Quote**: Organizers provide specific event parameters to initiate a request.
+*   **Vendor Responds**: Vendors evaluate the request and provide a priced proposal.
+*   **Organizer Accepts**: If the terms are suitable, the organizer approves the quote.
+*   **Contact Unlock**: Secure contact information is revealed to both parties.
+*   **Expiry & Archive**: Completed or inactive requests are archived to keep the workspace clean.
 
-## Privacy & Data
+---
 
-We prioritize transparency in how user data is handled in the browser.
-- No hidden tracking: Operational metrics are gathered to ensure system stability.
-- Client-side Security: User contact data is only fetched from the API when the quote state permits it.
-- Minimalism: We avoid invasive session recording or third-party behavioral analytics.
+## Privacy Approach
 
-## License Explanation
+We take a deliberate approach to user data.
 
-This project is licensed under the Apache License 2.0 with the Commons Clause restriction.
+- **No session replay**: We do not record user screens or mouse movements.
+- **No invasive tracking**: We avoid third-party scripts that profile users across the web.
+- **Operational analytics only**: We gather data primarily to monitor system stability and platform metrics.
+- **Vendor contact never public**: Personal emails and phone numbers are never exposed in profile views.
+- **Contact automatically expires**: The system manages the availability of contact data based on the quote's lifecycle.
 
-The source code is open for modification and private use. However, the Commons Clause prohibits selling the software or providing it as a commercial service (SaaS) without written permission. This allows the project to grow while protecting its long-term independence.
+---
+
+## Architecture Overview
+
+The platform is composed of several focused layers:
+
+- **Frontend**: A Next.js 15 application managing the user experience.
+- **Backend**: A Go service providing the marketplace logic and API.
+- **Database**: PostgreSQL for relational data and state permanence.
+- **R2 Storage**: Secure object storage for attachments and media.
+- **Activity Log**: A unified layer for audit trails and platform health.
+
+---
+
+## License
+
+This project is licensed under the **GNU Affero General Public License v3 (AGPL-3.0)**. 
+
+In plain language, this means the software is free to use, modify, and distribute. However, if you modify Bventy and deploy it as a network service, you are required to make your modified source code available to your users under the same license. This ensures that improvements to the community version of the platform remain available to everyone.
+
+---
 
 ## Contributing
 
-We welcome improvements that help make Bventy more useful and stable.
-- Design: We value contributions that maintain our minimalist, human-first aesthetic.
-- Functionality: PRs for performance tuning and bug fixes are encouraged.
-- Roadmap: Our development goals are openly documented in the repository.
+We welcome contributions that align with our principles of clarity and privacy.
+
+- **Local Setup**: See the [Developer Setup Guide](docs/developers/setup.md) for environment configuration.
+- **Issues**: Open a GitHub issue to discuss bugs or architectural improvements.
+- **Proposals**: For significant changes, we appreciate a clear description of the problem and the proposed solution.
+- **Standards**: We value clean, readable code and comprehensive documentation.
+
+---
 
 ## Roadmap
 
-Planned improvements for the frontend experience. No timelines are promised.
+Our current focus includes:
 
-- Refined quote management UI
-- Vendor review and rating interfaces
-- Performance scoring visualizations
-- Payment and escrow integration (future)
-- Financial dashboard for vendors (future)
+- **Reviews**: A structured feedback system for vendors and organizers.
+- **Vendor performance scoring**: Helping organizers make informed decisions based on platform activity.
+- **Escrow system**: Investigating secure payment handling to protect both parties.
+- **Commission layer**: Logic for platform sustainability.
+- **Mobile clients**: Native experiences for better on-the-go management.
+
+This roadmap is subject to change based on community needs and project stability. No specific timelines are promised.
 
 ---
 © 2026 Bventy.
