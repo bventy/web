@@ -37,7 +37,7 @@ export function EventBreakdown({ data, loading }: { data?: EventBreakdownData; l
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie
-                                    data={data.status}
+                                    data={data.status || []}
                                     cx="50%"
                                     cy="50%"
                                     innerRadius={60}
@@ -45,7 +45,7 @@ export function EventBreakdown({ data, loading }: { data?: EventBreakdownData; l
                                     paddingAngle={5}
                                     dataKey="value"
                                 >
-                                    {data.status.map((entry, index) => (
+                                    {(data.status || []).map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
@@ -54,7 +54,7 @@ export function EventBreakdown({ data, loading }: { data?: EventBreakdownData; l
                         </ResponsiveContainer>
                     </div>
                     <div className="flex justify-center gap-4 mt-4">
-                        {data.status.map((entry, index) => (
+                        {(data.status || []).map((entry, index) => (
                             <div key={entry.name} className="flex items-center gap-2">
                                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
                                 <span className="text-sm text-muted-foreground">{entry.name} ({entry.value})</span>
@@ -70,7 +70,7 @@ export function EventBreakdown({ data, loading }: { data?: EventBreakdownData; l
                 </CardHeader>
                 <CardContent className="flex-1 min-h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data.byCity} margin={{ top: 10, right: 10, bottom: 0, left: -20 }}>
+                        <BarChart data={data.byCity || []} margin={{ top: 10, right: 10, bottom: 0, left: -20 }}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
                             <XAxis dataKey="city" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
                             <YAxis allowDecimals={false} stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />

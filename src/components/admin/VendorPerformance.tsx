@@ -41,7 +41,7 @@ export function VendorPerformance({ data, loading }: { data?: VendorPerformanceD
                 <CardDescription>Vendors with the most shortlists</CardDescription>
             </CardHeader>
             <CardContent>
-                {data.topShortlisted.length === 0 ? (
+                {(!data.topShortlisted || data.topShortlisted.length === 0) ? (
                     <div className="text-center py-8 text-muted-foreground">No data available</div>
                 ) : (
                     <div className="overflow-x-auto">
