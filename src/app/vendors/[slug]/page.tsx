@@ -31,8 +31,10 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
+    SelectSeparator,
 } from "@/components/ui/select";
 import { toast } from "sonner"; // Assuming sonner is installed, or use standard alert
+import { InlineCreateEventForm } from "@/components/events/InlineCreateEventForm";
 
 export default function VendorProfilePage() {
     const params = useParams();
@@ -54,6 +56,9 @@ export default function VendorProfilePage() {
     const [quoteMessage, setQuoteMessage] = useState("");
     const [quoteBudget, setQuoteBudget] = useState("");
     const [myQuotes, setMyQuotes] = useState<any[]>([]);
+
+    const [isCreatingEventInQuote, setIsCreatingEventInQuote] = useState(false);
+    const [isCreatingEventInShortlist, setIsCreatingEventInShortlist] = useState(false);
 
     useEffect(() => {
         const fetchVendor = async () => {
@@ -135,6 +140,24 @@ export default function VendorProfilePage() {
         } finally {
             setShortlistLoading(false);
         }
+    };
+
+    const handleEventCreatedInQuote = (eventId: string) => {
+        setIsCreatingEventInQuote(false);
+        eventService.getEvents().then((newEvents) => {
+            setEvents(newEvents);
+            setSelectedEventId(eventId);
+            toast.success("Event created successfully! You can now request a quote.");
+        }).catch(console.error);
+    };
+
+    const handleEventCreatedInShortlist = (eventId: string) => {
+        setIsCreatingEventInShortlist(false);
+        eventService.getEvents().then((newEvents) => {
+            setEvents(newEvents);
+            setSelectedEventId(eventId);
+            toast.success("Event created successfully! You can now shortlist this vendor.");
+        }).catch(console.error);
     };
 
     if (loading) {
@@ -266,58 +289,75 @@ export default function VendorProfilePage() {
                                                     <FileText className="mr-2 h-5 w-5" /> Request Quote
                                                 </Button>
                                             </DialogTrigger>
-                                            <DialogContent>
+                                            <DialogContent className={isCreatingEventInQuote ? "sm:max-w-xl md:max-w-2xl max-h-[90vh] overflow-y-auto" : "sm:max-w-[425px]"}>
                                                 <DialogHeader>
                                                     <DialogTitle>Request a Quote</DialogTitle>
                                                     <DialogDescription>
                                                         Provide details so <strong>{vendor.business_name}</strong> can give you an accurate estimate.
                                                     </DialogDescription>
                                                 </DialogHeader>
-                                                <div className="py-4 space-y-4">
-                                                    <div className="space-y-2">
-                                                        <div className="flex items-center justify-between">
-                                                            <Label>Select Event</Label>
-                                                            <Link href={`/events/new?redirect=/vendors/${vendor.slug}`} className="text-xs text-primary hover:underline">
-                                                                + Create new event
-                                                            </Link>
+                                                {isCreatingEventInQuote ? (
+                                                    <div className="py-4 border rounded-md p-4 bg-muted/20">
+                                                        <h4 className="font-semibold mb-3">Create New Event</h4>
+                                                        <InlineCreateEventForm
+                                                            onSuccess={handleEventCreatedInQuote}
+                                                            onCancel={() => setIsCreatingEventInQuote(false)}
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <div className="py-4 space-y-4">
+                                                        <div className="space-y-2">
+                                                            <div className="flex items-center justify-between">
+                                                                <Label>Select Event</Label>
+                                                            </div>
+                                                            <Select onValueChange={setSelectedEventId} value={selectedEventId}>
+                                                                <SelectTrigger>
+                                                                    <SelectValue placeholder="Which event is this for?" />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    <div
+                                                                        className="flex items-center text-sm px-2 py-1.5 cursor-pointer text-primary hover:bg-muted font-medium transition-colors"
+                                                                        onClick={() => setIsCreatingEventInQuote(true)}
+                                                                    >
+                                                                        <Plus className="h-4 w-4 mr-2" />
+                                                                        Create new event
+                                                                    </div>
+                                                                    <SelectSeparator />
+                                                                    {events.map((event) => (
+                                                                        <SelectItem key={event.id} value={event.id}>
+                                                                            {event.title} - {new Date(event.event_date).toLocaleDateString()}
+                                                                        </SelectItem>
+                                                                    ))}
+                                                                </SelectContent>
+                                                            </Select>
                                                         </div>
-                                                        <Select onValueChange={setSelectedEventId}>
-                                                            <SelectTrigger>
-                                                                <SelectValue placeholder="Which event is this for?" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {events.map((event) => (
-                                                                    <SelectItem key={event.id} value={event.id}>
-                                                                        {event.title} - {new Date(event.event_date).toLocaleDateString()}
-                                                                    </SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
+                                                        <div className="space-y-2">
+                                                            <Label>Budget Range (Prefilled from event)</Label>
+                                                            <Input
+                                                                placeholder="e.g. ₹50,000 - ₹1,00,000"
+                                                                value={quoteBudget}
+                                                                onChange={(e) => setQuoteBudget(e.target.value)}
+                                                            />
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <Label>Additional Message (Optional)</Label>
+                                                            <Textarea
+                                                                placeholder="Tell the vendor more about your requirements..."
+                                                                value={quoteMessage}
+                                                                onChange={(e) => setQuoteMessage(e.target.value)}
+                                                                rows={3}
+                                                            />
+                                                        </div>
                                                     </div>
-                                                    <div className="space-y-2">
-                                                        <Label>Budget Range (Prefilled from event)</Label>
-                                                        <Input
-                                                            placeholder="e.g. ₹50,000 - ₹1,00,000"
-                                                            value={quoteBudget}
-                                                            onChange={(e) => setQuoteBudget(e.target.value)}
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <Label>Additional Message (Optional)</Label>
-                                                        <Textarea
-                                                            placeholder="Tell the vendor more about your requirements..."
-                                                            value={quoteMessage}
-                                                            onChange={(e) => setQuoteMessage(e.target.value)}
-                                                            rows={3}
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <DialogFooter>
-                                                    <Button onClick={handleQuoteRequest} disabled={!selectedEventId || quoteLoading}>
-                                                        {quoteLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                                        Send Request
-                                                    </Button>
-                                                </DialogFooter>
+                                                )}
+                                                {!isCreatingEventInQuote && (
+                                                    <DialogFooter>
+                                                        <Button onClick={handleQuoteRequest} disabled={!selectedEventId || quoteLoading}>
+                                                            {quoteLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                                            Send Request
+                                                        </Button>
+                                                    </DialogFooter>
+                                                )}
                                             </DialogContent>
                                         </Dialog>
                                     ) : (
@@ -363,33 +403,53 @@ export default function VendorProfilePage() {
                                                     <Plus className="mr-2 h-4 w-4" /> Add to Event
                                                 </Button>
                                             </DialogTrigger>
-                                            <DialogContent>
+                                            <DialogContent className={isCreatingEventInShortlist ? "sm:max-w-xl md:max-w-2xl max-h-[90vh] overflow-y-auto" : "sm:max-w-[425px]"}>
                                                 <DialogHeader>
                                                     <DialogTitle>Shortlist Vendor</DialogTitle>
                                                     <DialogDescription>
                                                         Select an event to add <strong>{vendor.business_name}</strong> to.
                                                     </DialogDescription>
                                                 </DialogHeader>
-                                                <div className="py-4">
-                                                    <Select onValueChange={setSelectedEventId}>
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder="Select an event" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {events.map((event) => (
-                                                                <SelectItem key={event.id} value={event.id}>
-                                                                    {event.title}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                                <DialogFooter>
-                                                    <Button onClick={handleShortlist} disabled={!selectedEventId || shortlistLoading}>
-                                                        {shortlistLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                                        Add to Shortlist
-                                                    </Button>
-                                                </DialogFooter>
+                                                {isCreatingEventInShortlist ? (
+                                                    <div className="py-4 border rounded-md p-4 bg-muted/20">
+                                                        <h4 className="font-semibold mb-3">Create New Event</h4>
+                                                        <InlineCreateEventForm
+                                                            onSuccess={handleEventCreatedInShortlist}
+                                                            onCancel={() => setIsCreatingEventInShortlist(false)}
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <div className="py-4">
+                                                        <Select onValueChange={setSelectedEventId} value={selectedEventId}>
+                                                            <SelectTrigger>
+                                                                <SelectValue placeholder="Select an event" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <div
+                                                                    className="flex items-center text-sm px-2 py-1.5 cursor-pointer text-primary hover:bg-muted font-medium transition-colors"
+                                                                    onClick={() => setIsCreatingEventInShortlist(true)}
+                                                                >
+                                                                    <Plus className="h-4 w-4 mr-2" />
+                                                                    Create new event
+                                                                </div>
+                                                                <SelectSeparator />
+                                                                {events.map((event) => (
+                                                                    <SelectItem key={event.id} value={event.id}>
+                                                                        {event.title}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                )}
+                                                {!isCreatingEventInShortlist && (
+                                                    <DialogFooter>
+                                                        <Button onClick={handleShortlist} disabled={!selectedEventId || shortlistLoading}>
+                                                            {shortlistLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                                            Add to Shortlist
+                                                        </Button>
+                                                    </DialogFooter>
+                                                )}
                                             </DialogContent>
                                         </Dialog>
                                     ) : (

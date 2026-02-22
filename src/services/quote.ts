@@ -36,11 +36,11 @@ export const quoteService = {
         await api.patch(`/quotes/respond/${id}`, { quoted_price, vendor_response });
     },
     getMyQuotes: async (): Promise<any[]> => {
-        const response = await api.get<any[]>("/quotes/my");
+        const response = await api.get<any[]>("/quotes/organizer");
         return response.data;
     },
     getQuoteRequests: async (): Promise<any[]> => {
-        const response = await api.get<any[]>("/quotes/requests");
+        const response = await api.get<any[]>("/quotes/vendor");
         return response.data;
     }
 };
