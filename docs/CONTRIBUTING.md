@@ -10,7 +10,7 @@ We are excited to build the future of event marketplaces together. Follow these 
    cd bventy-web
    ```
 2. **Environment**:
-   - Create `.env.local` using [docs/ENVIRONMENT.md](ENVIRONMENT.md).
+   - Create `.env.local` using [ENVIRONMENT.md](ENVIRONMENT.md).
    - Point `NEXT_PUBLIC_API_URL` to your local Bventy API instance.
 3. **Install & Run**:
    ```bash
