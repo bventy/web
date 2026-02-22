@@ -259,7 +259,7 @@ export default function DashboardPage() {
                                         {quotes.slice(0, 5).map((quote) => {
                                             const vendorName = quote.vendor_name || quote.vendor_id;
                                             const eventTitle = quote.event_title || quote.event_id;
-                                            const isQuoted = quote.status === 'quoted';
+                                            const isQuoted = quote.status === 'responded';
 
                                             return (
                                                 <TableRow key={quote.id}>
@@ -276,11 +276,11 @@ export default function DashboardPage() {
                                                             variant={
                                                                 quote.status === 'accepted' ? 'default' :
                                                                     quote.status === 'rejected' ? 'destructive' :
-                                                                        quote.status === 'quoted' ? 'secondary' : 'outline'
+                                                                        quote.status === 'responded' ? 'secondary' : 'outline'
                                                             }
                                                             className="capitalize"
                                                         >
-                                                            {quote.status}
+                                                            {quote.status.replace('_', ' ')}
                                                         </Badge>
                                                     </TableCell>
                                                     <TableCell className="text-right">
