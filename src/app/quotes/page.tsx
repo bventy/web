@@ -9,11 +9,19 @@ import {
     Table, TableBody, TableCell, TableHead, TableHeader, TableRow
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ReceiptText, Check, X, ArrowLeft } from "lucide-react";
+import { Loader2, ReceiptText, Check, X, ArrowLeft, Eye } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "@/components/ui/dialog";
 
 export default function MyQuotesPage() {
     const { user, loading: authLoading } = useAuth();
@@ -21,6 +29,14 @@ export default function MyQuotesPage() {
     const [quotes, setQuotes] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+    const [selectedQuote, setSelectedQuote] = useState<any | null>(null);
+    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
+    const openDetails = (quote: any) => {
+        setSelectedQuote(quote);
+        setIsDetailsOpen(true);
+    };
 
     useEffect(() => {
         if (!authLoading && !user) {
@@ -50,6 +66,7 @@ export default function MyQuotesPage() {
         try {
             await quoteService.acceptQuote(id);
             toast.success("Quote accepted successfully!");
+            setIsDetailsOpen(false);
             await fetchQuotes();
         } catch (error) {
             console.error(error);
@@ -64,6 +81,7 @@ export default function MyQuotesPage() {
         try {
             await quoteService.rejectQuote(id);
             toast.success("Quote rejected.");
+            setIsDetailsOpen(false);
             await fetchQuotes();
         } catch (error) {
             console.error(error);
@@ -122,7 +140,7 @@ export default function MyQuotesPage() {
                                     <TableRow>
                                         <TableHead>Vendor</TableHead>
                                         <TableHead>Event</TableHead>
-                                        <TableHead>Requested Budget</TableHead>
+                                        <TableHead>Created</TableHead>
                                         <TableHead>Quoted Price</TableHead>
                                         <TableHead>Status</TableHead>
                                         <TableHead className="text-right">Actions</TableHead>
@@ -130,17 +148,16 @@ export default function MyQuotesPage() {
                                 </TableHeader>
                                 <TableBody>
                                     {quotes.map((quote) => {
-                                        // Optional safety if nested objects are joined in backend
-                                        const vendorName = quote.vendor?.business_name || quote.vendor_id;
-                                        const eventTitle = quote.event?.title || quote.event_id;
-                                        const isPending = quote.status === 'pending';
-                                        const isQuoted = quote.status === 'quoted';
+                                        const vendorName = quote.vendor_name || quote.vendor_id;
+                                        const eventTitle = quote.event_title || quote.event_id;
 
                                         return (
-                                            <TableRow key={quote.id}>
+                                            <TableRow key={quote.id} className="cursor-pointer hover:bg-muted/50" onClick={() => openDetails(quote)}>
                                                 <TableCell className="font-medium">{vendorName}</TableCell>
                                                 <TableCell>{eventTitle}</TableCell>
-                                                <TableCell>{quote.budget_range || '-'}</TableCell>
+                                                <TableCell className="text-muted-foreground whitespace-nowrap">
+                                                    {quote.created_at ? new Date(quote.created_at).toLocaleDateString() : '-'}
+                                                </TableCell>
                                                 <TableCell className="font-semibold">
                                                     {quote.quoted_price ? `₹${quote.quoted_price}` : 'Pending response'}
                                                 </TableCell>
@@ -157,28 +174,10 @@ export default function MyQuotesPage() {
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    {isQuoted && (
-                                                        <div className="flex items-center justify-end gap-2">
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline"
-                                                                disabled={!!actionLoading}
-                                                                onClick={() => handleReject(quote.id)}
-                                                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                                            >
-                                                                {actionLoading === quote.id + "-reject" ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4 mr-1" />}
-                                                                Reject
-                                                            </Button>
-                                                            <Button
-                                                                size="sm"
-                                                                disabled={!!actionLoading}
-                                                                onClick={() => handleAccept(quote.id)}
-                                                            >
-                                                                {actionLoading === quote.id + "-accept" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4 mr-1" />}
-                                                                Accept
-                                                            </Button>
-                                                        </div>
-                                                    )}
+                                                    <Button size="sm" variant="ghost" className="h-8 shadow-none" onClick={(e) => { e.stopPropagation(); openDetails(quote); }}>
+                                                        <Eye className="h-4 w-4 mr-2" />
+                                                        View Details
+                                                    </Button>
                                                 </TableCell>
                                             </TableRow>
                                         );
@@ -188,6 +187,103 @@ export default function MyQuotesPage() {
                         </div>
                     )}
                 </div>
+
+                {/* Quote Details Dialog */}
+                <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+                    <DialogContent className="sm:max-w-[500px]">
+                        <DialogHeader>
+                            <DialogTitle>Quote Details</DialogTitle>
+                            <DialogDescription>
+                                Review the quote response from the vendor.
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        {selectedQuote && (
+                            <div className="space-y-6 py-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p className="text-sm font-medium text-muted-foreground mb-1">Vendor</p>
+                                        <p className="font-medium">{selectedQuote.vendor_name}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-muted-foreground mb-1">Event</p>
+                                        <p className="font-medium">{selectedQuote.event_title}</p>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <p className="text-sm font-medium text-muted-foreground mb-1">Your Message</p>
+                                    <div className="bg-muted p-3 flex rounded-md text-sm whitespace-pre-wrap">
+                                        {selectedQuote.message || "No message provided."}
+                                    </div>
+                                </div>
+
+                                <div className="pt-4 border-t">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <h4 className="font-semibold text-base">Vendor Response</h4>
+                                        <Badge
+                                            variant={
+                                                selectedQuote.status === 'accepted' ? 'default' :
+                                                    selectedQuote.status === 'rejected' ? 'destructive' :
+                                                        selectedQuote.status === 'quoted' ? 'secondary' : 'outline'
+                                            }
+                                            className="capitalize"
+                                        >
+                                            {selectedQuote.status}
+                                        </Badge>
+                                    </div>
+
+                                    {selectedQuote.status === 'pending' ? (
+                                        <p className="text-sm text-muted-foreground italic mt-2">
+                                            The vendor has not responded yet.
+                                        </p>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            <div>
+                                                <p className="text-sm font-medium text-muted-foreground mb-1">Quoted Price</p>
+                                                <p className="text-xl font-bold">₹{selectedQuote.quoted_price}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-muted-foreground mb-1">Message from Vendor</p>
+                                                <div className="bg-primary/5 border border-primary/20 p-3 rounded-md text-sm whitespace-pre-wrap">
+                                                    {selectedQuote.response || "No response details."}
+                                                </div>
+                                            </div>
+                                            {selectedQuote.responded_at && (
+                                                <p className="text-xs text-muted-foreground">
+                                                    Responded on {new Date(selectedQuote.responded_at).toLocaleString()}
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {selectedQuote?.status === 'quoted' && (
+                            <DialogFooter className="gap-2 sm:gap-0">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={!!actionLoading}
+                                    onClick={() => handleReject(selectedQuote.id)}
+                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                    {actionLoading === selectedQuote.id + "-reject" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <X className="h-4 w-4 mr-2" />}
+                                    Reject
+                                </Button>
+                                <Button
+                                    type="button"
+                                    disabled={!!actionLoading}
+                                    onClick={() => handleAccept(selectedQuote.id)}
+                                >
+                                    {actionLoading === selectedQuote.id + "-accept" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Check className="h-4 w-4 mr-2" />}
+                                    Accept Quote
+                                </Button>
+                            </DialogFooter>
+                        )}
+                    </DialogContent>
+                </Dialog>
             </main>
             <Footer />
         </div>

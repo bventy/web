@@ -360,8 +360,10 @@ export default function VendorDashboardPage() {
                                     <CardHeader>
                                         <div className="flex justify-between items-start">
                                             <div>
-                                                <CardTitle>{quote.event?.title || quote.event_id}</CardTitle>
-                                                <CardDescription>Requested Budget: {quote.budget_range || 'Not specified'}</CardDescription>
+                                                <CardTitle>{quote.event_title || quote.event_id}</CardTitle>
+                                                <CardDescription>
+                                                    Requested by: {quote.organizer_name} • {quote.created_at ? new Date(quote.created_at).toLocaleDateString() : 'Unknown Date'}
+                                                </CardDescription>
                                             </div>
                                             <Badge variant={quote.status === 'pending' ? 'outline' : 'secondary'} className="capitalize">
                                                 {quote.status}
