@@ -9,7 +9,7 @@ import {
     Table, TableBody, TableCell, TableHead, TableHeader, TableRow
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ReceiptText, Check, X, ArrowLeft, Eye, RefreshCcw, Download, Clock, AlertCircle, FileText } from "lucide-react";
+import { Loader2, ReceiptText, Check, X, ArrowLeft, Eye } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -88,31 +88,6 @@ export default function MyQuotesPage() {
             toast.error("Failed to reject quote.");
         } finally {
             setActionLoading(null);
-        }
-    };
-
-    const handleRequestRevision = async (id: string) => {
-        setActionLoading(id + "-revision");
-        try {
-            await quoteService.requestRevision(id);
-            toast.success("Revision requested.");
-            setIsDetailsOpen(false);
-            await fetchQuotes();
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to request revision.");
-        } finally {
-            setActionLoading(null);
-        }
-    };
-
-    const handleDownloadAttachment = async (id: string) => {
-        try {
-            const url = await quoteService.getAttachmentSignedUrl(id);
-            window.open(url, "_blank");
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to download attachment.");
         }
     };
 
@@ -195,12 +170,11 @@ export default function MyQuotesPage() {
                                                         variant={
                                                             quote.status === 'accepted' ? 'default' :
                                                                 quote.status === 'rejected' ? 'destructive' :
-                                                                    (quote.status === 'quoted' || quote.status === 'responded') ? 'secondary' :
-                                                                        quote.status === 'revision_requested' ? 'outline' : 'outline'
+                                                                    quote.status === 'quoted' ? 'secondary' : 'outline'
                                                         }
                                                         className="capitalize"
                                                     >
-                                                        {quote.status === 'revision_requested' ? 'Revision Pending' : quote.status}
+                                                        {quote.status}
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="text-right">
@@ -255,7 +229,7 @@ export default function MyQuotesPage() {
                                             variant={
                                                 selectedQuote.status === 'accepted' ? 'default' :
                                                     selectedQuote.status === 'rejected' ? 'destructive' :
-                                                        (selectedQuote.status === 'quoted' || selectedQuote.status === 'responded') ? 'secondary' : 'outline'
+                                                        selectedQuote.status === 'quoted' ? 'secondary' : 'outline'
                                             }
                                             className="capitalize"
                                         >
@@ -263,65 +237,26 @@ export default function MyQuotesPage() {
                                         </Badge>
                                     </div>
 
-                                    <div className="space-y-3">
-                                        {selectedQuote.special_requirements && (
-                                            <div className="bg-orange-50 dark:bg-orange-950/20 p-3 rounded-md text-sm border border-orange-100 dark:border-orange-900/30">
-                                                <p className="font-semibold mb-1 text-orange-700 dark:text-orange-400 flex items-center gap-1.5">
-                                                    <AlertCircle className="h-3.5 w-3.5" /> Special Requirements:
-                                                </p>
-                                                <p>{selectedQuote.special_requirements}</p>
-                                            </div>
-                                        )}
-                                        {selectedQuote.deadline && (
-                                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                                <Clock className="h-3.5 w-3.5" />
-                                                <span>Requested Deadline: {new Date(selectedQuote.deadline).toLocaleDateString()}</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="pt-4 border-t">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <h4 className="font-semibold text-base">Vendor Response</h4>
-                                    </div>
-
-                                    {(selectedQuote.status === 'pending' || selectedQuote.status === 'revision_requested') ? (
+                                    {selectedQuote.status === 'pending' ? (
                                         <p className="text-sm text-muted-foreground italic mt-2">
-                                            {selectedQuote.status === 'revision_requested'
-                                                ? "Waiting for vendor to provide revised quote..."
-                                                : "The vendor has not responded yet."}
+                                            The vendor has not responded yet.
                                         </p>
                                     ) : (
                                         <div className="space-y-4">
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div>
-                                                    <p className="text-sm font-medium text-muted-foreground">Budget Requested</p>
-                                                    <p className="font-semibold">{selectedQuote.budget_range || '-'}</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-medium text-muted-foreground">Quoted Price</p>
-                                                    <p className="font-semibold text-primary">{selectedQuote.quoted_price ? `₹${selectedQuote.quoted_price}` : 'Pending'}</p>
-                                                </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-muted-foreground">Requested Budget</p>
+                                                <p className="font-semibold">{selectedQuote.budget_range || '-'}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-muted-foreground">Quoted Price</p>
+                                                <p className="font-semibold">{selectedQuote.quoted_price ? `₹${selectedQuote.quoted_price}` : 'Pending'}</p>
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-muted-foreground mb-1">Message from Vendor</p>
                                                 <div className="bg-primary/5 border border-primary/20 p-3 rounded-md text-sm whitespace-pre-wrap">
-                                                    {selectedQuote.response || "No response details provided."}
+                                                    {selectedQuote.response || "No response details."}
                                                 </div>
                                             </div>
-
-                                            {selectedQuote.attachment_url && (
-                                                <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border border-dashed">
-                                                    <div className="flex items-center gap-2">
-                                                        <FileText className="h-4 w-4 text-blue-500" />
-                                                        <span className="text-sm font-medium">Quote Attachment</span>
-                                                    </div>
-                                                    <Button variant="ghost" size="sm" onClick={() => handleDownloadAttachment(selectedQuote.id)}>
-                                                        <Download className="h-4 w-4 mr-2" /> Download
-                                                    </Button>
-                                                </div>
-                                            )}
                                             {selectedQuote.responded_at && (
                                                 <p className="text-xs text-muted-foreground">
                                                     Responded on {new Date(selectedQuote.responded_at).toLocaleString()}
@@ -333,8 +268,8 @@ export default function MyQuotesPage() {
                             </div>
                         )}
 
-                        {(selectedQuote?.status === 'quoted' || selectedQuote?.status === 'responded') && (
-                            <DialogFooter className="grid grid-cols-3 gap-2 sm:gap-0">
+                        {selectedQuote?.status === 'quoted' && (
+                            <DialogFooter className="gap-2 sm:gap-0">
                                 <Button
                                     type="button"
                                     variant="outline"
@@ -347,21 +282,11 @@ export default function MyQuotesPage() {
                                 </Button>
                                 <Button
                                     type="button"
-                                    variant="outline"
-                                    disabled={!!actionLoading}
-                                    onClick={() => handleRequestRevision(selectedQuote.id)}
-                                    className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-                                >
-                                    {actionLoading === selectedQuote.id + "-revision" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <RefreshCcw className="h-4 w-4 mr-2" />}
-                                    Ask Revision
-                                </Button>
-                                <Button
-                                    type="button"
                                     disabled={!!actionLoading}
                                     onClick={() => handleAccept(selectedQuote.id)}
                                 >
                                     {actionLoading === selectedQuote.id + "-accept" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Check className="h-4 w-4 mr-2" />}
-                                    Accept
+                                    Accept Quote
                                 </Button>
                             </DialogFooter>
                         )}

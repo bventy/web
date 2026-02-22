@@ -12,7 +12,7 @@ import { Footer } from "@/components/layout/Footer";
 import { quoteService } from "@/services/quote";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, ReceiptText, RefreshCcw, Download, Clock, AlertCircle } from "lucide-react";
+import { Check, X, ReceiptText } from "lucide-react";
 import { toast } from "sonner";
 
 export default function DashboardPage() {
@@ -82,31 +82,6 @@ export default function DashboardPage() {
             toast.error("Failed to reject quote.");
         } finally {
             setActionLoading(null);
-        }
-    };
-
-    const handleRequestRevision = async (id: string) => {
-        setActionLoading(id + "-revision");
-        try {
-            await quoteService.requestRevision(id);
-            toast.success("Revision requested.");
-            const quotesData = await quoteService.getMyQuotes();
-            setQuotes(quotesData);
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to request revision.");
-        } finally {
-            setActionLoading(null);
-        }
-    };
-
-    const handleDownloadAttachment = async (id: string) => {
-        try {
-            const url = await quoteService.getAttachmentSignedUrl(id);
-            window.open(url, "_blank");
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to download attachment.");
         }
     };
 
@@ -301,44 +276,22 @@ export default function DashboardPage() {
                                                             variant={
                                                                 quote.status === 'accepted' ? 'default' :
                                                                     quote.status === 'rejected' ? 'destructive' :
-                                                                        (quote.status === 'quoted' || quote.status === 'responded') ? 'secondary' :
-                                                                            quote.status === 'revision_requested' ? 'outline' : 'outline'
+                                                                        quote.status === 'quoted' ? 'secondary' : 'outline'
                                                             }
                                                             className="capitalize"
                                                         >
-                                                            {quote.status === 'revision_requested' ? 'Revision Pending' : quote.status}
+                                                            {quote.status}
                                                         </Badge>
                                                     </TableCell>
                                                     <TableCell className="text-right">
-                                                        {(quote.status === 'quoted' || quote.status === 'responded') && (
+                                                        {isQuoted && (
                                                             <div className="flex items-center justify-end gap-2">
-                                                                {quote.attachment_url && (
-                                                                    <Button
-                                                                        size="sm"
-                                                                        variant="ghost"
-                                                                        onClick={() => handleDownloadAttachment(quote.id)}
-                                                                        className="h-8 w-8 p-0"
-                                                                        title="Download Attachment"
-                                                                    >
-                                                                        <Download className="h-4 w-4" />
-                                                                    </Button>
-                                                                )}
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="outline"
-                                                                    disabled={!!actionLoading}
-                                                                    onClick={() => handleRequestRevision(quote.id)}
-                                                                    className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 h-8 px-2 text-xs"
-                                                                >
-                                                                    {actionLoading === quote.id + "-revision" ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCcw className="h-3 w-3 mr-1" />}
-                                                                    Revise
-                                                                </Button>
                                                                 <Button
                                                                     size="sm"
                                                                     variant="outline"
                                                                     disabled={!!actionLoading}
                                                                     onClick={() => handleReject(quote.id)}
-                                                                    className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 px-2 text-xs"
+                                                                    className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 text-xs"
                                                                 >
                                                                     {actionLoading === quote.id + "-reject" ? <Loader2 className="h-3 w-3 animate-spin" /> : <X className="h-3 w-3 mr-1" />}
                                                                     Reject
@@ -347,7 +300,7 @@ export default function DashboardPage() {
                                                                     size="sm"
                                                                     disabled={!!actionLoading}
                                                                     onClick={() => handleAccept(quote.id)}
-                                                                    className="h-8 px-2 text-xs"
+                                                                    className="h-8 text-xs"
                                                                 >
                                                                     {actionLoading === quote.id + "-accept" ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3 mr-1" />}
                                                                     Accept

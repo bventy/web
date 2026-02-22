@@ -10,7 +10,6 @@ export interface OverviewData {
     completed_events: number;
     total_groups: number;
     total_quotes: number;
-    total_accepted_quotes: number;
 }
 
 export function OverviewCards({ data, loading }: { data?: OverviewData; loading: boolean }) {
@@ -106,15 +105,6 @@ export function OverviewCards({ data, loading }: { data?: OverviewData; loading:
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">{data.total_quotes}</div>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Accepted Quotes</CardTitle>
-                    <CalendarCheck className="h-4 w-4 text-emerald-500" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold text-emerald-500">{data.total_accepted_quotes}</div>
                 </CardContent>
             </Card>
         </div>

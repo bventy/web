@@ -1,22 +1,20 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Store, Eye, MessageCircle, Heart, FileText, Clock } from "lucide-react";
+import { Store, Eye, MessageCircle, Heart, FileText } from "lucide-react";
 
 export interface VendorStat {
     id: string;
     business_name: string;
-    category?: string;
-    city?: string;
-    view_count?: number;
-    request_count?: number;
-    acceptance_rate?: number;
+    category: string;
+    city: string;
+    value: number; // The view count, contact count, shortlist count, or quote count
 }
 
 export interface MarketplaceData {
-    most_viewed_vendors: VendorStat[];
-    most_requested_vendors: VendorStat[];
-    highest_acceptance_rate_vendors: VendorStat[];
-    average_response_time: string;
+    most_viewed: VendorStat[];
+    most_contacted: VendorStat[];
+    most_shortlisted: VendorStat[];
+    top_quoted: VendorStat[];
 }
 
 export function MarketplaceAnalytics({ data, loading }: { data?: MarketplaceData; loading: boolean }) {
@@ -43,7 +41,7 @@ export function MarketplaceAnalytics({ data, loading }: { data?: MarketplaceData
 
     if (!data) return null;
 
-    const renderTable = (vendors: VendorStat[], title: string, icon: React.ReactNode, valueLabel: string, type: 'number' | 'percentage' = 'number') => (
+    const renderTable = (vendors: VendorStat[], title: string, icon: React.ReactNode, valueLabel: string) => (
         <Card className="flex flex-col">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <div className="space-y-1">
@@ -65,25 +63,18 @@ export function MarketplaceAnalytics({ data, loading }: { data?: MarketplaceData
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {vendors.map((vendor) => {
-                                    const value = vendor.view_count || vendor.request_count || (vendor.acceptance_rate !== undefined ? vendor.acceptance_rate : 0);
-                                    return (
-                                        <TableRow key={vendor.id}>
-                                            <TableCell className="font-medium">
-                                                <div className="flex items-center gap-2">
-                                                    <Store className="h-4 w-4 text-muted-foreground" />
-                                                    {vendor.business_name}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>{vendor.category || "-"}</TableCell>
-                                            <TableCell className="text-right font-semibold">
-                                                {type === 'percentage'
-                                                    ? `${(Number(value) * 100).toFixed(1)}%`
-                                                    : value}
-                                            </TableCell>
-                                        </TableRow>
-                                    );
-                                })}
+                                {vendors.map((vendor) => (
+                                    <TableRow key={vendor.id}>
+                                        <TableCell className="font-medium">
+                                            <div className="flex items-center gap-2">
+                                                <Store className="h-4 w-4 text-muted-foreground" />
+                                                {vendor.business_name}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>{vendor.category}</TableCell>
+                                        <TableCell className="text-right font-semibold">{vendor.value}</TableCell>
+                                    </TableRow>
+                                ))}
                             </TableBody>
                         </Table>
                     </div>
@@ -98,29 +89,11 @@ export function MarketplaceAnalytics({ data, loading }: { data?: MarketplaceData
     );
 
     return (
-        <div className="space-y-6">
-            <Card className="bg-primary/5 border-primary/20">
-                <CardContent className="p-6 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                            <Clock className="h-6 w-6 text-primary" />
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium text-muted-foreground">Avg. Vendor Response Time</p>
-                            <h3 className="text-2xl font-bold">{data.average_response_time || "N/A"}</h3>
-                        </div>
-                    </div>
-                    <div className="text-xs text-muted-foreground max-w-[200px] text-right">
-                        Calculated from initial request to first vendor response.
-                    </div>
-                </CardContent>
-            </Card>
-
-            <div className="grid gap-6 md:grid-cols-2">
-                {renderTable(data.most_viewed_vendors, "Most Viewed Vendors", <Eye className="h-4 w-4 text-blue-500" />, "Views")}
-                {renderTable(data.most_requested_vendors, "Most Requested Vendors", <FileText className="h-4 w-4 text-purple-500" />, "Quotes")}
-                {renderTable(data.highest_acceptance_rate_vendors, "Best Acceptance Rates", <Store className="h-4 w-4 text-emerald-500" />, "Rate", "percentage")}
-            </div>
+        <div className="grid gap-6 md:grid-cols-2">
+            {renderTable(data.most_viewed, "Most Viewed Vendors", <Eye className="h-4 w-4 text-blue-500" />, "Views")}
+            {renderTable(data.most_contacted, "Most Contacted", <MessageCircle className="h-4 w-4 text-green-500" />, "Contacts")}
+            {renderTable(data.most_shortlisted, "Most Shortlisted", <Heart className="h-4 w-4 text-red-500" />, "Shortlists")}
+            {renderTable(data.top_quoted, "Top Quoted Vendors", <FileText className="h-4 w-4 text-purple-500" />, "Quotes")}
         </div>
     );
 }
