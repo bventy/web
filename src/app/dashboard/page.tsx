@@ -9,11 +9,18 @@ import { Loader2, Store, Calendar, ShieldCheck, Users, ArrowRight } from "lucide
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { quoteService } from "@/services/quote";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Check, X, ReceiptText } from "lucide-react";
+import { toast } from "sonner";
 
 export default function DashboardPage() {
     const router = useRouter();
     const [profile, setProfile] = useState<UserProfile | null>(null);
+    const [quotes, setQuotes] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [actionLoading, setActionLoading] = useState<string | null>(null);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -22,12 +29,16 @@ export default function DashboardPage() {
             return;
         }
 
-        const fetchProfile = async () => {
+        const fetchData = async () => {
             try {
-                const data = await userService.getMe();
-                setProfile(data);
+                const [userData, quotesData] = await Promise.all([
+                    userService.getMe(),
+                    quoteService.getMyQuotes()
+                ]);
+                setProfile(userData);
+                setQuotes(quotesData);
             } catch (error) {
-                console.error("Failed to fetch profile", error);
+                console.error("Failed to fetch dashboard data", error);
                 localStorage.removeItem("token");
                 router.push("/auth/login");
             } finally {
@@ -35,8 +46,38 @@ export default function DashboardPage() {
             }
         };
 
-        fetchProfile();
+        fetchData();
     }, [router]);
+
+    const handleAccept = async (id: string) => {
+        setActionLoading(id + "-accept");
+        try {
+            await quoteService.acceptQuote(id);
+            toast.success("Quote accepted successfully!");
+            const quotesData = await quoteService.getMyQuotes();
+            setQuotes(quotesData);
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to accept quote.");
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleReject = async (id: string) => {
+        setActionLoading(id + "-reject");
+        try {
+            await quoteService.rejectQuote(id);
+            toast.success("Quote rejected.");
+            const quotesData = await quoteService.getMyQuotes();
+            setQuotes(quotesData);
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to reject quote.");
+        } finally {
+            setActionLoading(null);
+        }
+    };
 
     if (loading) {
         return (
@@ -167,6 +208,104 @@ export default function DashboardPage() {
                             </CardContent>
                         </Card>
                     )}
+                </div>
+
+                {/* My Quotes Section */}
+                <div className="mt-16 space-y-6 animate-in fade-in-50 slide-in-from-bottom-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h2 className="text-2xl font-bold tracking-tight">My Quotes</h2>
+                            <p className="text-muted-foreground">Manage quotes you have requested from vendors.</p>
+                        </div>
+                        <Button variant="outline" size="sm" asChild>
+                            <Link href="/quotes">View All Quotes</Link>
+                        </Button>
+                    </div>
+
+                    <div className="bg-white dark:bg-slate-900 rounded-xl border shadow-sm overflow-hidden">
+                        {quotes.length === 0 ? (
+                            <div className="flex min-h-[200px] flex-col items-center justify-center text-center p-8">
+                                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 mb-3">
+                                    <ReceiptText className="h-5 w-5 text-primary" />
+                                </div>
+                                <h3 className="text-base font-semibold">No Quotes Found</h3>
+                                <p className="text-sm text-muted-foreground max-w-sm mt-1 mb-4">
+                                    You haven't requested any quotes from vendors yet.
+                                </p>
+                                <Button size="sm" asChild>
+                                    <Link href="/vendors">Find Vendors</Link>
+                                </Button>
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <Table>
+                                    <TableHeader className="bg-muted/50">
+                                        <TableRow>
+                                            <TableHead>Vendor</TableHead>
+                                            <TableHead>Event</TableHead>
+                                            <TableHead>Quoted Price</TableHead>
+                                            <TableHead>Status</TableHead>
+                                            <TableHead className="text-right">Actions</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {quotes.slice(0, 5).map((quote) => {
+                                            const vendorName = quote.vendor?.business_name || quote.vendor_id;
+                                            const eventTitle = quote.event?.title || quote.event_id;
+                                            const isQuoted = quote.status === 'quoted';
+
+                                            return (
+                                                <TableRow key={quote.id}>
+                                                    <TableCell className="font-medium">{vendorName}</TableCell>
+                                                    <TableCell>{eventTitle}</TableCell>
+                                                    <TableCell className="font-semibold">
+                                                        {quote.quoted_price ? `₹${quote.quoted_price}` : 'Pending response'}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Badge
+                                                            variant={
+                                                                quote.status === 'accepted' ? 'default' :
+                                                                    quote.status === 'rejected' ? 'destructive' :
+                                                                        quote.status === 'quoted' ? 'secondary' : 'outline'
+                                                            }
+                                                            className="capitalize"
+                                                        >
+                                                            {quote.status}
+                                                        </Badge>
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        {isQuoted && (
+                                                            <div className="flex items-center justify-end gap-2">
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    disabled={!!actionLoading}
+                                                                    onClick={() => handleReject(quote.id)}
+                                                                    className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 text-xs"
+                                                                >
+                                                                    {actionLoading === quote.id + "-reject" ? <Loader2 className="h-3 w-3 animate-spin" /> : <X className="h-3 w-3 mr-1" />}
+                                                                    Reject
+                                                                </Button>
+                                                                <Button
+                                                                    size="sm"
+                                                                    disabled={!!actionLoading}
+                                                                    onClick={() => handleAccept(quote.id)}
+                                                                    className="h-8 text-xs"
+                                                                >
+                                                                    {actionLoading === quote.id + "-accept" ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3 mr-1" />}
+                                                                    Accept
+                                                                </Button>
+                                                            </div>
+                                                        )}
+                                                    </TableCell>
+                                                </TableRow>
+                                            );
+                                        })}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </main>
             <Footer />

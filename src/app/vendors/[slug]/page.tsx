@@ -4,11 +4,16 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { VendorProfile, vendorService } from "@/services/vendor";
 import { eventService, Event } from "@/services/event";
+import { quoteService } from "@/services/quote";
+import { trackService } from "@/services/track";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { Loader2, MapPin, BadgeCheck, MessageCircle, Plus, Check } from "lucide-react";
+import { Loader2, MapPin, BadgeCheck, MessageCircle, Plus, Check, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -43,12 +48,20 @@ export default function VendorProfilePage() {
     const [shortlistLoading, setShortlistLoading] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
 
+    // Quote state
+    const [quoteDialogOpen, setQuoteDialogOpen] = useState(false);
+    const [quoteLoading, setQuoteLoading] = useState(false);
+    const [quoteMessage, setQuoteMessage] = useState("");
+    const [quoteBudget, setQuoteBudget] = useState("");
+    const [myQuotes, setMyQuotes] = useState<any[]>([]);
+
     useEffect(() => {
         const fetchVendor = async () => {
             try {
                 if (typeof params.slug === "string") {
                     const data = await vendorService.getVendorBySlug(params.slug);
                     setVendor(data);
+                    trackService.trackVendorView(data.id);
                 }
             } catch (err) {
                 console.error("Failed to fetch vendor", err);
@@ -64,10 +77,50 @@ export default function VendorProfilePage() {
     }, [params.slug]);
 
     useEffect(() => {
-        if (user && dialogOpen) {
+        if (user && (dialogOpen || quoteDialogOpen)) {
             eventService.getEvents().then(setEvents).catch(console.error);
         }
-    }, [user, dialogOpen]);
+    }, [user, dialogOpen, quoteDialogOpen]);
+
+    useEffect(() => {
+        if (user) {
+            quoteService.getMyQuotes().then(setMyQuotes).catch(console.error);
+        }
+    }, [user]);
+
+    const hasActiveQuote = myQuotes.some(q => q.vendor_id === vendor?.id && (q.status === 'quoted' || q.status === 'accepted'));
+
+    useEffect(() => {
+        if (selectedEventId) {
+            const ev = events.find(e => e.id === selectedEventId);
+            if (ev) {
+                setQuoteBudget(`₹${ev.budget_min} - ₹${ev.budget_max}`);
+            }
+        }
+    }, [selectedEventId, events]);
+
+    const handleQuoteRequest = async () => {
+        if (!selectedEventId || !vendor) return;
+        setQuoteLoading(true);
+        try {
+            await quoteService.requestQuote({
+                vendor_id: vendor.id,
+                event_id: selectedEventId,
+                budget_range: quoteBudget,
+                message: quoteMessage
+            });
+            setQuoteDialogOpen(false);
+            setQuoteMessage("");
+            toast.success("Quote request sent successfully!");
+            // Refresh quotes after request
+            quoteService.getMyQuotes().then(setMyQuotes).catch(console.error);
+        } catch (error) {
+            console.error("Failed to request quote", error);
+            toast.error("Failed to send quote request.");
+        } finally {
+            setQuoteLoading(false);
+        }
+    };
 
     const handleShortlist = async () => {
         if (!selectedEventId || !vendor) return;
@@ -201,19 +254,96 @@ export default function VendorProfilePage() {
                         <div className="space-y-6">
                             <div className="sticky top-24 rounded-xl border bg-card p-6 shadow-sm space-y-4">
                                 <div>
-                                    <h3 className="font-semibold text-lg mb-1">Contact Vendor</h3>
+                                    <h3 className="font-semibold text-lg mb-1">Request Quote</h3>
                                     <p className="text-sm text-muted-foreground mb-4">
-                                        Chat directly with the vendor on WhatsApp.
+                                        Get a customized pricing quote for your event.
                                     </p>
-                                    <Button className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white" size="lg" asChild>
-                                        <a href={vendor.whatsapp_link} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
-                                            <MessageCircle className="h-5 w-5" />
-                                            Chat on WhatsApp
-                                        </a>
-                                    </Button>
-                                    <p className="text-xs text-center text-muted-foreground mt-2">
-                                        Response time: Usually within 1 hour
-                                    </p>
+
+                                    {user ? (
+                                        <Dialog open={quoteDialogOpen} onOpenChange={setQuoteDialogOpen}>
+                                            <DialogTrigger asChild>
+                                                <Button className="w-full mb-3" size="lg">
+                                                    <FileText className="mr-2 h-5 w-5" /> Request Quote
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent>
+                                                <DialogHeader>
+                                                    <DialogTitle>Request a Quote</DialogTitle>
+                                                    <DialogDescription>
+                                                        Provide details so <strong>{vendor.business_name}</strong> can give you an accurate estimate.
+                                                    </DialogDescription>
+                                                </DialogHeader>
+                                                <div className="py-4 space-y-4">
+                                                    <div className="space-y-2">
+                                                        <Label>Select Event</Label>
+                                                        <Select onValueChange={setSelectedEventId}>
+                                                            <SelectTrigger>
+                                                                <SelectValue placeholder="Which event is this for?" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {events.map((event) => (
+                                                                    <SelectItem key={event.id} value={event.id}>
+                                                                        {event.title} - {new Date(event.event_date).toLocaleDateString()}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label>Budget Range (Prefilled from event)</Label>
+                                                        <Input
+                                                            placeholder="e.g. ₹50,000 - ₹1,00,000"
+                                                            value={quoteBudget}
+                                                            onChange={(e) => setQuoteBudget(e.target.value)}
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label>Additional Message (Optional)</Label>
+                                                        <Textarea
+                                                            placeholder="Tell the vendor more about your requirements..."
+                                                            value={quoteMessage}
+                                                            onChange={(e) => setQuoteMessage(e.target.value)}
+                                                            rows={3}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <DialogFooter>
+                                                    <Button onClick={handleQuoteRequest} disabled={!selectedEventId || quoteLoading}>
+                                                        {quoteLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                                        Send Request
+                                                    </Button>
+                                                </DialogFooter>
+                                            </DialogContent>
+                                        </Dialog>
+                                    ) : (
+                                        <Button className="w-full mb-3" size="lg" asChild>
+                                            <Link href="/auth/login?redirect=/vendors">Login to Request Quote</Link>
+                                        </Button>
+                                    )}
+
+                                    {hasActiveQuote ? (
+                                        <>
+                                            <Button variant="outline" className="w-full" size="lg" asChild>
+                                                <a
+                                                    href={vendor.whatsapp_link}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex items-center justify-center gap-2"
+                                                    onClick={() => trackService.trackContactClick(vendor.id)}
+                                                >
+                                                    <MessageCircle className="h-5 w-5" />
+                                                    Contact via WhatsApp
+                                                </a>
+                                            </Button>
+                                            <p className="text-xs text-center text-muted-foreground mt-2">
+                                                Response time: Usually within 1 hour
+                                            </p>
+                                        </>
+                                    ) : (
+                                        <p className="text-xs text-center border rounded py-3 bg-muted/20 text-muted-foreground mt-4">
+                                            Request a quote to unlock direct WhatsApp contact.
+                                        </p>
+                                    )}
                                 </div>
 
                                 <div className="pt-4 border-t">

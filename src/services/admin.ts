@@ -22,12 +22,8 @@ export const adminService = {
         const response = await api.get("/admin/metrics/growth");
         return response.data;
     },
-    getMetricsEvents: async (): Promise<any> => {
-        const response = await api.get("/admin/metrics/events");
-        return response.data;
-    },
-    getMetricsVendors: async (): Promise<any> => {
-        const response = await api.get("/admin/metrics/vendors");
+    getMetricsMarketplace: async (): Promise<any> => {
+        const response = await api.get("/admin/metrics/marketplace");
         return response.data;
     },
     getUsers: async (): Promise<any[]> => {

@@ -10,13 +10,14 @@ export interface GrowthData {
     userGrowth: GrowthDataPoint[];
     vendorGrowth: GrowthDataPoint[];
     eventGrowth: GrowthDataPoint[];
+    quoteGrowth: GrowthDataPoint[];
 }
 
 export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: boolean }) {
     if (loading) {
         return (
-            <div className="grid gap-4 md:grid-cols-3">
-                {[1, 2, 3].map((i) => (
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                {[1, 2, 3, 4].map((i) => (
                     <Card key={i} className="animate-pulse">
                         <CardHeader>
                             <div className="h-5 w-32 bg-muted rounded"></div>
@@ -62,10 +63,11 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
     );
 
     return (
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {renderChart(data.userGrowth, "User Growth (30d)", "hsl(var(--primary))")}
             {renderChart(data.vendorGrowth, "Vendor Growth (30d)", "hsl(var(--chart-2, 160 60% 45%))")}
             {renderChart(data.eventGrowth, "Event Creation (30d)", "hsl(var(--chart-3, 30 80% 55%))")}
+            {renderChart(data.quoteGrowth, "Quote Requests (30d)", "hsl(var(--chart-4, 280 65% 60%))")}
         </div>
     );
 }

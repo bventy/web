@@ -4,20 +4,17 @@ import { useEffect, useState } from "react";
 import { adminService } from "@/services/admin";
 import { OverviewCards, OverviewData } from "@/components/admin/OverviewCards";
 import { GrowthCharts, GrowthData } from "@/components/admin/GrowthCharts";
-import { EventBreakdown, EventBreakdownData } from "@/components/admin/EventBreakdown";
-import { VendorPerformance, VendorPerformanceData } from "@/components/admin/VendorPerformance";
+import { MarketplaceAnalytics, MarketplaceData } from "@/components/admin/MarketplaceAnalytics";
 import { RiskSection } from "@/components/admin/RiskSection";
 
 export default function AdminOverviewPage() {
     const [overviewData, setOverviewData] = useState<OverviewData | undefined>();
     const [growthData, setGrowthData] = useState<GrowthData | undefined>();
-    const [eventData, setEventData] = useState<EventBreakdownData | undefined>();
-    const [vendorData, setVendorData] = useState<VendorPerformanceData | undefined>();
+    const [marketplaceData, setMarketplaceData] = useState<MarketplaceData | undefined>();
 
     const [loadingOverview, setLoadingOverview] = useState(true);
     const [loadingGrowth, setLoadingGrowth] = useState(true);
-    const [loadingEvents, setLoadingEvents] = useState(true);
-    const [loadingVendors, setLoadingVendors] = useState(true);
+    const [loadingMarketplace, setLoadingMarketplace] = useState(true);
 
     useEffect(() => {
         const fetchAll = () => {
@@ -31,15 +28,10 @@ export default function AdminOverviewPage() {
                 .catch(console.error)
                 .finally(() => setLoadingGrowth(false));
 
-            adminService.getMetricsEvents()
-                .then(setEventData)
+            adminService.getMetricsMarketplace()
+                .then(setMarketplaceData)
                 .catch(console.error)
-                .finally(() => setLoadingEvents(false));
-
-            adminService.getMetricsVendors()
-                .then(setVendorData)
-                .catch(console.error)
-                .finally(() => setLoadingVendors(false));
+                .finally(() => setLoadingMarketplace(false));
         };
 
         fetchAll();
@@ -66,12 +58,8 @@ export default function AdminOverviewPage() {
             <div className="grid gap-8 grid-cols-1 xl:grid-cols-3">
                 <div className="xl:col-span-2 space-y-8">
                     <section className="space-y-4">
-                        <h2 className="text-xl font-semibold tracking-tight">Event Intelligence</h2>
-                        <EventBreakdown data={eventData} loading={loadingEvents} />
-                    </section>
-
-                    <section className="space-y-4">
-                        <VendorPerformance data={vendorData} loading={loadingVendors} />
+                        <h2 className="text-xl font-semibold tracking-tight">Marketplace Analytics</h2>
+                        <MarketplaceAnalytics data={marketplaceData} loading={loadingMarketplace} />
                     </section>
                 </div>
 
