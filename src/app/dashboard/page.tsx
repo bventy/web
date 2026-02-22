@@ -31,12 +31,18 @@ export default function DashboardPage() {
 
         const fetchData = async () => {
             try {
-                const [userData, quotesData] = await Promise.all([
-                    userService.getMe(),
-                    quoteService.getMyQuotes()
-                ]);
+                // Fetch user data first, this is mandatory
+                const userData = await userService.getMe();
                 setProfile(userData);
-                setQuotes(quotesData);
+
+                // Try to fetch quotes, but don't fail the whole page if it 404s
+                try {
+                    const quotesData = await quoteService.getMyQuotes();
+                    setQuotes(quotesData);
+                } catch (quoteErr: any) {
+                    console.error("Failed to fetch quotes (possibly not implemented yet)", quoteErr);
+                    setQuotes([]);
+                }
             } catch (error) {
                 console.error("Failed to fetch dashboard data", error);
                 localStorage.removeItem("token");
