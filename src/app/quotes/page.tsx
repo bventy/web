@@ -140,6 +140,7 @@ export default function MyQuotesPage() {
                                     <TableRow>
                                         <TableHead>Vendor</TableHead>
                                         <TableHead>Event</TableHead>
+                                        <TableHead>Requested Budget</TableHead>
                                         <TableHead>Created</TableHead>
                                         <TableHead>Quoted Price</TableHead>
                                         <TableHead>Status</TableHead>
@@ -155,6 +156,9 @@ export default function MyQuotesPage() {
                                             <TableRow key={quote.id} className="cursor-pointer hover:bg-muted/50" onClick={() => openDetails(quote)}>
                                                 <TableCell className="font-medium">{vendorName}</TableCell>
                                                 <TableCell>{eventTitle}</TableCell>
+                                                <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                                                    {quote.budget_range || "-"}
+                                                </TableCell>
                                                 <TableCell className="text-muted-foreground whitespace-nowrap">
                                                     {quote.created_at ? new Date(quote.created_at).toLocaleDateString() : '-'}
                                                 </TableCell>
@@ -240,8 +244,12 @@ export default function MyQuotesPage() {
                                     ) : (
                                         <div className="space-y-4">
                                             <div>
-                                                <p className="text-sm font-medium text-muted-foreground mb-1">Quoted Price</p>
-                                                <p className="text-xl font-bold">₹{selectedQuote.quoted_price}</p>
+                                                <p className="text-sm font-medium text-muted-foreground">Requested Budget</p>
+                                                <p className="font-semibold">{selectedQuote.budget_range || '-'}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-muted-foreground">Quoted Price</p>
+                                                <p className="font-semibold">{selectedQuote.quoted_price ? `₹${selectedQuote.quoted_price}` : 'Pending'}</p>
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-muted-foreground mb-1">Message from Vendor</p>

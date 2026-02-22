@@ -377,6 +377,12 @@ export default function VendorDashboardPage() {
                                                 <p>{quote.message}</p>
                                             </div>
                                         )}
+                                        {quote.budget_range && (
+                                            <div className="bg-muted p-4 rounded-md text-sm">
+                                                <p className="font-semibold mb-1 text-muted-foreground">Budget Range:</p>
+                                                <p>{quote.budget_range}</p>
+                                            </div>
+                                        )}
 
                                         {quote.status === 'pending' && (
                                             <div className="space-y-4 border-t pt-4 mt-4">
