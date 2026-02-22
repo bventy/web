@@ -249,6 +249,7 @@ export default function DashboardPage() {
                                         <TableRow>
                                             <TableHead>Vendor</TableHead>
                                             <TableHead>Event</TableHead>
+                                            <TableHead>Requested Budget</TableHead>
                                             <TableHead>Quoted Price</TableHead>
                                             <TableHead>Status</TableHead>
                                             <TableHead className="text-right">Actions</TableHead>
@@ -256,14 +257,17 @@ export default function DashboardPage() {
                                     </TableHeader>
                                     <TableBody>
                                         {quotes.slice(0, 5).map((quote) => {
-                                            const vendorName = quote.vendor?.business_name || quote.vendor_id;
-                                            const eventTitle = quote.event?.title || quote.event_id;
+                                            const vendorName = quote.vendor_name || quote.vendor_id;
+                                            const eventTitle = quote.event_title || quote.event_id;
                                             const isQuoted = quote.status === 'quoted';
 
                                             return (
                                                 <TableRow key={quote.id}>
                                                     <TableCell className="font-medium">{vendorName}</TableCell>
                                                     <TableCell>{eventTitle}</TableCell>
+                                                    <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                                                        {quote.budget_range || "-"}
+                                                    </TableCell>
                                                     <TableCell className="font-semibold">
                                                         {quote.quoted_price ? `₹${quote.quoted_price}` : 'Pending response'}
                                                     </TableCell>
