@@ -34,6 +34,7 @@ export interface Quote {
     contact_unlocked_at?: string;
     contact_expires_at?: string;
     archived_at?: string;
+    revision_message?: string;
 }
 
 export interface QuoteContact {
@@ -63,8 +64,8 @@ export const quoteService = {
     respondToQuote: async (id: string, quoted_price: number, vendor_response?: string, attachment_url?: string): Promise<void> => {
         await api.patch(`/quotes/respond/${id}`, { quoted_price, vendor_response, attachment_url });
     },
-    requestRevision: async (id: string): Promise<void> => {
-        await api.patch(`/quotes/revision/${id}`);
+    requestRevision: async (id: string, message?: string): Promise<void> => {
+        await api.patch(`/quotes/revision/${id}`, { message });
     },
     getQuoteContact: async (id: string): Promise<QuoteContact> => {
         const response = await api.get<QuoteContact>(`/quotes/${id}/contact`);

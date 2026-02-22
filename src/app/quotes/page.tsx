@@ -36,10 +36,15 @@ export default function MyQuotesPage() {
     const [selectedQuote, setSelectedQuote] = useState<any | null>(null);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
+    const [contactLoading, setContactLoading] = useState(false);
+
     // Contact Modal
     const [contactInfo, setContactInfo] = useState<QuoteContact | null>(null);
     const [isContactOpen, setIsContactOpen] = useState(false);
-    const [contactLoading, setContactLoading] = useState(false);
+
+    // Revision Dialog
+    const [isRevisionOpen, setIsRevisionOpen] = useState(false);
+    const [revisionComment, setRevisionComment] = useState("");
 
     const openDetails = (quote: any) => {
         setSelectedQuote(quote);
@@ -86,12 +91,16 @@ export default function MyQuotesPage() {
         }
     };
 
-    const handleRequestRevision = async (id: string) => {
+    const handleRequestRevision = async () => {
+        if (!selectedQuote) return;
+        const id = selectedQuote.id;
         setActionLoading(id + "-revision");
         try {
-            await quoteService.requestRevision(id);
+            await quoteService.requestRevision(id, revisionComment);
             toast.success("Revision requested successfully!");
+            setIsRevisionOpen(false);
             setIsDetailsOpen(false);
+            setRevisionComment("");
             await fetchQuotes();
         } catch (error) {
             console.error(error);
@@ -403,10 +412,10 @@ export default function MyQuotesPage() {
                                     type="button"
                                     variant="outline"
                                     disabled={!!actionLoading}
-                                    onClick={() => handleRequestRevision(selectedQuote.id)}
+                                    onClick={() => setIsRevisionOpen(true)}
                                     className="flex-1"
                                 >
-                                    {actionLoading === selectedQuote.id + "-revision" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
+                                    <Eye className="h-4 w-4 mr-2" />
                                     Request Revision
                                 </Button>
                                 <div className="flex gap-2 flex-1">
@@ -510,6 +519,38 @@ export default function MyQuotesPage() {
                         <DialogFooter>
                             <Button variant="ghost" onClick={() => setIsContactOpen(false)} className="w-full">
                                 Close
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                {/* Revision Dialog */}
+                <Dialog open={isRevisionOpen} onOpenChange={setIsRevisionOpen}>
+                    <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Request Revision</DialogTitle>
+                            <DialogDescription>
+                                Tell the vendor what you'd like them to adjust (e.g., lower price, change dates, or add services).
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="py-4">
+                            <textarea
+                                className="w-full min-h-[120px] p-3 rounded-md border bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                placeholder="Example: Could you provide a breakdown for the equipment costs? Also, is there any flexibility on the setup time?"
+                                value={revisionComment}
+                                onChange={(e) => setRevisionComment(e.target.value)}
+                            />
+                        </div>
+                        <DialogFooter>
+                            <Button variant="ghost" onClick={() => setIsRevisionOpen(false)} disabled={!!actionLoading}>
+                                Cancel
+                            </Button>
+                            <Button
+                                onClick={handleRequestRevision}
+                                disabled={!!actionLoading || !revisionComment.trim()}
+                            >
+                                {actionLoading?.includes("revision") && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Send Request
                             </Button>
                         </DialogFooter>
                     </DialogContent>

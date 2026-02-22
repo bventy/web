@@ -439,6 +439,12 @@ export default function VendorDashboardPage() {
                                                     <p>{quote.message}</p>
                                                 </div>
                                             )}
+                                            {quote.revision_message && (
+                                                <div className="bg-orange-50 border border-orange-200 p-4 rounded-md text-sm">
+                                                    <p className="font-semibold mb-1 text-orange-700 font-bold uppercase tracking-wider text-[10px]">Revision Feedback:</p>
+                                                    <p className="text-orange-900">{quote.revision_message}</p>
+                                                </div>
+                                            )}
                                             {quote.budget_range && (
                                                 <div className="bg-muted p-4 rounded-md text-sm">
                                                     <p className="font-semibold mb-1 text-muted-foreground">Budget Range:</p>
