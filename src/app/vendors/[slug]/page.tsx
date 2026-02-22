@@ -125,9 +125,10 @@ export default function VendorProfilePage() {
             toast.success("Quote request sent successfully!");
             // Refresh quotes after request
             quoteService.getMyQuotes().then(setMyQuotes).catch(console.error);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to request quote", error);
-            toast.error("Failed to send quote request.");
+            const errMsg = error.response?.data?.error || "Failed to send quote request.";
+            toast.error(errMsg);
         } finally {
             setQuoteLoading(false);
         }

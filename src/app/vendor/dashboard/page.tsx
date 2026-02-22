@@ -111,9 +111,10 @@ export default function VendorDashboardPage() {
             // Optional: Refresh data to be sure
             const updated = await vendorService.getMyProfile();
             setVendor(updated);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to update profile", error);
-            toast.error("Failed to update profile");
+            const errMsg = error.response?.data?.error || "Failed to update profile.";
+            toast.error(errMsg);
         } finally {
             setSaving(false);
         }
