@@ -275,7 +275,12 @@ export default function VendorProfilePage() {
                                                 </DialogHeader>
                                                 <div className="py-4 space-y-4">
                                                     <div className="space-y-2">
-                                                        <Label>Select Event</Label>
+                                                        <div className="flex items-center justify-between">
+                                                            <Label>Select Event</Label>
+                                                            <Link href={`/events/new?redirect=/vendors/${vendor.slug}`} className="text-xs text-primary hover:underline">
+                                                                + Create new event
+                                                            </Link>
+                                                        </div>
                                                         <Select onValueChange={setSelectedEventId}>
                                                             <SelectTrigger>
                                                                 <SelectValue placeholder="Which event is this for?" />

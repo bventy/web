@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -55,8 +55,10 @@ const formSchema = z.object({
     cover_image_url: z.string().optional(),
 });
 
-export default function CreateEventPage() {
+function CreateEventForm() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const redirectUrl = searchParams.get("redirect");
     const { user } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -92,7 +94,11 @@ export default function CreateEventPage() {
                 cover_image_url: values.cover_image_url,
             };
             await eventService.createEvent(payload);
-            router.push("/events");
+            if (redirectUrl) {
+                router.push(redirectUrl);
+            } else {
+                router.push("/events");
+            }
         } catch (err: any) {
             if (err.response && err.response.data && err.response.data.message) {
                 setError(err.response.data.message);
@@ -282,5 +288,13 @@ export default function CreateEventPage() {
                 </CardContent>
             </Card>
         </div>
+    );
+}
+
+export default function CreateEventPage() {
+    return (
+        <Suspense fallback={<div className="container mx-auto max-w-2xl py-10 flex justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+            <CreateEventForm />
+        </Suspense>
     );
 }
