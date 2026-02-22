@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ArrowLeft, Store, Save, ExternalLink } from "lucide-react";
+import { Loader2, ArrowLeft, Store, Save, ExternalLink, FileText, CloudUpload, Clock, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { FileUpload } from "@/components/ui/FileUpload";
 import { GalleryUpload } from "@/components/vendor/GalleryUpload";
@@ -33,6 +33,7 @@ export default function VendorDashboardPage() {
     const [quoteRequests, setQuoteRequests] = useState<any[]>([]);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [responses, setResponses] = useState<Record<string, { price: string, message: string }>>({});
+    const [attachmentFiles, setAttachmentFiles] = useState<Record<string, File>>({});
 
     // Form State
     const [formData, setFormData] = useState({
@@ -126,10 +127,26 @@ export default function VendorDashboardPage() {
 
         setActionLoading(id);
         try {
-            await quoteService.respondToQuote(id, Number(responseData.price), responseData.message);
+            await quoteService.respondToQuote(
+                id,
+                Number(responseData.price),
+                responseData.message,
+                attachmentFiles[id]
+            );
             toast.success("Quote response sent!");
             const data = await quoteService.getQuoteRequests();
             setQuoteRequests(data);
+            // Clear inputs for this quote
+            setResponses(prev => {
+                const updated = { ...prev };
+                delete updated[id];
+                return updated;
+            });
+            setAttachmentFiles(prev => {
+                const updated = { ...prev };
+                delete updated[id];
+                return updated;
+            });
         } catch (error) {
             console.error(error);
             toast.error("Failed to send response.");
@@ -193,9 +210,9 @@ export default function VendorDashboardPage() {
                         className={`pb-3 border-b-2 font-medium text-sm transition-colors ${activeTab === 'quotes' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
                     >
                         Quote Requests
-                        {quoteRequests.filter(q => q.status === 'pending').length > 0 && (
+                        {quoteRequests.filter(q => q.status === 'pending' || q.status === 'revision_requested').length > 0 && (
                             <span className="ml-2 bg-primary text-primary-foreground text-[10px] py-0.5 px-2 rounded-full">
-                                {quoteRequests.filter(q => q.status === 'pending').length}
+                                {quoteRequests.filter(q => q.status === 'pending' || q.status === 'revision_requested').length}
                             </span>
                         )}
                     </button>
@@ -366,27 +383,56 @@ export default function VendorDashboardPage() {
                                                     Requested by: {quote.organizer_name} • {quote.created_at ? new Date(quote.created_at).toLocaleDateString() : 'Unknown Date'}
                                                 </CardDescription>
                                             </div>
-                                            <Badge variant={quote.status === 'pending' ? 'outline' : 'secondary'} className="capitalize">
-                                                {quote.status}
+                                            <Badge variant={quote.status === 'pending' ? 'outline' : quote.status === 'revision_requested' ? 'destructive' : 'secondary'} className="capitalize">
+                                                {quote.status === 'revision_requested' ? 'Revision Requested' : quote.status}
                                             </Badge>
                                         </div>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
-                                        {quote.message && (
-                                            <div className="bg-muted p-4 rounded-md text-sm">
-                                                <p className="font-semibold mb-1 text-muted-foreground">Message from Organizer:</p>
-                                                <p>{quote.message}</p>
-                                            </div>
-                                        )}
-                                        {quote.budget_range && (
-                                            <div className="bg-muted p-4 rounded-md text-sm">
-                                                <p className="font-semibold mb-1 text-muted-foreground">Budget Range:</p>
-                                                <p>{quote.budget_range}</p>
-                                            </div>
-                                        )}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {quote.message && (
+                                                <div className="bg-muted p-4 rounded-md text-sm border">
+                                                    <p className="font-semibold mb-1 text-muted-foreground flex items-center gap-1.5">
+                                                        <FileText className="h-3.5 w-3.5" /> Message from Organizer:
+                                                    </p>
+                                                    <p className="italic">"{quote.message}"</p>
+                                                </div>
+                                            )}
+                                            {quote.special_requirements && (
+                                                <div className="bg-orange-50 dark:bg-orange-950/20 p-4 rounded-md text-sm border border-orange-100 dark:border-orange-900/30">
+                                                    <p className="font-semibold mb-1 text-orange-700 dark:text-orange-400 flex items-center gap-1.5">
+                                                        <AlertCircle className="h-3.5 w-3.5" /> Special Requirements:
+                                                    </p>
+                                                    <p>{quote.special_requirements}</p>
+                                                </div>
+                                            )}
+                                        </div>
 
-                                        {quote.status === 'pending' && (
+                                        <div className="flex flex-wrap gap-4">
+                                            {quote.budget_range && (
+                                                <div className="bg-muted px-4 py-2 rounded-full text-xs border flex items-center gap-2">
+                                                    <span className="font-semibold text-muted-foreground">Budget:</span>
+                                                    <span>{quote.budget_range}</span>
+                                                </div>
+                                            )}
+                                            {quote.deadline && (
+                                                <div className="bg-muted px-4 py-2 rounded-full text-xs border flex items-center gap-2">
+                                                    <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                                                    <span className="font-semibold text-muted-foreground">Deadline:</span>
+                                                    <span className={new Date(quote.deadline) < new Date() ? "text-red-500 font-bold" : ""}>
+                                                        {new Date(quote.deadline).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {(quote.status === 'pending' || quote.status === 'revision_requested') && (
                                             <div className="space-y-4 border-t pt-4 mt-4">
+                                                {quote.status === 'revision_requested' && (
+                                                    <div className="p-3 bg-red-50 text-red-700 text-xs rounded border border-red-100 mb-2">
+                                                        <strong>Note:</strong> The organizer has requested a revision for this quote. Please update your pricing or response.
+                                                    </div>
+                                                )}
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <div className="space-y-2">
                                                         <Label>Your Quoted Price (₹)</Label>
@@ -399,6 +445,32 @@ export default function VendorDashboardPage() {
                                                                 [quote.id]: { ...responses[quote.id], price: e.target.value }
                                                             })}
                                                         />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label>Attachment (PDF/Image, max 5MB)</Label>
+                                                        <div className="flex items-center gap-3">
+                                                            <Input
+                                                                type="file"
+                                                                accept=".pdf,image/*"
+                                                                className="cursor-pointer"
+                                                                onChange={(e) => {
+                                                                    const file = e.target.files?.[0];
+                                                                    if (file) {
+                                                                        if (file.size > 5 * 1024 * 1024) {
+                                                                            toast.error("File too large (max 5MB)");
+                                                                            e.target.value = "";
+                                                                            return;
+                                                                        }
+                                                                        setAttachmentFiles({ ...attachmentFiles, [quote.id]: file });
+                                                                    }
+                                                                }}
+                                                            />
+                                                            {attachmentFiles[quote.id] && (
+                                                                <Badge variant="secondary" className="whitespace-nowrap">
+                                                                    Selected
+                                                                </Badge>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div className="space-y-2">

@@ -55,10 +55,19 @@ export default function VendorProfilePage() {
     const [quoteLoading, setQuoteLoading] = useState(false);
     const [quoteMessage, setQuoteMessage] = useState("");
     const [quoteBudget, setQuoteBudget] = useState("");
+    const [specialRequirements, setSpecialRequirements] = useState("");
+    const [deadline, setDeadline] = useState("");
     const [myQuotes, setMyQuotes] = useState<any[]>([]);
 
+    // Inline event creation state
     const [isCreatingEventInQuote, setIsCreatingEventInQuote] = useState(false);
     const [isCreatingEventInShortlist, setIsCreatingEventInShortlist] = useState(false);
+    const [eventTitle, setEventTitle] = useState("");
+    const [eventType, setEventType] = useState("");
+    const [eventCity, setEventCity] = useState("");
+    const [eventDate, setEventDate] = useState("");
+    const [eventBudgetMin, setEventBudgetMin] = useState<number | undefined>();
+    const [eventBudgetMax, setEventBudgetMax] = useState<number | undefined>();
 
     useEffect(() => {
         const fetchVendor = async () => {
@@ -93,13 +102,17 @@ export default function VendorProfilePage() {
         }
     }, [user]);
 
-    const hasActiveQuote = myQuotes.some(q => q.vendor_id === vendor?.id && (q.status === 'quoted' || q.status === 'accepted'));
+    const canContact = myQuotes.some(q => q.vendor_id === vendor?.id && ['responded', 'accepted', 'quoted'].includes(q.status));
 
     useEffect(() => {
         if (selectedEventId) {
             const ev = events.find(e => e.id === selectedEventId);
             if (ev) {
                 setQuoteBudget(`₹${ev.budget_min} - ₹${ev.budget_max}`);
+                setEventTitle(ev.title);
+                setEventType(ev.event_type || "");
+                setEventCity(ev.city || "");
+                setEventDate(new Date(ev.event_date).toLocaleDateString());
             }
         }
     }, [selectedEventId, events]);
@@ -116,9 +129,18 @@ export default function VendorProfilePage() {
             });
             await quoteService.requestQuote({
                 vendor_id: vendor.id,
-                event_id: selectedEventId,
+                event_id: selectedEventId || undefined,
                 budget_range: quoteBudget || "Not specified",
-                message: quoteMessage
+                message: quoteMessage,
+                special_requirements: specialRequirements || undefined,
+                deadline: deadline || undefined,
+                // Inline event fields (Backend handles if event_id is empty)
+                event_title: eventTitle,
+                event_type: eventType,
+                event_city: eventCity,
+                event_date: eventDate,
+                event_budget_min: eventBudgetMin,
+                event_budget_max: eventBudgetMax
             });
             setQuoteDialogOpen(false);
             setQuoteMessage("");
@@ -312,13 +334,13 @@ export default function VendorProfilePage() {
                                                         />
                                                     </div>
                                                 ) : (
-                                                    <div className="py-4 space-y-4">
-                                                        <div className="space-y-2">
+                                                    <div className="py-2 space-y-4 max-h-[60vh] overflow-y-auto px-1">
+                                                        <div className="space-y-3 p-3 bg-muted/30 rounded-lg border">
                                                             <div className="flex items-center justify-between">
-                                                                <Label>Select Event</Label>
+                                                                <Label className="text-xs font-semibold uppercase text-muted-foreground">About the Event</Label>
                                                             </div>
                                                             <Select onValueChange={setSelectedEventId} value={selectedEventId}>
-                                                                <SelectTrigger>
+                                                                <SelectTrigger className="bg-white">
                                                                     <SelectValue placeholder="Which event is this for?" />
                                                                 </SelectTrigger>
                                                                 <SelectContent>
@@ -332,28 +354,70 @@ export default function VendorProfilePage() {
                                                                     <SelectSeparator />
                                                                     {events.map((event) => (
                                                                         <SelectItem key={event.id} value={event.id}>
-                                                                            {event.title} - {new Date(event.event_date).toLocaleDateString()}
+                                                                            {event.title}
                                                                         </SelectItem>
                                                                     ))}
                                                                 </SelectContent>
                                                             </Select>
+
+                                                            {selectedEventId && (
+                                                                <div className="grid grid-cols-2 gap-3 pt-1">
+                                                                    <div className="space-y-1">
+                                                                        <Label className="text-[10px] uppercase text-muted-foreground">Event Type</Label>
+                                                                        <p className="text-sm font-medium">{eventType || "-"}</p>
+                                                                    </div>
+                                                                    <div className="space-y-1">
+                                                                        <Label className="text-[10px] uppercase text-muted-foreground">City</Label>
+                                                                        <p className="text-sm font-medium">{eventCity || "-"}</p>
+                                                                    </div>
+                                                                    <div className="space-y-1">
+                                                                        <Label className="text-[10px] uppercase text-muted-foreground">Event Date</Label>
+                                                                        <p className="text-sm font-medium">{eventDate || "-"}</p>
+                                                                    </div>
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                        <div className="space-y-2">
-                                                            <Label>Budget Range (Prefilled from event)</Label>
-                                                            <Input
-                                                                placeholder="e.g. ₹50,000 - ₹1,00,000"
-                                                                value={quoteBudget}
-                                                                onChange={(e) => setQuoteBudget(e.target.value)}
-                                                            />
-                                                        </div>
-                                                        <div className="space-y-2">
-                                                            <Label>Additional Message (Optional)</Label>
-                                                            <Textarea
-                                                                placeholder="Tell the vendor more about your requirements..."
-                                                                value={quoteMessage}
-                                                                onChange={(e) => setQuoteMessage(e.target.value)}
-                                                                rows={3}
-                                                            />
+
+                                                        <div className="space-y-4 pt-2">
+                                                            <div className="space-y-2">
+                                                                <Label className="text-sm font-semibold">Budget Range</Label>
+                                                                <Input
+                                                                    placeholder="e.g. ₹50,000 - ₹1,00,000"
+                                                                    value={quoteBudget}
+                                                                    onChange={(e) => setQuoteBudget(e.target.value)}
+                                                                />
+                                                                <p className="text-[10px] text-muted-foreground italic">Prefilled from event settings but editable.</p>
+                                                            </div>
+
+                                                            <div className="space-y-2">
+                                                                <Label className="text-sm font-semibold">Response Deadline</Label>
+                                                                <Input
+                                                                    type="date"
+                                                                    value={deadline}
+                                                                    onChange={(e) => setDeadline(e.target.value)}
+                                                                />
+                                                                <p className="text-[10px] text-muted-foreground">When do you need the vendor to respond by?</p>
+                                                            </div>
+
+                                                            <div className="space-y-2">
+                                                                <Label className="text-sm font-semibold">Special Requirements</Label>
+                                                                <Textarea
+                                                                    placeholder="e.g. Specific themes, equipment needed, or travel info..."
+                                                                    value={specialRequirements}
+                                                                    onChange={(e) => setSpecialRequirements(e.target.value)}
+                                                                    rows={3}
+                                                                />
+                                                            </div>
+
+                                                            <div className="space-y-2">
+                                                                <Label className="text-sm font-semibold">Additional Message</Label>
+                                                                <Textarea
+                                                                    placeholder="Tell the vendor more about your requirements..."
+                                                                    value={quoteMessage}
+                                                                    onChange={(e) => setQuoteMessage(e.target.value)}
+                                                                    rows={2}
+                                                                />
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 )}
@@ -373,9 +437,9 @@ export default function VendorProfilePage() {
                                         </Button>
                                     )}
 
-                                    {hasActiveQuote ? (
+                                    {canContact ? (
                                         <>
-                                            <Button variant="outline" className="w-full" size="lg" asChild>
+                                            <Button variant="outline" className="w-full bg-green-50 hover:bg-green-100 border-green-200 text-green-700" size="lg" asChild>
                                                 <a
                                                     href={vendor.whatsapp_link}
                                                     target="_blank"
@@ -384,16 +448,16 @@ export default function VendorProfilePage() {
                                                     onClick={() => trackService.trackContactClick(vendor.id)}
                                                 >
                                                     <MessageCircle className="h-5 w-5" />
-                                                    Contact via WhatsApp
+                                                    Contact Vendor
                                                 </a>
                                             </Button>
                                             <p className="text-xs text-center text-muted-foreground mt-2">
-                                                Response time: Usually within 1 hour
+                                                Direct WhatsApp contact unlocked.
                                             </p>
                                         </>
                                     ) : (
-                                        <p className="text-xs text-center border rounded py-3 bg-muted/20 text-muted-foreground mt-4">
-                                            Request a quote to unlock direct WhatsApp contact.
+                                        <p className="text-xs text-center border rounded-lg py-4 px-3 bg-muted/20 text-muted-foreground mt-4 leading-relaxed">
+                                            Request a quote to unlock direct <br /><strong>WhatsApp contact</strong> with the vendor.
                                         </p>
                                     )}
                                 </div>
