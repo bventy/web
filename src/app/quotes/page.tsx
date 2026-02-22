@@ -31,6 +31,7 @@ export default function MyQuotesPage() {
     const [quotes, setQuotes] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<"active" | "archived">("active");
 
     const [selectedQuote, setSelectedQuote] = useState<any | null>(null);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -158,19 +159,40 @@ export default function MyQuotesPage() {
                     </div>
                 </div>
 
-                <div className="mt-8 bg-white dark:bg-slate-900 rounded-xl border shadow-sm overflow-hidden">
-                    {quotes.length === 0 ? (
+                <div className="flex gap-4 mb-6 border-b pb-1">
+                    <button
+                        onClick={() => setActiveTab("active")}
+                        className={`pb-2 px-4 transition-colors relative ${activeTab === 'active' ? 'text-primary font-semibold' : 'text-muted-foreground'}`}
+                    >
+                        Active Quotes
+                        {activeTab === 'active' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-primary rounded-full" />}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("archived")}
+                        className={`pb-2 px-4 transition-colors relative ${activeTab === 'archived' ? 'text-primary font-semibold' : 'text-muted-foreground'}`}
+                    >
+                        Archived
+                        {activeTab === 'archived' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-primary rounded-full" />}
+                    </button>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 rounded-xl border shadow-sm overflow-hidden">
+                    {quotes.filter(q => activeTab === 'active' ? q.status !== 'archived' : q.status === 'archived').length === 0 ? (
                         <div className="flex min-h-[300px] flex-col items-center justify-center text-center p-8 animate-in fade-in-50">
                             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                                 <ReceiptText className="h-6 w-6 text-primary" />
                             </div>
                             <h3 className="mt-4 text-lg font-semibold">No Quotes Found</h3>
                             <p className="mb-4 mt-2 text-sm text-muted-foreground max-w-sm">
-                                You haven&apos;t requested any quotes from vendors yet.
+                                {activeTab === 'active'
+                                    ? "You don't have any active quote requests at the moment."
+                                    : "You don't have any archived or expired quotes."}
                             </p>
-                            <Button asChild>
-                                <Link href="/vendors">Find Vendors</Link>
-                            </Button>
+                            {activeTab === 'active' && (
+                                <Button asChild>
+                                    <Link href="/vendors">Find Vendors</Link>
+                                </Button>
+                            )}
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
@@ -187,53 +209,61 @@ export default function MyQuotesPage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {quotes.map((quote) => {
-                                        const vendorName = quote.vendor_name || quote.vendor_id;
-                                        const eventTitle = quote.event_title || quote.event_id;
+                                    {quotes
+                                        .filter(q => activeTab === 'active' ? q.status !== 'archived' : q.status === 'archived')
+                                        .map((quote) => {
+                                            const vendorName = quote.vendor_name || quote.vendor_id;
+                                            const eventTitle = quote.event_title || quote.event_id;
 
-                                        return (
-                                            <TableRow key={quote.id} className="cursor-pointer hover:bg-muted/50" onClick={() => openDetails(quote)}>
-                                                <TableCell className="font-medium">{vendorName}</TableCell>
-                                                <TableCell>{eventTitle}</TableCell>
-                                                <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                                                    {quote.budget_range || "-"}
-                                                </TableCell>
-                                                <TableCell className="text-muted-foreground whitespace-nowrap">
-                                                    {quote.created_at ? new Date(quote.created_at).toLocaleDateString() : '-'}
-                                                </TableCell>
-                                                <TableCell className="font-semibold">
-                                                    {quote.quoted_price ? `₹${quote.quoted_price}` : 'Pending response'}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge
-                                                        variant={
-                                                            quote.status === 'accepted' ? 'default' :
-                                                                quote.status === 'rejected' ? 'destructive' :
-                                                                    quote.status === 'responded' ? 'secondary' :
-                                                                        quote.status === 'revision_requested' ? 'outline' : 'outline'
-                                                        }
-                                                        className="capitalize"
-                                                    >
-                                                        {quote.status.replace('_', ' ')}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    <div className="flex justify-end gap-2">
-                                                        {quote.status === 'accepted' && (
-                                                            <Button size="sm" variant="outline" className="h-8 shadow-none text-green-600 hover:text-green-700 hover:bg-green-50" onClick={(e) => { e.stopPropagation(); handleContactVendor(quote); }}>
-                                                                <Phone className="h-4 w-4 mr-2" />
-                                                                Contact
-                                                            </Button>
+                                            return (
+                                                <TableRow key={quote.id} className="cursor-pointer hover:bg-muted/50" onClick={() => openDetails(quote)}>
+                                                    <TableCell className="font-medium">{vendorName}</TableCell>
+                                                    <TableCell>{eventTitle}</TableCell>
+                                                    <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                                                        {quote.budget_range || "-"}
+                                                    </TableCell>
+                                                    <TableCell className="text-muted-foreground whitespace-nowrap">
+                                                        {quote.created_at ? new Date(quote.created_at).toLocaleDateString() : '-'}
+                                                    </TableCell>
+                                                    <TableCell className="font-semibold">
+                                                        {quote.quoted_price ? `₹${quote.quoted_price}` : 'Pending response'}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Badge
+                                                            variant={
+                                                                quote.status === 'accepted' ? 'default' :
+                                                                    quote.status === 'rejected' ? 'destructive' :
+                                                                        quote.status === 'responded' ? 'secondary' :
+                                                                            quote.status === 'archived' ? 'outline' :
+                                                                                quote.status === 'revision_requested' ? 'outline' : 'outline'
+                                                            }
+                                                            className="capitalize"
+                                                        >
+                                                            {quote.status === 'archived' ? 'Contact Expired' : quote.status.replace('_', ' ')}
+                                                        </Badge>
+                                                        {quote.status === 'accepted' && quote.contact_expires_at && (
+                                                            <p className="text-[10px] text-orange-600 mt-1 font-medium">
+                                                                Access expires: {new Date(quote.contact_expires_at).toLocaleDateString()}
+                                                            </p>
                                                         )}
-                                                        <Button size="sm" variant="ghost" className="h-8 shadow-none" onClick={(e) => { e.stopPropagation(); openDetails(quote); }}>
-                                                            <Eye className="h-4 w-4 mr-2" />
-                                                            View
-                                                        </Button>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        );
-                                    })}
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        <div className="flex justify-end gap-2">
+                                                            {quote.status === 'accepted' && (
+                                                                <Button size="sm" variant="outline" className="h-8 shadow-none text-green-600 hover:text-green-700 hover:bg-green-50" onClick={(e) => { e.stopPropagation(); handleContactVendor(quote); }}>
+                                                                    <Phone className="h-4 w-4 mr-2" />
+                                                                    Contact
+                                                                </Button>
+                                                            )}
+                                                            <Button size="sm" variant="ghost" className="h-8 shadow-none" onClick={(e) => { e.stopPropagation(); openDetails(quote); }}>
+                                                                <Eye className="h-4 w-4 mr-2" />
+                                                                View
+                                                            </Button>
+                                                        </div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            );
+                                        })}
                                 </TableBody>
                             </Table>
                         </div>
@@ -278,13 +308,32 @@ export default function MyQuotesPage() {
                                                 selectedQuote.status === 'accepted' ? 'default' :
                                                     selectedQuote.status === 'rejected' ? 'destructive' :
                                                         selectedQuote.status === 'responded' ? 'secondary' :
-                                                            selectedQuote.status === 'revision_requested' ? 'outline' : 'outline'
+                                                            selectedQuote.status === 'archived' ? 'outline' :
+                                                                selectedQuote.status === 'revision_requested' ? 'outline' : 'outline'
                                             }
                                             className="capitalize"
                                         >
-                                            {selectedQuote.status.replace('_', ' ')}
+                                            {selectedQuote.status === 'archived' ? 'Contact Expired' : selectedQuote.status.replace('_', ' ')}
                                         </Badge>
                                     </div>
+
+                                    {selectedQuote.status === 'accepted' && selectedQuote.contact_expires_at && (
+                                        <div className="bg-orange-50 border border-orange-100 p-2 rounded-md mb-4 flex items-center gap-2">
+                                            <div className="h-1.5 w-1.5 rounded-full bg-orange-600 animate-pulse" />
+                                            <p className="text-[11px] text-orange-700 font-medium">
+                                                Contact access will expire on {new Date(selectedQuote.contact_expires_at).toLocaleDateString()} ({new Date(selectedQuote.contact_expires_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {selectedQuote.status === 'archived' && (
+                                        <div className="bg-slate-50 border border-slate-200 p-2 rounded-md mb-4 flex items-center gap-2">
+                                            <X className="h-3 w-3 text-slate-500" />
+                                            <p className="text-[11px] text-slate-600 font-medium">
+                                                This quote has been archived. Contact access is no longer available.
+                                            </p>
+                                        </div>
+                                    )}
 
                                     {selectedQuote.status === 'pending' ? (
                                         <p className="text-sm text-muted-foreground italic mt-2">
@@ -402,6 +451,11 @@ export default function MyQuotesPage() {
                             <DialogDescription>
                                 Secure communication unlocked for {selectedQuote?.vendor_name}
                             </DialogDescription>
+                            {selectedQuote?.contact_expires_at && (
+                                <div className="mt-2 text-[10px] font-semibold text-orange-600 uppercase tracking-tight">
+                                    Expires on {new Date(selectedQuote.contact_expires_at).toLocaleString()}
+                                </div>
+                            )}
                         </DialogHeader>
 
                         {contactLoading ? (

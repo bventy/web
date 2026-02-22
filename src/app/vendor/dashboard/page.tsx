@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ArrowLeft, Store, Save, ExternalLink, Phone, Mail, MessageCircle } from "lucide-react";
+import { Loader2, ArrowLeft, Store, Save, ExternalLink, Phone, Mail, MessageCircle, X, Archive } from "lucide-react";
 import { toast } from "sonner";
 import { FileUpload } from "@/components/ui/FileUpload";
 import { GalleryUpload } from "@/components/vendor/GalleryUpload";
@@ -42,6 +42,7 @@ export default function VendorDashboardPage() {
     const [quoteRequests, setQuoteRequests] = useState<any[]>([]);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [responses, setResponses] = useState<Record<string, { price: string, message: string, attachment: string }>>({});
+    const [quoteTab, setQuoteTab] = useState<"active" | "archived">("active");
 
     // Contact Modal
     const [selectedQuote, setSelectedQuote] = useState<any | null>(null);
@@ -379,7 +380,24 @@ export default function VendorDashboardPage() {
                     </div>
                 ) : (
                     <div className="space-y-4 animate-in fade-in-50">
-                        {quoteRequests.length === 0 ? (
+                        <div className="flex gap-4 mb-4 border-b pb-1">
+                            <button
+                                onClick={() => setQuoteTab("active")}
+                                className={`pb-2 px-4 transition-colors relative text-xs ${quoteTab === 'active' ? 'text-primary font-semibold' : 'text-muted-foreground'}`}
+                            >
+                                Active Requests
+                                {quoteTab === 'active' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-primary rounded-full" />}
+                            </button>
+                            <button
+                                onClick={() => setQuoteTab("archived")}
+                                className={`pb-2 px-4 transition-colors relative text-xs ${quoteTab === 'archived' ? 'text-primary font-semibold' : 'text-muted-foreground'}`}
+                            >
+                                Archived / Expired
+                                {quoteTab === 'archived' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-primary rounded-full" />}
+                            </button>
+                        </div>
+
+                        {quoteRequests.filter(q => quoteTab === 'active' ? q.status !== 'archived' : q.status === 'archived').length === 0 ? (
                             <Card>
                                 <CardContent className="flex flex-col items-center justify-center p-12 text-center text-muted-foreground">
                                     <Store className="h-8 w-8 mb-4 opacity-50" />
@@ -388,140 +406,160 @@ export default function VendorDashboardPage() {
                                 </CardContent>
                             </Card>
                         ) : (
-                            quoteRequests.map((quote) => (
-                                <Card key={quote.id}>
-                                    <CardHeader>
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <CardTitle>{quote.event_title || quote.event_id}</CardTitle>
-                                                <CardDescription>
-                                                    Requested by: {quote.organizer_name} • {quote.created_at ? new Date(quote.created_at).toLocaleDateString() : 'Unknown Date'}
-                                                </CardDescription>
+                            quoteRequests
+                                .filter(q => quoteTab === 'active' ? q.status !== 'archived' : q.status === 'archived')
+                                .map((quote) => (
+                                    <Card key={quote.id}>
+                                        <CardHeader>
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <CardTitle>{quote.event_title || quote.event_id}</CardTitle>
+                                                    <CardDescription>
+                                                        Requested by: {quote.organizer_name} • {quote.created_at ? new Date(quote.created_at).toLocaleDateString() : 'Unknown Date'}
+                                                    </CardDescription>
+                                                </div>
+                                                <Badge
+                                                    variant={
+                                                        quote.status === 'pending' ? 'outline' :
+                                                            quote.status === 'accepted' ? 'default' :
+                                                                quote.status === 'responded' ? 'secondary' :
+                                                                    quote.status === 'archived' ? 'outline' :
+                                                                        quote.status === 'revision_requested' ? 'destructive' : 'secondary'
+                                                    }
+                                                    className="capitalize"
+                                                >
+                                                    {quote.status === 'archived' ? 'Contact Expired' : quote.status.replace('_', ' ')}
+                                                </Badge>
                                             </div>
-                                            <Badge
-                                                variant={
-                                                    quote.status === 'pending' ? 'outline' :
-                                                        quote.status === 'accepted' ? 'default' :
-                                                            quote.status === 'responded' ? 'secondary' :
-                                                                quote.status === 'revision_requested' ? 'destructive' : 'secondary'
-                                                }
-                                                className="capitalize"
-                                            >
-                                                {quote.status.replace('_', ' ')}
-                                            </Badge>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        {quote.message && (
-                                            <div className="bg-muted p-4 rounded-md text-sm">
-                                                <p className="font-semibold mb-1 text-muted-foreground">Message from Organizer:</p>
-                                                <p>{quote.message}</p>
-                                            </div>
-                                        )}
-                                        {quote.budget_range && (
-                                            <div className="bg-muted p-4 rounded-md text-sm">
-                                                <p className="font-semibold mb-1 text-muted-foreground">Budget Range:</p>
-                                                <p>{quote.budget_range}</p>
-                                            </div>
-                                        )}
-                                        {quote.special_requirements && (
-                                            <div className="bg-primary/5 border border-primary/20 p-4 rounded-md text-sm">
-                                                <p className="font-semibold mb-1 text-primary">Special Requirements:</p>
-                                                <p>{quote.special_requirements}</p>
-                                            </div>
-                                        )}
-                                        {quote.deadline && (
-                                            <div className="bg-muted p-4 rounded-md text-sm flex justify-between items-center">
-                                                <p className="font-semibold text-muted-foreground">Response Deadline:</p>
-                                                <p className="font-medium text-red-600">{new Date(quote.deadline).toLocaleDateString()}</p>
-                                            </div>
-                                        )}
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            {quote.message && (
+                                                <div className="bg-muted p-4 rounded-md text-sm">
+                                                    <p className="font-semibold mb-1 text-muted-foreground">Message from Organizer:</p>
+                                                    <p>{quote.message}</p>
+                                                </div>
+                                            )}
+                                            {quote.budget_range && (
+                                                <div className="bg-muted p-4 rounded-md text-sm">
+                                                    <p className="font-semibold mb-1 text-muted-foreground">Budget Range:</p>
+                                                    <p>{quote.budget_range}</p>
+                                                </div>
+                                            )}
+                                            {quote.special_requirements && (
+                                                <div className="bg-primary/5 border border-primary/20 p-4 rounded-md text-sm">
+                                                    <p className="font-semibold mb-1 text-primary">Special Requirements:</p>
+                                                    <p>{quote.special_requirements}</p>
+                                                </div>
+                                            )}
+                                            {quote.deadline && (
+                                                <div className="bg-muted p-4 rounded-md text-sm flex justify-between items-center">
+                                                    <p className="font-semibold text-muted-foreground">Response Deadline:</p>
+                                                    <p className="font-medium text-red-600">{new Date(quote.deadline).toLocaleDateString()}</p>
+                                                </div>
+                                            )}
 
-                                        {(quote.status === 'pending' || quote.status === 'revision_requested') && (
-                                            <div className="space-y-4 border-t pt-4 mt-4">
-                                                <h4 className="font-semibold text-sm">Send Response</h4>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {(quote.status === 'pending' || quote.status === 'revision_requested') && (
+                                                <div className="space-y-4 border-t pt-4 mt-4">
+                                                    <h4 className="font-semibold text-sm">Send Response</h4>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div className="space-y-2">
+                                                            <Label>Your Quoted Price (₹)</Label>
+                                                            <Input
+                                                                type="number"
+                                                                placeholder="e.g. 50000"
+                                                                value={responses[quote.id]?.price || ''}
+                                                                onChange={(e) => setResponses({
+                                                                    ...responses,
+                                                                    [quote.id]: { ...responses[quote.id], price: e.target.value }
+                                                                })}
+                                                            />
+                                                        </div>
+                                                    </div>
                                                     <div className="space-y-2">
-                                                        <Label>Your Quoted Price (₹)</Label>
-                                                        <Input
-                                                            type="number"
-                                                            placeholder="e.g. 50000"
-                                                            value={responses[quote.id]?.price || ''}
+                                                        <Label>Response Message (Optional)</Label>
+                                                        <Textarea
+                                                            placeholder="Explain your pricing or offer details..."
+                                                            value={responses[quote.id]?.message || ''}
                                                             onChange={(e) => setResponses({
                                                                 ...responses,
-                                                                [quote.id]: { ...responses[quote.id], price: e.target.value }
+                                                                [quote.id]: { ...responses[quote.id], message: e.target.value }
                                                             })}
                                                         />
                                                     </div>
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <Label>Response Message (Optional)</Label>
-                                                    <Textarea
-                                                        placeholder="Explain your pricing or offer details..."
-                                                        value={responses[quote.id]?.message || ''}
-                                                        onChange={(e) => setResponses({
-                                                            ...responses,
-                                                            [quote.id]: { ...responses[quote.id], message: e.target.value }
-                                                        })}
-                                                    />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <Label>Attachment (Optional - PDF or Image)</Label>
-                                                    <FileUpload
-                                                        onUploaded={(url) => setResponses({
-                                                            ...responses,
-                                                            [quote.id]: { ...responses[quote.id], attachment: url }
-                                                        })}
-                                                        label="Upload Quote/Rate Card"
-                                                    />
-                                                    {responses[quote.id]?.attachment && (
-                                                        <p className="text-xs text-green-600">File uploaded successfully.</p>
-                                                    )}
-                                                </div>
-                                                <Button
-                                                    onClick={() => handleRespond(quote.id)}
-                                                    disabled={!responses[quote.id]?.price || actionLoading === quote.id}
-                                                    className="w-full md:w-auto"
-                                                >
-                                                    {actionLoading === quote.id && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                                    {quote.status === 'revision_requested' ? "Send Revised Quote" : "Send Quote Response"}
-                                                </Button>
-                                            </div>
-                                        )}
-
-                                        {quote.status === 'accepted' && (
-                                            <div className="bg-green-50 border border-green-200 p-4 rounded-md mt-4">
-                                                <div className="flex items-center gap-2 mb-3">
-                                                    <div className="h-2 w-2 rounded-full bg-green-500" />
-                                                    <p className="font-bold text-green-800">Quote Accepted!</p>
-                                                </div>
-                                                <p className="text-sm text-green-700 mb-4">The organizer has accepted your quote. You can now contact them directly.</p>
-                                                <div className="flex flex-wrap gap-2">
-                                                    <Button variant="outline" size="sm" className="bg-white" onClick={() => handleContactVendor(quote)}>
-                                                        <ExternalLink className="mr-2 h-4 w-4" />
-                                                        View Organizer Contact
+                                                    <div className="space-y-2">
+                                                        <Label>Attachment (Optional - PDF or Image)</Label>
+                                                        <FileUpload
+                                                            onUploaded={(url) => setResponses({
+                                                                ...responses,
+                                                                [quote.id]: { ...responses[quote.id], attachment: url }
+                                                            })}
+                                                            label="Upload Quote/Rate Card"
+                                                        />
+                                                        {responses[quote.id]?.attachment && (
+                                                            <p className="text-xs text-green-600">File uploaded successfully.</p>
+                                                        )}
+                                                    </div>
+                                                    <Button
+                                                        onClick={() => handleRespond(quote.id)}
+                                                        disabled={!responses[quote.id]?.price || actionLoading === quote.id}
+                                                        className="w-full md:w-auto"
+                                                    >
+                                                        {actionLoading === quote.id && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                                        {quote.status === 'revision_requested' ? "Send Revised Quote" : "Send Quote Response"}
                                                     </Button>
                                                 </div>
-                                            </div>
-                                        )}
+                                            )}
 
-                                        {quote.status !== 'pending' && quote.status !== 'revision_requested' && quote.quoted_price && (
-                                            <div className="bg-primary/5 p-4 rounded-md mt-4 border border-primary/10">
-                                                <p className="font-semibold mb-1">Your response:</p>
-                                                <p className="font-medium">Quote: ₹{quote.quoted_price}</p>
-                                                {quote.vendor_response && <p className="text-sm mt-2 text-muted-foreground">{quote.vendor_response}</p>}
-                                                {quote.attachment_url && (
-                                                    <div className="mt-3">
-                                                        <a href={quote.attachment_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1">
-                                                            <ExternalLink className="h-3 w-3" /> View Attachment
-                                                        </a>
+                                            {quote.status === 'accepted' && (
+                                                <div className="bg-green-50 border border-green-200 p-4 rounded-md mt-4">
+                                                    <div className="flex justify-between items-start mb-3">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="h-2 w-2 rounded-full bg-green-500" />
+                                                            <p className="font-bold text-green-800">Quote Accepted!</p>
+                                                        </div>
+                                                        {quote.contact_expires_at && (
+                                                            <p className="text-[10px] text-orange-600 font-semibold animate-pulse">
+                                                                ACCESS EXPIRES: {new Date(quote.contact_expires_at).toLocaleDateString()}
+                                                            </p>
+                                                        )}
                                                     </div>
-                                                )}
-                                            </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                            ))
+                                                    <p className="text-sm text-green-700 mb-4">The organizer has accepted your quote. You can now contact them directly.</p>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        <Button variant="outline" size="sm" className="bg-white" onClick={() => handleContactVendor(quote)}>
+                                                            <ExternalLink className="mr-2 h-4 w-4" />
+                                                            View Organizer Contact
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {quote.status === 'archived' && (
+                                                <div className="bg-slate-50 border border-slate-200 p-4 rounded-md mt-4 flex items-center gap-3">
+                                                    <X className="h-5 w-5 text-slate-400" />
+                                                    <div>
+                                                        <p className="font-bold text-slate-700">Contact Access Expired</p>
+                                                        <p className="text-xs text-slate-500">The 15-day contact window has closed. This quote is now archived.</p>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {quote.status !== 'pending' && quote.status !== 'revision_requested' && quote.quoted_price && (
+                                                <div className="bg-primary/5 p-4 rounded-md mt-4 border border-primary/10">
+                                                    <p className="font-semibold mb-1">Your response:</p>
+                                                    <p className="font-medium">Quote: ₹{quote.quoted_price}</p>
+                                                    {quote.vendor_response && <p className="text-sm mt-2 text-muted-foreground">{quote.vendor_response}</p>}
+                                                    {quote.attachment_url && (
+                                                        <div className="mt-3">
+                                                            <a href={quote.attachment_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1">
+                                                                <ExternalLink className="h-3 w-3" /> View Attachment
+                                                            </a>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                ))
                         )}
                     </div>
                 )}
@@ -535,6 +573,11 @@ export default function VendorDashboardPage() {
                         <DialogDescription>
                             Direct communication unlocked with {contactInfo?.organizer.name} for {selectedQuote?.event_title}
                         </DialogDescription>
+                        {selectedQuote?.contact_expires_at && (
+                            <div className="mt-2 text-[10px] font-semibold text-orange-600 uppercase tracking-tight">
+                                Access ends on {new Date(selectedQuote.contact_expires_at).toLocaleString()}
+                            </div>
+                        )}
                     </DialogHeader>
 
                     {contactLoading ? (

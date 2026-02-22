@@ -22,7 +22,7 @@ export interface Quote {
     message?: string;
     vendor_response?: string;
     attachment_url?: string;
-    status: "pending" | "responded" | "accepted" | "rejected" | "revision_requested";
+    status: "pending" | "responded" | "accepted" | "rejected" | "revision_requested" | "archived";
     special_requirements?: string;
     deadline?: string;
     created_at: string;
@@ -32,6 +32,8 @@ export interface Quote {
     rejected_at?: string;
     revision_requested_at?: string;
     contact_unlocked_at?: string;
+    contact_expires_at?: string;
+    archived_at?: string;
 }
 
 export interface QuoteContact {
