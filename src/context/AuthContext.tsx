@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { UserProfile, userService } from "@/services/user";
 import { useRouter } from "next/navigation";
-import posthog from "posthog-js";
+import { usePostHog } from "posthog-js/react";
 
 interface AuthContextType {
     user: UserProfile | null;
@@ -20,6 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
+    const posthog = usePostHog();
 
     const fetchUser = async () => {
         try {

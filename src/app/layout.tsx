@@ -25,6 +25,7 @@ import { Analytics } from "@vercel/analytics/react";
 import UmamiAnalytics from "@/components/UmamiAnalytics";
 import PostHogPageView from "@/components/PostHogPageView";
 import { Suspense } from "react";
+import { PostHogProvider } from "@/providers/PostHogProvider";
 
 export default function RootLayout({
   children,
@@ -36,15 +37,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          {children}
-          <Toaster />
-          <Analytics />
-          <UmamiAnalytics />
-          <Suspense fallback={null}>
-            <PostHogPageView />
-          </Suspense>
-        </AuthProvider>
+        <PostHogProvider>
+          <AuthProvider>
+            {children}
+            <Toaster />
+            <Analytics />
+            <UmamiAnalytics />
+            <Suspense fallback={null}>
+              <PostHogPageView />
+            </Suspense>
+          </AuthProvider>
+        </PostHogProvider>
       </body>
     </html>
   );
