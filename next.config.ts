@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/_v/s.js",
-        destination: "/_vercel/insights/script.js",
+        destination: "https://va.vercel-scripts.com/v1/script.js",
       },
       // PostHog Proxy (Deep Obfuscation)
       {
