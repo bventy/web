@@ -107,7 +107,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                                 </defs>
                                 <CartesianGrid vertical={false} strokeDasharray="3 3" strokeOpacity={0.1} stroke="#888" />
                                 <XAxis dataKey="date" hide />
-                                <YAxis hide domain={[0, dataMax === 0 ? 10 : 'auto']} padding={{ bottom: 2 }} />
+                                <YAxis hide domain={[-1, dataMax === 0 ? 10 : 'auto']} padding={{ bottom: 0 }} />
                                 <Tooltip
                                     contentStyle={{
                                         backgroundColor: 'hsl(var(--background))',
