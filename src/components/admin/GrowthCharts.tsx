@@ -80,23 +80,23 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
         }
 
         return (
-            <Card className="flex flex-col border-none shadow-sm bg-card hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-border/50 h-[320px] group">
-                <CardHeader className="pb-0 pt-3 px-5">
-                    <CardTitle className="text-[11px] font-bold text-muted-foreground/80 flex justify-between items-center tracking-wide uppercase">
+            <Card className="flex flex-col border-none shadow-sm bg-card hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-border/50 h-[300px] group">
+                <CardHeader className="pb-0 pt-2 px-5">
+                    <CardTitle className="text-[13px] font-bold text-muted-foreground/80 flex justify-between items-center tracking-wide uppercase">
                         {title}
                         <span className="text-[9px] font-bold text-muted-foreground/40 bg-muted/30 px-1.5 py-0.5 rounded uppercase tracking-widest">
                             {granularity}
                         </span>
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="p-0 flex-1 flex flex-col">
+                <CardContent className="p-0 flex-1 flex flex-col relative">
                     <div className="px-5 pt-0">
                         <div className="flex items-baseline gap-2">
                             <h3 className="text-4xl font-extrabold tracking-tighter text-foreground leading-none">
                                 {total.toLocaleString()}
                             </h3>
                         </div>
-                        <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center justify-between mt-1">
                             <div className="flex items-center gap-2">
                                 <div className={`flex items-center gap-0.5 text-[11px] font-bold px-1.5 py-0.5 rounded ${status === 'up' ? 'text-emerald-600 bg-emerald-50' :
                                     status === 'down' ? 'text-rose-600 bg-rose-50' : 'text-muted-foreground/60 bg-muted/30'
@@ -107,15 +107,15 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                                 </div>
                                 <span className="text-[10px] text-muted-foreground/50 font-medium uppercase tracking-tighter">this month</span>
                             </div>
-                            <span className="text-[12px] font-bold text-muted-foreground">
+                            <span className="text-[12px] font-bold text-muted-foreground/60">
                                 {diff > 0 ? `+${diff}` : diff < 0 ? `${diff}` : '0'}
                             </span>
                         </div>
                     </div>
 
-                    <div className="h-[140px] w-full mt-auto relative">
+                    <div className="h-[160px] w-full mt-auto relative">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={displayData} margin={{ top: 0, right: 0, bottom: 20, left: 0 }}>
+                            <AreaChart data={displayData} margin={{ top: 0, right: 0, bottom: 5, left: 0 }}>
                                 <defs>
                                     <linearGradient id={`gradient-${id}`} x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor={color} stopOpacity={0.3} />
@@ -149,15 +149,15 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                                 />
                             </AreaChart>
                         </ResponsiveContainer>
-                    </div>
 
-                    <div className="px-5 pb-6 flex justify-between items-center text-muted-foreground font-bold mt-auto">
-                        <span className="text-[12px] uppercase tracking-widest">
-                            {displayData[0]?.date ? formatDate(displayData[0].date) : ''}
-                        </span>
-                        <span className="text-[12px] uppercase tracking-widest">
-                            {displayData[displayData.length - 1]?.date ? formatDate(displayData[displayData.length - 1].date) : ''}
-                        </span>
+                        <div className="absolute bottom-2 left-0 right-0 px-5 flex justify-between items-center text-muted-foreground/40 font-bold pointer-events-none">
+                            <span className="text-[9px] uppercase tracking-widest">
+                                {displayData[0]?.date ? formatDate(displayData[0].date) : ''}
+                            </span>
+                            <span className="text-[9px] uppercase tracking-widest">
+                                {displayData[displayData.length - 1]?.date ? formatDate(displayData[displayData.length - 1].date) : ''}
+                            </span>
+                        </div>
                     </div>
                 </CardContent>
             </Card>
