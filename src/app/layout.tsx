@@ -47,8 +47,8 @@ export default function RootLayout({
             <Toaster />
             {process.env.NODE_ENV === 'production' && (
               <Script
-                src="/va/script.js"
-                strategy="afterInteractive"
+                src="/_v/s.js"
+                strategy="lazyOnload"
                 data-debug="false"
               />
             )}

@@ -22,38 +22,38 @@ const nextConfig: NextConfig = {
         destination: "https://bventy-api.onrender.com/:path*",
       },
       {
-        source: "/metrics/script.js",
-        destination: "https://cloud.umami.is/script.js",
-      },
-      {
-        source: "/metrics/api/send",
-        destination: "https://cloud.umami.is/api/send",
-      },
-      // Vercel Analytics Proxy
-      {
-        source: "/va/script.js",
+        source: "/_v/s.js",
         destination: "/_vercel/insights/script.js",
       },
-      // PostHog Proxy (renamed from /events/ to /ingest/ to avoid conflict with /events page)
+      // PostHog Proxy (Deep Obfuscation)
       {
-        source: "/ingest/static/:path*",
+        source: "/_p/static/:path*",
         destination: "https://us-assets.i.posthog.com/static/:path*",
       },
       {
-        source: "/ingest/s/:path*",
+        source: "/_p/s/:path*",
         destination: "https://us.i.posthog.com/s/:path*",
       },
       {
-        source: "/ingest/e/:path*",
+        source: "/_p/e/:path*",
         destination: "https://us.i.posthog.com/e/:path*",
       },
       {
-        source: "/ingest/decide",
+        source: "/_p/decide",
         destination: "https://us.i.posthog.com/decide",
       },
       {
-        source: "/ingest/:path*",
+        source: "/_p/:path*",
         destination: "https://us.i.posthog.com/:path*",
+      },
+      // Umami Proxy
+      {
+        source: "/_u/s.js",
+        destination: "https://cloud.umami.is/script.js",
+      },
+      {
+        source: "/_u/api/send",
+        destination: "https://cloud.umami.is/api/send",
       },
     ];
   },
