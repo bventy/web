@@ -66,7 +66,6 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
         };
 
         const dataMax = Math.max(...chartData.map(d => d.count), 0);
-        const yDomain = dataMax === 0 ? [0, 10] : [0, 'auto'];
 
         return (
             <Card className="flex flex-col border-none shadow-sm bg-card hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-border/50 h-[240px] group">
@@ -87,7 +86,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                         </div>
                         <div className="flex items-center gap-2 mt-2">
                             <div className={`flex items-center gap-0.5 text-[11px] font-bold px-1.5 py-0.5 rounded ${status === 'up' ? 'text-emerald-600 bg-emerald-50' :
-                                    status === 'down' ? 'text-rose-600 bg-rose-50' : 'text-muted-foreground/60 bg-muted/30'
+                                status === 'down' ? 'text-rose-600 bg-rose-50' : 'text-muted-foreground/60 bg-muted/30'
                                 }`}>
                                 {status === 'up' && <TrendingUp className="h-3 w-3" />}
                                 {status === 'down' && <TrendingDown className="h-3 w-3" />}
@@ -108,7 +107,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                                 </defs>
                                 <CartesianGrid vertical={false} strokeDasharray="3 3" strokeOpacity={0.1} stroke="#888" />
                                 <XAxis dataKey="date" hide />
-                                <YAxis hide domain={yDomain} padding={{ bottom: 2 }} />
+                                <YAxis hide domain={[0, dataMax === 0 ? 10 : 'auto']} padding={{ bottom: 2 }} />
                                 <Tooltip
                                     contentStyle={{
                                         backgroundColor: 'hsl(var(--background))',
