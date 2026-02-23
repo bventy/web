@@ -46,14 +46,9 @@ export default function AdminOverviewPage() {
                 </p>
             </div>
 
-            <section className="space-y-4">
-                <h2 className="text-xl font-semibold tracking-tight">Overview</h2>
-                <OverviewCards data={overviewData} loading={loadingOverview} />
-            </section>
-
-            <section className="space-y-4">
+            <div>
                 <GrowthCharts data={growthData} loading={loadingGrowth} />
-            </section>
+            </div>
 
             <div className="grid gap-8 grid-cols-1 xl:grid-cols-3">
                 <div className="xl:col-span-2 space-y-8">
