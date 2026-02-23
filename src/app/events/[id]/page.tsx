@@ -148,7 +148,6 @@ export default function EventDetailPage() {
                                     <Card key={vendor.id} className="flex items-center p-4 justify-between">
                                         <div className="flex items-center gap-4">
                                             <Avatar className="h-12 w-12">
-                                                <AvatarImage src={`/avatars/${vendor.id}.png`} />
                                                 <AvatarFallback>{vendor.business_name.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                             <div>
