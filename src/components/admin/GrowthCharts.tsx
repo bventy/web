@@ -71,26 +71,29 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
         return (
             <Card className="flex flex-col border-none shadow-sm bg-card hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-border/50">
                 <CardHeader className="pb-0 pt-5 px-5">
-                    <CardTitle className="text-[13px] font-medium text-muted-foreground/80 flex justify-between items-center tracking-tight">
+                    <CardTitle className="text-[11px] font-bold text-muted-foreground/50 flex justify-between items-center tracking-[0.1em] uppercase">
                         {title}
-                        <span className="text-[10px] font-medium text-muted-foreground/40 uppercase tracking-widest">{granularity}</span>
+                        <span className="opacity-60">{granularity}</span>
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                     <div className="px-5 pt-3">
-                        <div className="flex items-baseline gap-2">
-                            <h3 className="text-3xl font-bold tracking-tight text-foreground">
+                        <div className="flex flex-col gap-0.5">
+                            <h3 className="text-4xl font-extrabold tracking-tighter text-foreground leading-none">
                                 {total.toLocaleString()}
                             </h3>
                             {isNewFormat && (
-                                <span className="text-xs font-medium text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded-md">
-                                    +{past} this month
-                                </span>
+                                <div className="flex items-center gap-1.5 mt-2">
+                                    <span className="text-[11px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                                        +{past} new
+                                    </span>
+                                    <span className="text-[10px] text-muted-foreground/60 font-medium">this month</span>
+                                </div>
                             )}
                         </div>
                     </div>
 
-                    <div className="h-[120px] w-full mt-4">
+                    <div className="h-[140px] w-full mt-6 relative px-1">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={chartData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                                 <defs>
@@ -99,16 +102,27 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                                         <stop offset="95%" stopColor={color} stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <XAxis dataKey="date" hide />
+                                <XAxis
+                                    dataKey="date"
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))', opacity: 0.3 }}
+                                    tickFormatter={(val) => {
+                                        const d = new Date(val);
+                                        return d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+                                    }}
+                                    minTickGap={60}
+                                />
                                 <YAxis hide domain={['auto', 'auto']} />
                                 <Tooltip
                                     contentStyle={{
                                         backgroundColor: 'hsl(var(--background))',
                                         borderColor: 'hsl(var(--border))',
-                                        borderRadius: '10px',
+                                        borderRadius: '12px',
                                         fontSize: '11px',
-                                        padding: '4px 8px',
-                                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                                        padding: '6px 10px',
+                                        boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                                        border: '1px solid hsl(var(--border)/0.5)'
                                     }}
                                     labelFormatter={(val) => formatDate(val as string)}
                                 />
@@ -116,29 +130,27 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                                     type="monotone"
                                     dataKey="count"
                                     stroke={color}
-                                    strokeWidth={2}
+                                    strokeWidth={2.5}
                                     fillOpacity={1}
                                     fill={`url(#gradient-${id})`}
-                                    animationDuration={1000}
+                                    animationDuration={1500}
                                     dot={false}
                                 />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
 
-                    <div className="px-5 pb-5 pt-3">
-                        <div className="flex items-center gap-1.5 text-xs font-semibold">
-                            <div className={`p-1 rounded-full ${status === 'up' ? 'bg-emerald-500/10 text-emerald-500' :
-                                status === 'down' ? 'bg-rose-500/10 text-rose-500' : 'bg-muted text-muted-foreground'
+                    <div className="px-5 pb-5 pt-4">
+                        <div className="flex items-center gap-2 text-[11px] font-bold">
+                            <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${status === 'up' ? 'bg-emerald-500/10 text-emerald-500' :
+                                    status === 'down' ? 'bg-rose-500/10 text-rose-500' : 'bg-muted text-muted-foreground'
                                 }`}>
                                 {status === 'up' && <TrendingUp className="h-3 w-3" />}
                                 {status === 'down' && <TrendingDown className="h-3 w-3" />}
                                 {status === 'neutral' && <Minus className="h-3 w-3" />}
-                            </div>
-                            <span className={status === 'up' ? 'text-emerald-500' : status === 'down' ? 'text-rose-500' : 'text-muted-foreground'}>
                                 {trend > 0 ? `+${trend}%` : `${trend}%`}
-                            </span>
-                            <span className="text-muted-foreground/60 font-normal">vs last month</span>
+                            </div>
+                            <span className="text-muted-foreground/50 font-medium tracking-tight">vs last month</span>
                         </div>
                     </div>
                 </CardContent>

@@ -50,6 +50,13 @@ export default function AdminOverviewPage() {
                 <GrowthCharts data={growthData} loading={loadingGrowth} />
             </div>
 
+            <section className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground/40">Platform Overview</h2>
+                </div>
+                <OverviewCards data={overviewData} loading={loadingOverview} />
+            </section>
+
             <div className="grid gap-8 grid-cols-1 xl:grid-cols-3">
                 <div className="xl:col-span-2 space-y-8">
                     <section className="space-y-4">
