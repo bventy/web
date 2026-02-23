@@ -32,6 +32,8 @@ export function ReviewSection({ vendorId, vendorName }: ReviewSectionProps) {
     const [submitting, setSubmitting] = useState(false);
     const [rating, setRating] = useState(5);
     const [comment, setComment] = useState("");
+    const [isEligible, setIsEligible] = useState(false);
+    const [checkingEligibility, setCheckingEligibility] = useState(false);
 
     const fetchReviews = async () => {
         try {
@@ -44,11 +46,25 @@ export function ReviewSection({ vendorId, vendorName }: ReviewSectionProps) {
         }
     };
 
+    const fetchEligibility = async () => {
+        if (!user) return;
+        setCheckingEligibility(true);
+        try {
+            const { eligible } = await vendorService.checkReviewEligibility(vendorId);
+            setIsEligible(eligible);
+        } catch (error) {
+            console.error("Failed to check eligibility", error);
+        } finally {
+            setCheckingEligibility(false);
+        }
+    };
+
     useEffect(() => {
         if (vendorId) {
             fetchReviews();
+            fetchEligibility();
         }
-    }, [vendorId]);
+    }, [vendorId, user]);
 
     const handleSubmitReview = async () => {
         if (rating < 1) {
@@ -63,6 +79,7 @@ export function ReviewSection({ vendorId, vendorName }: ReviewSectionProps) {
             setComment("");
             setRating(5);
             fetchReviews();
+            fetchEligibility(); // Refresh eligibility (though likely they only review once)
         } catch (error: any) {
             toast.error(error.response?.data?.error || "Failed to submit review");
         } finally {
@@ -103,44 +120,61 @@ export function ReviewSection({ vendorId, vendorName }: ReviewSectionProps) {
                 </div>
 
                 {user && (
-                    <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
-                        <DialogTrigger asChild>
-                            <Button variant="outline" size="sm" className="gap-2">
-                                <Plus className="h-4 w-4" /> Write a Review
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                            <DialogHeader>
-                                <DialogTitle>Leave a Review</DialogTitle>
-                                <DialogDescription>
-                                    Share your experience with <strong>{vendorName}</strong>.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <div className="py-4 space-y-6">
-                                <div className="space-y-2 text-center">
-                                    <Label>Rating</Label>
-                                    <div className="flex justify-center pt-2">
-                                        {renderStars(rating, true)}
+                    <div className="flex items-center gap-4">
+                        {!isEligible && !checkingEligibility && (
+                            <p className="text-xs text-muted-foreground italic max-w-[200px] text-right">
+                                You can leave a review after your event with this vendor is completed.
+                            </p>
+                        )}
+                        <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
+                            <DialogTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="gap-2"
+                                    disabled={!isEligible || checkingEligibility}
+                                >
+                                    {checkingEligibility ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <Plus className="h-4 w-4" />
+                                    )}
+                                    Write a Review
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                                <DialogHeader>
+                                    <DialogTitle>Leave a Review</DialogTitle>
+                                    <DialogDescription>
+                                        Share your experience with <strong>{vendorName}</strong>.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="py-4 space-y-6">
+                                    <div className="space-y-2 text-center">
+                                        <Label>Rating</Label>
+                                        <div className="flex justify-center pt-2">
+                                            {renderStars(rating, true)}
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Your Feedback</Label>
+                                        <Textarea
+                                            placeholder="What was it like working with them?"
+                                            value={comment}
+                                            onChange={(e) => setComment(e.target.value)}
+                                            rows={4}
+                                        />
                                     </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <Label>Your Feedback</Label>
-                                    <Textarea
-                                        placeholder="What was it like working with them?"
-                                        value={comment}
-                                        onChange={(e) => setComment(e.target.value)}
-                                        rows={4}
-                                    />
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <Button onClick={handleSubmitReview} disabled={submitting}>
-                                    {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    Submit Review
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
+                                <DialogFooter>
+                                    <Button onClick={handleSubmitReview} disabled={submitting}>
+                                        {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                        Submit Review
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
                 )}
             </div>
 

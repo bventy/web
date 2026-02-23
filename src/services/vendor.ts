@@ -72,5 +72,9 @@ export const vendorService = {
     },
     submitReview: async (vendorId: string, rating: number, comment: string, quoteId?: string): Promise<void> => {
         await api.post(`/vendors/${vendorId}/reviews`, { rating, comment, quote_id: quoteId });
+    },
+    checkReviewEligibility: async (vendorId: string): Promise<{ eligible: boolean }> => {
+        const response = await api.get<{ eligible: boolean }>(`/vendors/${vendorId}/reviews/eligibility`);
+        return response.data;
     }
 };
