@@ -145,12 +145,12 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                         </ResponsiveContainer>
                     </div>
 
-                    <div className="px-5 pb-4 pt-2 flex justify-between items-center text-muted-foreground font-bold border-t border-border/10 bg-muted/5 mt-auto">
-                        <span className="text-[10px] uppercase tracking-tighter">
-                            {displayData[0]?.date ? new Date(displayData[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
+                    <div className="px-5 pb-4 flex justify-between items-center text-muted-foreground/30 font-medium mt-auto">
+                        <span className="text-[9px] uppercase tracking-widest">
+                            {displayData[0]?.date ? formatDate(displayData[0].date) : ''} ({displayData[0]?.count ?? 0})
                         </span>
-                        <span className="text-[10px] uppercase tracking-tighter">
-                            {displayData[displayData.length - 1]?.date ? new Date(displayData[displayData.length - 1].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
+                        <span className="text-[9px] uppercase tracking-widest">
+                            {displayData[displayData.length - 1]?.date ? formatDate(displayData[displayData.length - 1].date) : ''} ({displayData[displayData.length - 1]?.count ?? 0})
                         </span>
                     </div>
                 </CardContent>
