@@ -19,9 +19,9 @@ export const metadata: Metadata = {
 
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "@/components/ui/sonner";
-import { Analytics } from "@vercel/analytics/react";
 import UmamiAnalytics from "@/components/UmamiAnalytics";
 import PostHogPageView from "@/components/PostHogPageView";
+import Script from "next/script";
 import { Suspense } from "react";
 import { PostHogProvider } from "@/providers/PostHogProvider";
 import { BackendWarmup } from "@/components/layout/BackendWarmup";
@@ -45,7 +45,13 @@ export default function RootLayout({
             <BackendWarmup />
             {children}
             <Toaster />
-            {process.env.NODE_ENV === 'production' && <Analytics />}
+            {process.env.NODE_ENV === 'production' && (
+              <Script
+                src="/va/script.js"
+                strategy="afterInteractive"
+                data-debug="false"
+              />
+            )}
             {process.env.NEXT_PUBLIC_UMAMI_ID && <UmamiAnalytics />}
             <Suspense fallback={null}>
               <PostHogPageView />

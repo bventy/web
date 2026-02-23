@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "media.bventy.in",
       },
+      {
+        protocol: "https",
+        hostname: "va.vercel-scripts.com", // For manual loading if needed, though we'll use local proxy
+      },
     ],
   },
   async rewrites() {
@@ -25,24 +29,30 @@ const nextConfig: NextConfig = {
         source: "/metrics/api/send",
         destination: "https://cloud.umami.is/api/send",
       },
+      // Vercel Analytics Proxy
       {
-        source: "/events/static/:path*",
+        source: "/va/script.js",
+        destination: "/_vercel/insights/script.js",
+      },
+      // PostHog Proxy (renamed from /events/ to /ingest/ to avoid conflict with /events page)
+      {
+        source: "/ingest/static/:path*",
         destination: "https://us-assets.i.posthog.com/static/:path*",
       },
       {
-        source: "/events/s/:path*",
+        source: "/ingest/s/:path*",
         destination: "https://us.i.posthog.com/s/:path*",
       },
       {
-        source: "/events/e/:path*",
+        source: "/ingest/e/:path*",
         destination: "https://us.i.posthog.com/e/:path*",
       },
       {
-        source: "/events/decide",
+        source: "/ingest/decide",
         destination: "https://us.i.posthog.com/decide",
       },
       {
-        source: "/events/:path*",
+        source: "/ingest/:path*",
         destination: "https://us.i.posthog.com/:path*",
       },
     ];
