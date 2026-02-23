@@ -66,7 +66,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
         };
 
         return (
-            <Card className="flex flex-col border-none shadow-sm bg-card hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-border/50 h-[220px] group">
+            <Card className="flex flex-col border-none shadow-sm bg-card hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-border/50 h-[240px] group">
                 <CardHeader className="pb-0 pt-5 px-5">
                     <CardTitle className="text-[12px] font-bold text-muted-foreground/80 flex justify-between items-center tracking-wide uppercase">
                         {title}
@@ -84,7 +84,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                         </div>
                         <div className="flex items-center gap-2 mt-2">
                             <div className={`flex items-center gap-0.5 text-[11px] font-bold px-1.5 py-0.5 rounded ${status === 'up' ? 'text-emerald-600 bg-emerald-50' :
-                                    status === 'down' ? 'text-rose-600 bg-rose-50' : 'text-muted-foreground/60 bg-muted/30'
+                                status === 'down' ? 'text-rose-600 bg-rose-50' : 'text-muted-foreground/60 bg-muted/30'
                                 }`}>
                                 {status === 'up' && <TrendingUp className="h-3 w-3" />}
                                 {status === 'down' && <TrendingDown className="h-3 w-3" />}
@@ -94,17 +94,18 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                         </div>
                     </div>
 
-                    <div className="h-[100px] w-full mt-auto relative">
+                    <div className="h-[120px] w-full mt-auto relative">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={chartData} margin={{ top: 10, right: 0, bottom: 0, left: 0 }}>
                                 <defs>
                                     <linearGradient id={`gradient-${id}`} x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor={color} stopOpacity={0.25} />
+                                        <stop offset="5%" stopColor={color} stopOpacity={0.3} />
                                         <stop offset="95%" stopColor={color} stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
+                                <CartesianGrid vertical={false} strokeDasharray="3 3" strokeOpacity={0.1} stroke="#888" />
                                 <XAxis dataKey="date" hide />
-                                <YAxis hide domain={['auto', 'auto']} />
+                                <YAxis hide domain={[0, 'auto']} />
                                 <Tooltip
                                     contentStyle={{
                                         backgroundColor: 'hsl(var(--background))',
@@ -121,7 +122,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                                     type="monotone"
                                     dataKey="count"
                                     stroke={color}
-                                    strokeWidth={3}
+                                    strokeWidth={4}
                                     fillOpacity={1}
                                     fill={`url(#gradient-${id})`}
                                     animationDuration={1500}
@@ -131,7 +132,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                         </ResponsiveContainer>
                     </div>
 
-                    <div className="px-5 pb-3 pt-2 flex justify-between items-center text-muted-foreground/40 font-bold border-t border-border/5 bg-muted/5">
+                    <div className="px-5 pb-3 pt-2 flex justify-between items-center text-muted-foreground/40 font-bold border-t border-border/10 bg-muted/5">
                         <span className="text-[9px] uppercase tracking-tighter">
                             {chartData[0]?.date ? new Date(chartData[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
                         </span>
