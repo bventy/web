@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 export interface GrowthDataPoint {
     date: string;
@@ -17,14 +18,14 @@ export interface GrowthData {
 export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: boolean }) {
     if (loading) {
         return (
-            <div className="grid gap-6 md:grid-cols-1 xl:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {[1, 2, 3, 4].map((i) => (
                     <Card key={i} className="animate-pulse border-none shadow-sm bg-card/50">
-                        <CardHeader>
-                            <div className="h-6 w-40 bg-muted rounded-full"></div>
+                        <CardHeader className="pb-2">
+                            <div className="h-5 w-24 bg-muted rounded-full"></div>
                         </CardHeader>
-                        <CardContent className="h-[400px] flex items-center justify-center">
-                            <div className="w-full h-full bg-muted/30 rounded-2xl"></div>
+                        <CardContent className="h-[200px]">
+                            <div className="w-full h-full bg-muted/30 rounded-xl"></div>
                         </CardContent>
                     </Card>
                 ))}
@@ -34,93 +35,113 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
 
     if (!data) return null;
 
+    const calculateStats = (chartData: GrowthDataPoint[]) => {
+        if (chartData.length < 2) return { total: 0, trend: 0, status: 'neutral' as const };
+
+        const total = chartData.reduce((sum, p) => sum + p.count, 0);
+        const firstHalf = chartData.slice(0, Math.floor(chartData.length / 2));
+        const secondHalf = chartData.slice(Math.floor(chartData.length / 2));
+
+        const firstSum = firstHalf.reduce((sum, p) => sum + p.count, 0);
+        const secondSum = secondHalf.reduce((sum, p) => sum + p.count, 0);
+
+        let trend = 0;
+        if (firstSum > 0) {
+            trend = Math.round(((secondSum - firstSum) / firstSum) * 100);
+        } else if (secondSum > 0) {
+            trend = 100;
+        }
+
+        return {
+            total,
+            trend,
+            status: trend > 0 ? 'up' : trend < 0 ? 'down' : 'neutral' as const
+        };
+    };
+
     const renderChart = (chartData: GrowthDataPoint[], title: string, color: string, id: string) => {
         const granularity = data.granularity || 'day';
+        const stats = calculateStats(chartData);
 
         const formatDate = (val: string) => {
             const date = new Date(val);
-            if (granularity === 'month') {
-                return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
-            }
-            if (granularity === 'week') {
-                return `W${Math.ceil(date.getDate() / 7)} ${date.toLocaleDateString('en-US', { month: 'short' })}`;
-            }
+            if (granularity === 'month') return date.toLocaleDateString('en-US', { month: 'short' });
             return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
         };
 
         return (
-            <Card className="flex flex-col border-none shadow-xl bg-gradient-to-br from-card to-muted/20 overflow-hidden group">
-                <CardHeader className="pb-2">
-                    <CardTitle className="text-lg font-bold tracking-tight group-hover:text-primary transition-colors">
+            <Card className="flex flex-col border-none shadow-md bg-card/50 hover:shadow-lg transition-all duration-300 overflow-hidden border border-border/50">
+                <CardHeader className="pb-0 pt-4 px-4">
+                    <CardTitle className="text-sm font-semibold text-muted-foreground flex justify-between items-center">
                         {title}
+                        <span className="text-xs font-normal opacity-50 uppercase tracking-wider">{granularity}ly</span>
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="flex-1 min-h-[400px] pt-4">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={chartData} margin={{ top: 10, right: 10, bottom: 0, left: -20 }}>
-                            <defs>
-                                <linearGradient id={`gradient-${id}`} x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor={color} stopOpacity={0.3} />
-                                    <stop offset="95%" stopColor={color} stopOpacity={0} />
-                                </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.5} />
-                            <XAxis
-                                dataKey="date"
-                                tickFormatter={formatDate}
-                                stroke="hsl(var(--muted-foreground))"
-                                fontSize={11}
-                                tickLine={false}
-                                axisLine={false}
-                                minTickGap={30}
-                            />
-                            <YAxis
-                                allowDecimals={false}
-                                stroke="hsl(var(--muted-foreground))"
-                                fontSize={11}
-                                tickLine={false}
-                                axisLine={false}
-                            />
-                            <Tooltip
-                                cursor={{ stroke: color, strokeWidth: 1 }}
-                                contentStyle={{
-                                    backgroundColor: 'hsl(var(--background))',
-                                    borderColor: 'hsl(var(--border))',
-                                    borderRadius: '12px',
-                                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                                    border: '1px solid hsl(var(--border))'
-                                }}
-                                labelFormatter={(val) => new Date(val).toLocaleDateString(undefined, {
-                                    weekday: 'short',
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
-                                })}
-                                itemStyle={{ color: color, fontWeight: 'bold' }}
-                            />
-                            <Area
-                                type="monotone"
-                                dataKey="count"
-                                stroke={color}
-                                strokeWidth={3}
-                                fillOpacity={1}
-                                fill={`url(#gradient-${id})`}
-                                animationDuration={1500}
-                                activeDot={{ r: 6, strokeWidth: 0, fill: color }}
-                            />
-                        </AreaChart>
-                    </ResponsiveContainer>
+                <CardContent className="p-0">
+                    <div className="h-[180px] w-full mt-2">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={chartData} margin={{ top: 5, right: 5, bottom: 0, left: -25 }}>
+                                <defs>
+                                    <linearGradient id={`gradient-${id}`} x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor={color} stopOpacity={0.2} />
+                                        <stop offset="95%" stopColor={color} stopOpacity={0} />
+                                    </linearGradient>
+                                </defs>
+                                <XAxis
+                                    dataKey="date"
+                                    hide
+                                />
+                                <YAxis hide domain={['auto', 'auto']} />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: 'hsl(var(--background))',
+                                        borderColor: 'hsl(var(--border))',
+                                        borderRadius: '8px',
+                                        fontSize: '12px',
+                                        padding: '4px 8px'
+                                    }}
+                                    labelFormatter={(val) => formatDate(val as string)}
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="count"
+                                    stroke={color}
+                                    strokeWidth={2}
+                                    fillOpacity={1}
+                                    fill={`url(#gradient-${id})`}
+                                    animationDuration={1000}
+                                    dot={false}
+                                />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </div>
+                    <div className="px-4 pb-4 pt-2 border-t border-border/30 bg-muted/5">
+                        <div className="flex items-end justify-between">
+                            <div>
+                                <p className="text-2xl font-bold tracking-tight">{stats.total}</p>
+                                <p className="text-[10px] text-muted-foreground uppercase font-medium">Total period</p>
+                            </div>
+                            <div className={`flex items-center gap-1 text-xs font-bold ${stats.status === 'up' ? 'text-emerald-500' :
+                                    stats.status === 'down' ? 'text-rose-500' : 'text-muted-foreground'
+                                }`}>
+                                {stats.status === 'up' && <TrendingUp className="h-3 w-3" />}
+                                {stats.status === 'down' && <TrendingDown className="h-3 w-3" />}
+                                {stats.status === 'neutral' && <Minus className="h-3 w-3" />}
+                                {stats.trend > 0 ? `+${stats.trend}%` : `${stats.trend}%`}
+                            </div>
+                        </div>
+                    </div>
                 </CardContent>
             </Card>
         );
     };
 
     return (
-        <div className="grid gap-8 grid-cols-1 lg:grid-cols-2">
-            {renderChart(data.userGrowth, "User Growth", "#3b82f6", "users")}
-            {renderChart(data.vendorGrowth, "Vendor Growth", "#10b981", "vendors")}
-            {renderChart(data.eventGrowth, "Event Creation", "#f59e0b", "events")}
-            {renderChart(data.quoteGrowth, "Quote Requests", "#8b5cf6", "quotes")}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {renderChart(data.userGrowth, "Users", "#3b82f6", "users")}
+            {renderChart(data.vendorGrowth, "Vendors", "#10b981", "vendors")}
+            {renderChart(data.eventGrowth, "Events", "#f59e0b", "events")}
+            {renderChart(data.quoteGrowth, "Quotes", "#8b5cf6", "quotes")}
         </div>
     );
 }
