@@ -24,7 +24,7 @@ export default function PrivacyPolicyPage() {
                 </h1>
 
                 <p className="text-white/70 text-lg leading-relaxed mb-12">
-                    Effective Date: February 22, 2026<br />
+                    Effective Date: February 23, 2026<br />
                     At Bventy, we believe in radical transparency. In the spirit of open-source development, we want you to know exactly what data we collect, how we collect it, and why. We do not sell your data. We use telemetry strictly to improve the platform and provide a world-class experience.
                 </p>
 
