@@ -76,7 +76,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
             ];
 
         return (
-            <Card className="flex flex-col border-none shadow-sm bg-card hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-border/50 h-[240px] group">
+            <Card className="flex flex-col border-none shadow-sm bg-card hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-border/50 h-[280px] group">
                 <CardHeader className="pb-0 pt-5 px-5">
                     <CardTitle className="text-[12px] font-bold text-muted-foreground/80 flex justify-between items-center tracking-wide uppercase">
                         {title}
@@ -85,7 +85,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                         </span>
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="p-0 flex-1 flex flex-col">
+                <CardContent className="p-0 flex-1 flex flex-col justify-between">
                     <div className="px-5 pt-2">
                         <div className="flex items-baseline gap-2">
                             <h3 className="text-4xl font-extrabold tracking-tighter text-foreground leading-none">
@@ -104,9 +104,9 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                         </div>
                     </div>
 
-                    <div className="h-[120px] w-full mt-auto relative">
+                    <div className="h-[140px] w-full relative">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={displayData} margin={{ top: 10, right: 0, bottom: 0, left: 0 }}>
+                            <AreaChart data={displayData} margin={{ top: 10, right: 0, bottom: 20, left: 0 }}>
                                 <defs>
                                     <linearGradient id={`gradient-${id}`} x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor={color} stopOpacity={0.3} />
@@ -136,13 +136,14 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                                     fillOpacity={1}
                                     fill={`url(#gradient-${id})`}
                                     animationDuration={1500}
+                                    animationBegin={0}
                                     dot={false}
                                 />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
 
-                    <div className="px-5 pb-3 pt-2 flex justify-between items-center text-muted-foreground/70 font-bold border-t border-border/10 bg-muted/5">
+                    <div className="px-5 pb-4 pt-2 flex justify-between items-center text-muted-foreground font-bold border-t border-border/10 bg-muted/5 mt-auto">
                         <span className="text-[10px] uppercase tracking-tighter">
                             {displayData[0]?.date ? new Date(displayData[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
                         </span>
@@ -153,18 +154,21 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                 </CardContent>
             </Card>
         );
-    };
+                </CardContent >
+            </Card >
+        );
+};
 
-    return (
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-            {renderChart(data.userGrowth, "Users", "#3b82f6", "users")}
-            {renderChart(data.vendorGrowth, "Vendors", "#0ea5e9", "vendors")}
-            {renderChart(data.groupGrowth, "Groups", "#ec4899", "groups")}
-            {renderChart(data.completedEventGrowth, "Completed Events", "#6366f1", "completed")}
-            {renderChart(data.verifiedVendorGrowth, "Verified Vendors", "#10b981", "verified")}
-            {renderChart(data.pendingVendorGrowth, "Pending Vendors", "#f59e0b", "pending")}
-            {renderChart(data.eventGrowth, "Total Events", "#8b5cf6", "events")}
-            {renderChart(data.quoteGrowth, "Quotes", "#f43f5e", "quotes")}
-        </div>
-    );
+return (
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        {renderChart(data.userGrowth, "Users", "#3b82f6", "users")}
+        {renderChart(data.vendorGrowth, "Vendors", "#0ea5e9", "vendors")}
+        {renderChart(data.groupGrowth, "Groups", "#ec4899", "groups")}
+        {renderChart(data.completedEventGrowth, "Completed Events", "#6366f1", "completed")}
+        {renderChart(data.verifiedVendorGrowth, "Verified Vendors", "#10b981", "verified")}
+        {renderChart(data.pendingVendorGrowth, "Pending Vendors", "#f59e0b", "pending")}
+        {renderChart(data.eventGrowth, "Total Events", "#8b5cf6", "events")}
+        {renderChart(data.quoteGrowth, "Quotes", "#f43f5e", "quotes")}
+    </div>
+);
 }
