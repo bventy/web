@@ -18,14 +18,14 @@ export const metadata: Metadata = {
 };
 
 import { AuthProvider } from "@/context/AuthContext";
-
 import { Toaster } from "@/components/ui/sonner";
-
 import { Analytics } from "@vercel/analytics/react";
 import UmamiAnalytics from "@/components/UmamiAnalytics";
 import PostHogPageView from "@/components/PostHogPageView";
 import { Suspense } from "react";
 import { PostHogProvider } from "@/providers/PostHogProvider";
+import { BackendWarmup } from "@/components/layout/BackendWarmup";
+import { ProgressProvider } from "@/components/layout/ProgressProvider";
 
 export default function RootLayout({
   children,
@@ -37,8 +37,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Suspense fallback={null}>
+          <ProgressProvider />
+        </Suspense>
         <PostHogProvider>
           <AuthProvider>
+            <BackendWarmup />
             {children}
             <Toaster />
             <Analytics />
