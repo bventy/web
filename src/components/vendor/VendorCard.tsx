@@ -19,7 +19,7 @@ export function VendorCard({ vendor }: VendorCardProps) {
     const initials = (vendor.owner_full_name || vendor.business_name || "V").charAt(0).toUpperCase();
 
     return (
-        <Card className="flex h-full flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-muted/50 group bg-card">
+        <Card className="flex h-full flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-muted/50 group bg-card/50 backdrop-blur-sm">
             {/* Cover Image */}
             <div className="relative aspect-video w-full bg-muted/50 dark:bg-muted/20 overflow-hidden">
                 {coverImage ? (
