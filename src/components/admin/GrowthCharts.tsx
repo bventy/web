@@ -42,13 +42,17 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
 
     if (!data) return null;
 
-    const renderChart = (detail: GrowthDetail, title: string, color: string, id: string) => {
+    const renderChart = (detail: GrowthDetail | GrowthDataPoint[], title: string, color: string, id: string) => {
         const granularity = data.granularity || 'day';
-        const chartData = detail.series;
 
-        // Calculate Trend based on backend numbers
-        const past = detail.new_past_30_days;
-        const prev = detail.new_previous_30_days;
+        // Handle both new GrowthDetail and old GrowthDataPoint[] formats for safety
+        const isNewFormat = detail && 'series' in detail;
+        const chartData = isNewFormat ? detail.series : (Array.isArray(detail) ? detail : []);
+        const total = isNewFormat ? (detail.total_all_time ?? 0) : chartData.reduce((sum, p) => sum + p.count, 0);
+        const past = isNewFormat ? (detail.new_past_30_days ?? 0) : 0;
+        const prev = isNewFormat ? (detail.new_previous_30_days ?? 0) : 0;
+
+        // Calculate Trend
         let trend = 0;
         if (prev > 0) {
             trend = Math.round(((past - prev) / prev) * 100);
@@ -75,10 +79,14 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                 <CardContent className="p-0">
                     <div className="px-5 pt-3">
                         <div className="flex items-baseline gap-2">
-                            <h3 className="text-3xl font-bold tracking-tight text-foreground">{detail.total_all_time.toLocaleString()}</h3>
-                            <span className="text-xs font-medium text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded-md">
-                                +{detail.new_past_30_days} this month
-                            </span>
+                            <h3 className="text-3xl font-bold tracking-tight text-foreground">
+                                {total.toLocaleString()}
+                            </h3>
+                            {isNewFormat && (
+                                <span className="text-xs font-medium text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded-md">
+                                    +{past} this month
+                                </span>
+                            )}
                         </div>
                     </div>
 
@@ -121,7 +129,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                     <div className="px-5 pb-5 pt-3">
                         <div className="flex items-center gap-1.5 text-xs font-semibold">
                             <div className={`p-1 rounded-full ${status === 'up' ? 'bg-emerald-500/10 text-emerald-500' :
-                                    status === 'down' ? 'bg-rose-500/10 text-rose-500' : 'bg-muted text-muted-foreground'
+                                status === 'down' ? 'bg-rose-500/10 text-rose-500' : 'bg-muted text-muted-foreground'
                                 }`}>
                                 {status === 'up' && <TrendingUp className="h-3 w-3" />}
                                 {status === 'down' && <TrendingDown className="h-3 w-3" />}
