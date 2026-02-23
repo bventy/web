@@ -58,6 +58,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
         }
 
         const status = trend > 0 ? 'up' : trend < 0 ? 'down' : 'neutral';
+        const diff = past - prev;
 
         const formatDate = (val: string) => {
             const date = new Date(val);
@@ -101,13 +102,13 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                                 }`}>
                                 {status === 'up' && <TrendingUp className="h-3 w-3" />}
                                 {status === 'down' && <TrendingDown className="h-3 w-3" />}
-                                {trend > 0 ? `+${trend}%` : `${trend}%`}
+                                {diff > 0 ? `+${diff}` : diff < 0 ? `${diff}` : '0'} ({trend > 0 ? `+${trend}%` : `${trend}%`})
                             </div>
-                            <span className="text-[10px] text-muted-foreground/50 font-medium">this month</span>
+                            <span className="text-[10px] text-muted-foreground/50 font-medium whitespace-nowrap">this month</span>
                         </div>
                     </div>
 
-                    <div className="h-[140px] w-full relative">
+                    <div className="h-[120px] w-full relative">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={displayData} margin={{ top: 10, right: 0, bottom: 20, left: 0 }}>
                                 <defs>
@@ -145,7 +146,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                         </ResponsiveContainer>
                     </div>
 
-                    <div className="px-5 pb-4 flex justify-between items-center text-muted-foreground/30 font-medium mt-auto">
+                    <div className="px-5 pb-4 flex justify-between items-center text-muted-foreground/60 font-medium mt-auto">
                         <span className="text-[9px] uppercase tracking-widest">
                             {displayData[0]?.date ? formatDate(displayData[0].date) : ''} ({displayData[0]?.count ?? 0})
                         </span>
