@@ -22,37 +22,37 @@ const nextConfig: NextConfig = {
         destination: "https://bventy-api.onrender.com/:path*",
       },
       {
-        source: "/_v/s.js",
+        source: "/vercel-relay/s.js",
         destination: "https://va.vercel-scripts.com/v1/script.js",
       },
-      // PostHog Proxy (Deep Obfuscation)
+      // PostHog Relay
       {
-        source: "/_p/static/:path*",
+        source: "/posth-relay/static/:path*",
         destination: "https://us-assets.i.posthog.com/static/:path*",
       },
       {
-        source: "/_p/s/:path*",
+        source: "/posth-relay/s/:path*",
         destination: "https://us.i.posthog.com/s/:path*",
       },
       {
-        source: "/_p/e/:path*",
+        source: "/posth-relay/e/:path*",
         destination: "https://us.i.posthog.com/e/:path*",
       },
       {
-        source: "/_p/decide",
+        source: "/posth-relay/decide",
         destination: "https://us.i.posthog.com/decide",
       },
       {
-        source: "/_p/:path*",
+        source: "/posth-relay/:path*",
         destination: "https://us.i.posthog.com/:path*",
       },
-      // Umami Proxy
+      // Umami Relay
       {
-        source: "/_u/s.js",
+        source: "/umami-relay/s.js",
         destination: "https://cloud.umami.is/script.js",
       },
       {
-        source: "/_u/api/send",
+        source: "/umami-relay/api/send",
         destination: "https://cloud.umami.is/api/send",
       },
     ];

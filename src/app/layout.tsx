@@ -47,7 +47,7 @@ export default function RootLayout({
             <Toaster />
             {process.env.NODE_ENV === 'production' && (
               <Script
-                src="/_v/s.js"
+                src="/vercel-relay/s.js"
                 strategy="lazyOnload"
                 data-debug="false"
               />
