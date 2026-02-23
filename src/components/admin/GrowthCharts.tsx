@@ -96,7 +96,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
 
                     <div className="h-[120px] w-full mt-auto relative">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={chartData} margin={{ top: 10, right: 0, bottom: 0, left: 0 }}>
+                            <AreaChart data={chartData} margin={{ top: 10, right: 0, bottom: 8, left: 0 }}>
                                 <defs>
                                     <linearGradient id={`gradient-${id}`} x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor={color} stopOpacity={0.3} />
@@ -105,7 +105,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                                 </defs>
                                 <CartesianGrid vertical={false} strokeDasharray="3 3" strokeOpacity={0.1} stroke="#888" />
                                 <XAxis dataKey="date" hide />
-                                <YAxis hide domain={[0, 'auto']} />
+                                <YAxis hide domain={[0, 'auto']} padding={{ bottom: 2 }} />
                                 <Tooltip
                                     contentStyle={{
                                         backgroundColor: 'hsl(var(--background))',
