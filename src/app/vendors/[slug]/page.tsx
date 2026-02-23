@@ -35,6 +35,8 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner"; // Assuming sonner is installed, or use standard alert
 import { InlineCreateEventForm } from "@/components/events/InlineCreateEventForm";
+import { ReviewSection } from "@/components/vendor/ReviewSection";
+import { Star } from "lucide-react";
 
 export default function VendorProfilePage() {
     const params = useParams();
@@ -228,9 +230,20 @@ export default function VendorProfilePage() {
                                     )}
                                 </div>
                                 <h1 className="text-4xl font-bold tracking-tight mb-2">{vendor.business_name}</h1>
-                                <div className="flex items-center text-muted-foreground">
-                                    <MapPin className="h-4 w-4 mr-1" />
-                                    {vendor.city}
+                                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-muted-foreground">
+                                    <div className="flex items-center">
+                                        <MapPin className="h-4 w-4 mr-1 text-primary" />
+                                        {vendor.city}
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="flex items-center">
+                                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                            <span className="ml-1 font-bold text-foreground">
+                                                {vendor.average_rating > 0 ? vendor.average_rating.toFixed(1) : "N/A"}
+                                            </span>
+                                        </div>
+                                        <span className="text-sm">({vendor.review_count} reviews)</span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -284,6 +297,9 @@ export default function VendorProfilePage() {
                                     </div>
                                 </div>
                             )}
+
+                            {/* Review Section */}
+                            <ReviewSection vendorId={vendor.id} vendorName={vendor.business_name} />
                         </div>
 
                         {/* Right Column: CTA Card */}

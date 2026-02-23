@@ -2,7 +2,7 @@ import Link from "next/link";
 import { VendorProfile } from "@/services/vendor";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, MapPin, Store } from "lucide-react";
+import { CheckCircle2, MapPin, Store, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
@@ -56,10 +56,19 @@ export function VendorCard({ vendor }: VendorCardProps) {
                         </div>
                         <div className="space-y-0.5 min-w-0">
                             <CardTitle className="text-base line-clamp-1 truncate">{vendor.business_name}</CardTitle>
-                            <CardDescription className="flex items-center gap-1 text-xs">
-                                <MapPin className="h-3 w-3" />
-                                {vendor.city}
-                            </CardDescription>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center text-xs text-muted-foreground">
+                                    <MapPin className="mr-1 h-3 w-3" />
+                                    {vendor.city}
+                                </div>
+                                {vendor.review_count > 0 && (
+                                    <div className="flex items-center gap-1 text-xs">
+                                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                                        <span className="font-bold">{vendor.average_rating.toFixed(1)}</span>
+                                        <span className="text-muted-foreground">({vendor.review_count})</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

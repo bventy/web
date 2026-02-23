@@ -26,6 +26,17 @@ export interface VendorProfile {
     portfolio_image_url?: string;
     gallery_images?: string[];
     portfolio_files?: any[]; // JSONB array
+    average_rating: number;
+    review_count: number;
+}
+
+export interface Review {
+    id: string;
+    rating: number;
+    comment: string;
+    created_at: string;
+    organizer_name: string;
+    profile_image?: string;
 }
 
 export const vendorService = {
@@ -54,5 +65,12 @@ export const vendorService = {
         if (!data.gallery_images) data.gallery_images = [];
         if (!data.portfolio_files) data.portfolio_files = [];
         return data;
+    },
+    getVendorReviews: async (vendorId: string): Promise<Review[]> => {
+        const response = await api.get<Review[]>(`/vendors/${vendorId}/reviews`);
+        return response.data || [];
+    },
+    submitReview: async (vendorId: string, rating: number, comment: string, quoteId?: string): Promise<void> => {
+        await api.post(`/vendors/${vendorId}/reviews`, { rating, comment, quote_id: quoteId });
     }
 };
