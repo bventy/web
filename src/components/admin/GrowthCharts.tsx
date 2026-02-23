@@ -66,53 +66,54 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
         };
 
         return (
-            <Card className="flex flex-col border-none shadow-sm bg-card hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-border/50 h-[190px] group">
+            <Card className="flex flex-col border-none shadow-sm bg-card hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-border/50 h-[200px] group">
                 <CardHeader className="pb-0 pt-5 px-5">
-                    <CardTitle className="text-[13px] font-black text-foreground/90 flex justify-between items-center tracking-tight uppercase">
+                    <CardTitle className="text-[12px] font-bold text-muted-foreground/80 flex justify-between items-center tracking-wide uppercase">
                         {title}
-                        <span className="text-[10px] font-bold text-muted-foreground/40 bg-muted/50 px-2 py-0.5 rounded uppercase tracking-widest">
+                        <span className="text-[9px] font-bold text-muted-foreground/30 bg-muted/30 px-2 py-0.5 rounded uppercase tracking-widest">
                             {granularity}
                         </span>
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="p-0 flex-1 flex flex-col justify-between">
+                <CardContent className="p-0 flex-1 flex flex-col">
                     <div className="px-5 pt-2">
                         <div className="flex items-baseline gap-2">
-                            <h3 className="text-5xl font-black tracking-tighter text-foreground leading-none">
+                            <h3 className="text-4xl font-extrabold tracking-tighter text-foreground leading-none">
                                 {total.toLocaleString()}
                             </h3>
                         </div>
                         <div className="flex items-center gap-2 mt-2">
-                            <div className={`flex items-center gap-0.5 text-[12px] font-black px-1.5 py-0.5 rounded ${status === 'up' ? 'text-emerald-600 bg-emerald-50' :
-                                status === 'down' ? 'text-rose-600 bg-rose-50' : 'text-muted-foreground/60 bg-muted/30'
+                            <div className={`flex items-center gap-0.5 text-[11px] font-bold px-1.5 py-0.5 rounded ${status === 'up' ? 'text-emerald-600 bg-emerald-50' :
+                                    status === 'down' ? 'text-rose-600 bg-rose-50' : 'text-muted-foreground/60 bg-muted/30'
                                 }`}>
                                 {status === 'up' && <TrendingUp className="h-3 w-3" />}
                                 {status === 'down' && <TrendingDown className="h-3 w-3" />}
                                 {trend > 0 ? `+${trend}%` : `${trend}%`}
                             </div>
-                            <span className="text-[11px] text-muted-foreground/70 font-bold">this month</span>
+                            <span className="text-[10px] text-muted-foreground/50 font-medium">this month</span>
                         </div>
                     </div>
 
-                    <div className="h-[65px] w-full mt-auto relative">
+                    <div className="h-[80px] w-full mt-auto relative">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={chartData} margin={{ top: 5, right: 0, bottom: 0, left: 0 }}>
                                 <defs>
                                     <linearGradient id={`gradient-${id}`} x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor={color} stopOpacity={0.25} />
+                                        <stop offset="5%" stopColor={color} stopOpacity={0.2} />
                                         <stop offset="95%" stopColor={color} stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
+                                <XAxis dataKey="date" hide />
+                                <YAxis hide domain={['auto', 'auto']} />
                                 <Tooltip
                                     contentStyle={{
                                         backgroundColor: 'hsl(var(--background))',
                                         borderColor: 'hsl(var(--border))',
-                                        borderRadius: '12px',
+                                        borderRadius: '10px',
                                         fontSize: '11px',
-                                        padding: '6px 12px',
-                                        boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+                                        padding: '6px 10px',
+                                        boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
                                         border: '1px solid hsl(var(--border)/0.5)',
-                                        fontWeight: 'bold'
                                     }}
                                     labelFormatter={(val) => formatDate(val as string)}
                                 />
@@ -120,7 +121,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                                     type="monotone"
                                     dataKey="count"
                                     stroke={color}
-                                    strokeWidth={3.5}
+                                    strokeWidth={3}
                                     fillOpacity={1}
                                     fill={`url(#gradient-${id})`}
                                     animationDuration={1500}
@@ -130,11 +131,11 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                         </ResponsiveContainer>
                     </div>
 
-                    <div className="px-5 pb-3 pt-1 flex justify-between items-center bg-muted/5 border-t border-border/10">
-                        <span className="text-[10px] font-black text-muted-foreground/80 uppercase tracking-tighter">
+                    <div className="px-5 pb-3 pt-2 flex justify-between items-center text-muted-foreground/30 font-medium border-t border-border/5">
+                        <span className="text-[9px] uppercase tracking-tighter">
                             {chartData[0]?.date ? new Date(chartData[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
                         </span>
-                        <span className="text-[10px] font-black text-muted-foreground/80 uppercase tracking-tighter text-right">
+                        <span className="text-[9px] uppercase tracking-tighter">
                             {chartData[chartData.length - 1]?.date ? new Date(chartData[chartData.length - 1].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
                         </span>
                     </div>
