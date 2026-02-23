@@ -66,11 +66,11 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
         };
 
         return (
-            <Card className="flex flex-col border-none shadow-sm bg-card hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-border/50 h-[200px] group">
+            <Card className="flex flex-col border-none shadow-sm bg-card hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-border/50 h-[220px] group">
                 <CardHeader className="pb-0 pt-5 px-5">
                     <CardTitle className="text-[12px] font-bold text-muted-foreground/80 flex justify-between items-center tracking-wide uppercase">
                         {title}
-                        <span className="text-[9px] font-bold text-muted-foreground/30 bg-muted/30 px-2 py-0.5 rounded uppercase tracking-widest">
+                        <span className="text-[9px] font-bold text-muted-foreground/40 bg-muted/30 px-2 py-0.5 rounded uppercase tracking-widest">
                             {granularity}
                         </span>
                     </CardTitle>
@@ -94,12 +94,12 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                         </div>
                     </div>
 
-                    <div className="h-[80px] w-full mt-auto relative">
+                    <div className="h-[100px] w-full mt-auto relative">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={chartData} margin={{ top: 5, right: 0, bottom: 0, left: 0 }}>
+                            <AreaChart data={chartData} margin={{ top: 10, right: 0, bottom: 0, left: 0 }}>
                                 <defs>
                                     <linearGradient id={`gradient-${id}`} x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor={color} stopOpacity={0.2} />
+                                        <stop offset="5%" stopColor={color} stopOpacity={0.25} />
                                         <stop offset="95%" stopColor={color} stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
@@ -131,7 +131,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                         </ResponsiveContainer>
                     </div>
 
-                    <div className="px-5 pb-3 pt-2 flex justify-between items-center text-muted-foreground/30 font-medium border-t border-border/5">
+                    <div className="px-5 pb-3 pt-2 flex justify-between items-center text-muted-foreground/40 font-bold border-t border-border/5 bg-muted/5">
                         <span className="text-[9px] uppercase tracking-tighter">
                             {chartData[0]?.date ? new Date(chartData[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
                         </span>
