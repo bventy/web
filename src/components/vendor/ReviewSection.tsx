@@ -209,7 +209,7 @@ export function ReviewSection({ vendorId, vendorName }: ReviewSectionProps) {
                                     </div>
                                     {renderStars(review.rating)}
                                 </div>
-                                <p className="text-muted-foreground text-sm leading-relaxed italic">
+                                <p className="text-muted-foreground text-sm leading-relaxed">
                                     "{review.comment}"
                                 </p>
                             </motion.div>

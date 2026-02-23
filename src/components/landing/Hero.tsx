@@ -24,9 +24,7 @@ export function Hero() {
             >
                 <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
                     Find Event Vendors <br className="hidden sm:inline" />
-                    <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent italic">
-                        in Your City
-                    </span>
+                    in Your City
                 </h1>
                 <motion.p
                     initial={{ opacity: 0, y: 20 }}
