@@ -46,11 +46,7 @@ export default function AdminOverviewPage() {
                 </p>
             </div>
 
-            <div>
-                <GrowthCharts data={growthData} loading={loadingGrowth} />
-            </div>
-
-            <div>
+            <div className="mt-2">
                 <GrowthCharts data={growthData} loading={loadingGrowth} />
             </div>
 
