@@ -71,12 +71,12 @@ export const quoteService = {
         const response = await api.get<QuoteContact>(`/quotes/${id}/contact`);
         return response.data;
     },
-    getMyQuotes: async (): Promise<any[]> => {
-        const response = await api.get<any[]>("/quotes/organizer");
+    getMyQuotes: async (): Promise<Quote[]> => {
+        const response = await api.get<Quote[]>("/quotes/organizer");
         return response.data;
     },
-    getQuoteRequests: async (): Promise<any[]> => {
-        const response = await api.get<any[]>("/quotes/vendor");
+    getQuoteRequests: async (): Promise<Quote[]> => {
+        const response = await api.get<Quote[]>("/quotes/vendor");
         return response.data;
     }
 };
