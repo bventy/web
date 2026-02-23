@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+import { motion, AnimatePresence } from "framer-motion";
 import {
     Dialog,
     DialogContent,
@@ -180,32 +181,40 @@ export function ReviewSection({ vendorId, vendorName }: ReviewSectionProps) {
 
             {reviews.length > 0 ? (
                 <div className="grid gap-6">
-                    {reviews.map((review) => (
-                        <div key={review.id} className="p-6 border rounded-xl bg-card shadow-sm space-y-4">
-                            <div className="flex justify-between items-start">
-                                <div className="flex items-center gap-3">
-                                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center overflow-hidden border">
-                                        {review.profile_image ? (
-                                            <img src={review.profile_image} alt={review.organizer_name} className="h-full w-full object-cover" />
-                                        ) : (
-                                            <User className="h-5 w-5 text-muted-foreground" />
-                                        )}
-                                    </div>
-                                    <div>
-                                        <p className="font-semibold text-sm">{review.organizer_name}</p>
-                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                            <Calendar className="h-3 w-3" />
-                                            {formatDistanceToNow(new Date(review.created_at))} ago
+                    <AnimatePresence mode="popLayout">
+                        {reviews.map((review, index) => (
+                            <motion.div
+                                key={review.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                                className="p-6 border rounded-xl bg-card shadow-sm space-y-4 hover:shadow-md transition-shadow"
+                            >
+                                <div className="flex justify-between items-start">
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center overflow-hidden border ring-2 ring-background">
+                                            {review.profile_image ? (
+                                                <img src={review.profile_image} alt={review.organizer_name} className="h-full w-full object-cover" />
+                                            ) : (
+                                                <User className="h-5 w-5 text-muted-foreground" />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-sm tracking-tight">{review.organizer_name}</p>
+                                            <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider font-medium text-muted-foreground">
+                                                <Calendar className="h-3 w-3" />
+                                                {formatDistanceToNow(new Date(review.created_at))} ago
+                                            </div>
                                         </div>
                                     </div>
+                                    {renderStars(review.rating)}
                                 </div>
-                                {renderStars(review.rating)}
-                            </div>
-                            <p className="text-muted-foreground text-sm leading-relaxed italic">
-                                "{review.comment}"
-                            </p>
-                        </div>
-                    ))}
+                                <p className="text-muted-foreground text-sm leading-relaxed italic">
+                                    "{review.comment}"
+                                </p>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
                 </div>
             ) : (
                 <div className="py-12 text-center border rounded-2xl bg-muted/20 border-dashed">
