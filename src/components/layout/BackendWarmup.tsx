@@ -21,7 +21,7 @@ export function BackendWarmup() {
 
                 // If the backend took more than 3 seconds, it was likely a cold start
                 if (duration > 3000) {
-                    console.log(`Backend warm-up complete (Cold start: ${duration}ms)`);
+                    // Silent warm-up
                 }
             } catch (error) {
                 console.warn("Backend warm-up ping failed. Instance might still be spinning up.");

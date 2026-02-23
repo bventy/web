@@ -81,7 +81,6 @@ export default function ProfilePage() {
 
     async function onSubmit(data: ProfileFormValues) {
         setIsSaving(true);
-        console.log("Submitting form data:", data);
 
         try {
             // Filter out empty strings for optional fields to avoid backend validation errors
@@ -113,7 +112,6 @@ export default function ProfilePage() {
             // Use the potentially updated URL
             if (profileImageUrl && profileImageUrl.trim() !== "") payload.profile_image_url = profileImageUrl;
 
-            console.log("Final payload to send (Sanitized):", payload);
 
             await userService.updateProfile(payload);
             toast.success("Profile updated successfully");
@@ -177,7 +175,7 @@ export default function ProfilePage() {
                             <Avatar className="h-32 w-32">
                                 <AvatarImage
                                     key={form.watch("profile_image_url") || user.profile_image_url}
-                                    src={form.watch("profile_image_url") || user.profile_image_url || "/avatars/01.png"}
+                                    src={form.watch("profile_image_url") || user.profile_image_url}
                                 />
                                 <AvatarFallback className="text-4xl">
                                     {(user.full_name || user.username || "U").charAt(0).toUpperCase()}

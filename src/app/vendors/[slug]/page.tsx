@@ -114,12 +114,7 @@ export default function VendorProfilePage() {
         if (!selectedEventId || !vendor) return;
         setQuoteLoading(true);
         try {
-            console.log("Sending quote request:", {
-                vendor_id: vendor.id,
-                event_id: selectedEventId,
-                budget_range: quoteBudget || "Not specified",
-                message: quoteMessage
-            });
+            // Removed debug logging
             await quoteService.requestQuote({
                 vendor_id: vendor.id,
                 event_id: selectedEventId,

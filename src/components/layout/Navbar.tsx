@@ -38,7 +38,7 @@ export function Navbar() {
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" className="relative h-9 w-9 gap-2 rounded-full ring-offset-background transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                                         <Avatar className="h-9 w-9 border-2 border-background shadow-sm">
-                                            <AvatarImage src={user.profile_image_url || "/avatars/01.png"} alt={user.username || user.full_name} />
+                                            <AvatarImage src={user.profile_image_url} alt={user.username || user.full_name} />
                                             <AvatarFallback className="bg-primary/10 text-primary">
                                                 {(user.full_name || user.username || "U").charAt(0).toUpperCase()}
                                             </AvatarFallback>
