@@ -15,25 +15,24 @@ export interface GrowthDetail {
 }
 
 export interface GrowthData {
-    userGrowth: GrowthDetail;
-    vendorGrowth: GrowthDetail;
-    eventGrowth: GrowthDetail;
-    quoteGrowth: GrowthDetail;
+    userGrowth: GrowthDetail | GrowthDataPoint[];
+    vendorGrowth: GrowthDetail | GrowthDataPoint[];
+    verifiedVendorGrowth: GrowthDetail | GrowthDataPoint[];
+    pendingVendorGrowth: GrowthDetail | GrowthDataPoint[];
+    eventGrowth: GrowthDetail | GrowthDataPoint[];
+    completedEventGrowth: GrowthDetail | GrowthDataPoint[];
+    groupGrowth: GrowthDetail | GrowthDataPoint[];
+    quoteGrowth: GrowthDetail | GrowthDataPoint[];
     granularity?: 'day' | 'week' | 'month';
 }
 
 export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: boolean }) {
     if (loading) {
         return (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {[1, 2, 3, 4].map((i) => (
-                    <Card key={i} className="animate-pulse border-none shadow-sm bg-card/50">
-                        <CardHeader className="pb-2">
-                            <div className="h-5 w-24 bg-muted rounded-full"></div>
-                        </CardHeader>
-                        <CardContent className="h-[200px]">
-                            <div className="w-full h-full bg-muted/30 rounded-xl"></div>
-                        </CardContent>
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                    <Card key={i} className="animate-pulse border-none shadow-sm bg-card/50 h-[180px]">
+                        <div className="w-full h-full bg-muted/20 rounded-xl"></div>
                     </Card>
                 ))}
             </div>
@@ -45,22 +44,18 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
     const renderChart = (detail: GrowthDetail | GrowthDataPoint[], title: string, color: string, id: string) => {
         const granularity = data.granularity || 'day';
 
-        // Handle both new GrowthDetail and old GrowthDataPoint[] formats for safety
         const isNewFormat = detail && 'series' in detail;
         const chartData = isNewFormat ? detail.series : (Array.isArray(detail) ? detail : []);
         const total = isNewFormat ? (detail.total_all_time ?? 0) : chartData.reduce((sum, p) => sum + p.count, 0);
         const past = isNewFormat ? (detail.new_past_30_days ?? 0) : 0;
         const prev = isNewFormat ? (detail.new_previous_30_days ?? 0) : 0;
 
-        // Calculate Trend
         let trend = 0;
         if (prev > 0) {
             trend = Math.round(((past - prev) / prev) * 100);
         } else if (past > 0) {
             trend = 100;
         }
-
-        const status = trend > 0 ? 'up' : trend < 0 ? 'down' : 'neutral';
 
         const formatDate = (val: string) => {
             const date = new Date(val);
@@ -69,31 +64,31 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
         };
 
         return (
-            <Card className="flex flex-col border-none shadow-sm bg-card hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-border/50">
-                <CardHeader className="pb-0 pt-5 px-5">
-                    <CardTitle className="text-[11px] font-bold text-muted-foreground/50 flex justify-between items-center tracking-[0.1em] uppercase">
+            <Card className="flex flex-col border-none shadow-sm bg-card hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-border/50 group">
+                <CardHeader className="pb-0 pt-4 px-4">
+                    <CardTitle className="text-[10px] font-bold text-muted-foreground/40 flex justify-between items-center tracking-widest uppercase">
                         {title}
-                        <span className="opacity-60">{granularity}</span>
+                        <span className="opacity-0 group-hover:opacity-100 transition-opacity">{granularity}</span>
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
-                    <div className="px-5 pt-3">
-                        <div className="flex flex-col gap-0.5">
-                            <h3 className="text-4xl font-extrabold tracking-tighter text-foreground leading-none">
+                    <div className="px-4 pt-2">
+                        <div className="flex flex-col">
+                            <h3 className="text-3xl font-extrabold tracking-tighter text-foreground leading-tight">
                                 {total.toLocaleString()}
                             </h3>
                             {isNewFormat && (
-                                <div className="flex items-center gap-1.5 mt-2">
-                                    <span className="text-[11px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                                        +{past} new
+                                <div className="flex items-center gap-1 mt-0.5">
+                                    <span className={`text-[10px] font-bold ${trend > 0 ? 'text-emerald-500' : trend < 0 ? 'text-rose-500' : 'text-muted-foreground/60'}`}>
+                                        {trend > 0 ? `+${trend}%` : `${trend}%`}
                                     </span>
-                                    <span className="text-[10px] text-muted-foreground/60 font-medium">this month</span>
+                                    <span className="text-[9px] text-muted-foreground/40 font-medium">this month</span>
                                 </div>
                             )}
                         </div>
                     </div>
 
-                    <div className="h-[140px] w-full mt-6 relative px-1">
+                    <div className="h-[80px] w-full mt-3 relative">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={chartData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                                 <defs>
@@ -104,25 +99,17 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                                 </defs>
                                 <XAxis
                                     dataKey="date"
-                                    axisLine={false}
-                                    tickLine={false}
-                                    tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))', opacity: 0.3 }}
-                                    tickFormatter={(val) => {
-                                        const d = new Date(val);
-                                        return d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
-                                    }}
-                                    minTickGap={60}
+                                    hide
                                 />
                                 <YAxis hide domain={['auto', 'auto']} />
                                 <Tooltip
                                     contentStyle={{
                                         backgroundColor: 'hsl(var(--background))',
                                         borderColor: 'hsl(var(--border))',
-                                        borderRadius: '12px',
-                                        fontSize: '11px',
-                                        padding: '6px 10px',
+                                        borderRadius: '10px',
+                                        fontSize: '10px',
+                                        padding: '4px 8px',
                                         boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                                        border: '1px solid hsl(var(--border)/0.5)'
                                     }}
                                     labelFormatter={(val) => formatDate(val as string)}
                                 />
@@ -130,7 +117,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                                     type="monotone"
                                     dataKey="count"
                                     stroke={color}
-                                    strokeWidth={2.5}
+                                    strokeWidth={2}
                                     fillOpacity={1}
                                     fill={`url(#gradient-${id})`}
                                     animationDuration={1500}
@@ -140,18 +127,9 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                         </ResponsiveContainer>
                     </div>
 
-                    <div className="px-5 pb-5 pt-4">
-                        <div className="flex items-center gap-2 text-[11px] font-bold">
-                            <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${status === 'up' ? 'bg-emerald-500/10 text-emerald-500' :
-                                    status === 'down' ? 'bg-rose-500/10 text-rose-500' : 'bg-muted text-muted-foreground'
-                                }`}>
-                                {status === 'up' && <TrendingUp className="h-3 w-3" />}
-                                {status === 'down' && <TrendingDown className="h-3 w-3" />}
-                                {status === 'neutral' && <Minus className="h-3 w-3" />}
-                                {trend > 0 ? `+${trend}%` : `${trend}%`}
-                            </div>
-                            <span className="text-muted-foreground/50 font-medium tracking-tight">vs last month</span>
-                        </div>
+                    <div className="px-4 pb-3 pt-2 text-[10px] text-muted-foreground/30 font-medium flex justify-between">
+                        <span>{chartData[0]?.date ? new Date(chartData[0].date).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }) : ''}</span>
+                        <span>{chartData[chartData.length - 1]?.date ? new Date(chartData[chartData.length - 1].date).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }) : ''}</span>
                     </div>
                 </CardContent>
             </Card>
@@ -159,10 +137,14 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
     };
 
     return (
-        <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {renderChart(data.userGrowth, "Users", "#3b82f6", "users")}
-            {renderChart(data.vendorGrowth, "Vendors", "#10b981", "vendors")}
-            {renderChart(data.eventGrowth, "Events", "#f59e0b", "events")}
+            {renderChart(data.vendorGrowth, "Total Vendors", "#10b981", "vendors")}
+            {renderChart(data.verifiedVendorGrowth, "Verified Vendors", "#10b981", "verified")}
+            {renderChart(data.pendingVendorGrowth, "Pending Vendors", "#f59e0b", "pending")}
+            {renderChart(data.eventGrowth, "Total Events", "#f59e0b", "events")}
+            {renderChart(data.completedEventGrowth, "Completed Events", "#3b82f6", "completed")}
+            {renderChart(data.groupGrowth, "Groups", "#8b5cf6", "groups")}
             {renderChart(data.quoteGrowth, "Quotes", "#8b5cf6", "quotes")}
         </div>
     );
