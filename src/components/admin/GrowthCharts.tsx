@@ -67,6 +67,14 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
 
         const dataMax = Math.max(...chartData.map(d => d.count), 0);
 
+        // Ensure we have at least 2 points for the markers to show
+        const displayData = chartData.length > 0
+            ? chartData
+            : [
+                { date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), count: 0 },
+                { date: new Date().toISOString(), count: 0 }
+            ];
+
         return (
             <Card className="flex flex-col border-none shadow-sm bg-card hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-border/50 h-[240px] group">
                 <CardHeader className="pb-0 pt-5 px-5">
@@ -98,7 +106,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
 
                     <div className="h-[120px] w-full mt-auto relative">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={chartData} margin={{ top: 10, right: 0, bottom: 20, left: 0 }}>
+                            <AreaChart data={displayData} margin={{ top: 10, right: 0, bottom: 0, left: 0 }}>
                                 <defs>
                                     <linearGradient id={`gradient-${id}`} x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor={color} stopOpacity={0.3} />
@@ -107,7 +115,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                                 </defs>
                                 <CartesianGrid vertical={false} strokeDasharray="3 3" strokeOpacity={0.1} stroke="#888" />
                                 <XAxis dataKey="date" hide />
-                                <YAxis hide domain={[0, dataMax === 0 ? 10 : 'auto']} />
+                                <YAxis hide domain={[-1, dataMax === 0 ? 10 : 'auto']} />
                                 <Tooltip
                                     contentStyle={{
                                         backgroundColor: 'hsl(var(--background))',
@@ -134,12 +142,12 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                         </ResponsiveContainer>
                     </div>
 
-                    <div className="px-5 pb-3 pt-2 flex justify-between items-center text-muted-foreground/60 font-bold border-t border-border/10 bg-muted/5">
+                    <div className="px-5 pb-3 pt-2 flex justify-between items-center text-muted-foreground/70 font-bold border-t border-border/10 bg-muted/5">
                         <span className="text-[10px] uppercase tracking-tighter">
-                            {chartData[0]?.date ? new Date(chartData[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
+                            {displayData[0]?.date ? new Date(displayData[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
                         </span>
                         <span className="text-[10px] uppercase tracking-tighter">
-                            {chartData[chartData.length - 1]?.date ? new Date(chartData[chartData.length - 1].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
+                            {displayData[displayData.length - 1]?.date ? new Date(displayData[displayData.length - 1].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
                         </span>
                     </div>
                 </CardContent>
