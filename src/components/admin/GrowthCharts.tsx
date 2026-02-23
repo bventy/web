@@ -154,21 +154,18 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                 </CardContent>
             </Card>
         );
-                </CardContent >
-            </Card >
-        );
-};
+    };
 
-return (
-    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        {renderChart(data.userGrowth, "Users", "#3b82f6", "users")}
-        {renderChart(data.vendorGrowth, "Vendors", "#0ea5e9", "vendors")}
-        {renderChart(data.groupGrowth, "Groups", "#ec4899", "groups")}
-        {renderChart(data.completedEventGrowth, "Completed Events", "#6366f1", "completed")}
-        {renderChart(data.verifiedVendorGrowth, "Verified Vendors", "#10b981", "verified")}
-        {renderChart(data.pendingVendorGrowth, "Pending Vendors", "#f59e0b", "pending")}
-        {renderChart(data.eventGrowth, "Total Events", "#8b5cf6", "events")}
-        {renderChart(data.quoteGrowth, "Quotes", "#f43f5e", "quotes")}
-    </div>
-);
+    return (
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            {renderChart(data.userGrowth, "Users", "#3b82f6", "users")}
+            {renderChart(data.vendorGrowth, "Vendors", "#0ea5e9", "vendors")}
+            {renderChart(data.groupGrowth, "Groups", "#ec4899", "groups")}
+            {renderChart(data.completedEventGrowth, "Completed Events", "#6366f1", "completed")}
+            {renderChart(data.verifiedVendorGrowth, "Verified Vendors", "#10b981", "verified")}
+            {renderChart(data.pendingVendorGrowth, "Pending Vendors", "#f59e0b", "pending")}
+            {renderChart(data.eventGrowth, "Total Events", "#8b5cf6", "events")}
+            {renderChart(data.quoteGrowth, "Quotes", "#f43f5e", "quotes")}
+        </div>
+    );
 }
