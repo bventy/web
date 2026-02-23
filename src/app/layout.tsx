@@ -45,8 +45,8 @@ export default function RootLayout({
             <BackendWarmup />
             {children}
             <Toaster />
-            <Analytics />
-            <UmamiAnalytics />
+            {process.env.NODE_ENV === 'production' && <Analytics />}
+            {process.env.NEXT_PUBLIC_UMAMI_ID && <UmamiAnalytics />}
             <Suspense fallback={null}>
               <PostHogPageView />
             </Suspense>
