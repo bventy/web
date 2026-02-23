@@ -67,13 +67,16 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
 
         const dataMax = Math.max(...chartData.map(d => d.count), 0);
 
-        // Ensure we have at least 2 points for the markers to show
-        const displayData = chartData.length > 0
-            ? chartData
-            : [
-                { date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), count: 0 },
-                { date: new Date().toISOString(), count: 0 }
+        // Ensure we have at least 2 points and they are valid
+        let displayData = chartData;
+        if (!displayData || displayData.length < 2) {
+            const now = new Date();
+            const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            displayData = [
+                { date: thirtyDaysAgo.toISOString(), count: 0 },
+                { date: now.toISOString(), count: 0 }
             ];
+        }
 
         return (
             <Card className="flex flex-col border-none shadow-sm bg-card hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-border/50 h-[280px] group">
@@ -135,8 +138,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                                     strokeWidth={4}
                                     fillOpacity={1}
                                     fill={`url(#gradient-${id})`}
-                                    animationDuration={1500}
-                                    animationBegin={0}
+                                    animationDuration={dataMax === 0 ? 0 : 1500}
                                     dot={false}
                                 />
                             </AreaChart>
