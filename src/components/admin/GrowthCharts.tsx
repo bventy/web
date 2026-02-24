@@ -81,7 +81,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
 
         return (
             <Card className="flex flex-col border-none shadow-sm bg-card hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-border/50 h-[220px] group">
-                <CardHeader className="pb-0 pt-3 px-5">
+                <CardHeader className="pb-0 pt-1.5 px-5">
                     <CardTitle className="text-[14px] font-bold text-muted-foreground/80 flex justify-between items-center tracking-wide uppercase">
                         {title}
                     </CardTitle>
@@ -112,7 +112,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
 
                     <div className="h-[110px] w-full mt-auto relative">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={displayData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                            <AreaChart data={displayData} margin={{ top: 0, right: 0, bottom: 5, left: 0 }}>
                                 <defs>
                                     <linearGradient id={`gradient-${id}`} x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor={color} stopOpacity={0.1} />
