@@ -82,7 +82,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
         return (
             <Card className="flex flex-col border-none shadow-sm bg-card hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-border/50 h-[300px] group">
                 <CardHeader className="pb-0 pt-2 px-5">
-                    <CardTitle className="text-[13px] font-bold text-muted-foreground/80 flex justify-between items-center tracking-wide uppercase">
+                    <CardTitle className="text-[14px] font-bold text-muted-foreground/80 flex justify-between items-center tracking-wide uppercase">
                         {title}
                         <span className="text-[9px] font-bold text-muted-foreground/40 bg-muted/30 px-1.5 py-0.5 rounded uppercase tracking-widest">
                             {granularity}
@@ -113,9 +113,9 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                         </div>
                     </div>
 
-                    <div className="h-[160px] w-full mt-auto relative">
+                    <div className="h-[135px] w-full mt-auto relative">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={displayData} margin={{ top: 0, right: 0, bottom: 5, left: 0 }}>
+                            <AreaChart data={displayData} margin={{ top: 0, right: 0, bottom: 2, left: 0 }}>
                                 <defs>
                                     <linearGradient id={`gradient-${id}`} x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor={color} stopOpacity={0.3} />
@@ -150,11 +150,11 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                             </AreaChart>
                         </ResponsiveContainer>
 
-                        <div className="absolute bottom-2 left-0 right-0 px-5 flex justify-between items-center text-muted-foreground/40 font-bold pointer-events-none">
-                            <span className="text-[9px] uppercase tracking-widest">
+                        <div className="absolute bottom-1 left-0 right-0 px-5 flex justify-between items-center text-muted-foreground/30 font-bold pointer-events-none">
+                            <span className="text-[8.5px] uppercase tracking-widest">
                                 {displayData[0]?.date ? formatDate(displayData[0].date) : ''}
                             </span>
-                            <span className="text-[9px] uppercase tracking-widest">
+                            <span className="text-[8.5px] uppercase tracking-widest">
                                 {displayData[displayData.length - 1]?.date ? formatDate(displayData[displayData.length - 1].date) : ''}
                             </span>
                         </div>
