@@ -150,7 +150,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                             </AreaChart>
                         </ResponsiveContainer>
 
-                        <div className="absolute bottom-1 left-0 right-0 px-5 flex justify-between items-center text-muted-foreground/30 font-bold pointer-events-none">
+                        <div className="absolute bottom-0.5 left-0 right-0 px-5 flex justify-between items-center text-muted-foreground/30 font-bold pointer-events-none">
                             <span className="text-[8.5px] uppercase tracking-widest">
                                 {displayData[0]?.date ? formatDate(displayData[0].date) : ''}
                             </span>
