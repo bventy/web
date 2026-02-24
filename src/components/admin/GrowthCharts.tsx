@@ -80,19 +80,16 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
         }
 
         return (
-            <Card className="flex flex-col border-none shadow-sm bg-card hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-border/50 h-[300px] group">
-                <CardHeader className="pb-0 pt-2 px-5">
+            <Card className="flex flex-col border-none shadow-sm bg-card hover:shadow-md transition-all duration-300 overflow-hidden ring-1 ring-border/50 h-[220px] group">
+                <CardHeader className="pb-0 pt-3 px-5">
                     <CardTitle className="text-[14px] font-bold text-muted-foreground/80 flex justify-between items-center tracking-wide uppercase">
                         {title}
-                        <span className="text-[9px] font-bold text-muted-foreground/40 bg-muted/30 px-1.5 py-0.5 rounded uppercase tracking-widest">
-                            {granularity}
-                        </span>
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0 flex-1 flex flex-col relative">
                     <div className="px-5 pt-0">
                         <div className="flex items-baseline gap-2">
-                            <h3 className="text-4xl font-extrabold tracking-tighter text-foreground leading-none">
+                            <h3 className="text-3xl font-semibold tracking-tighter text-foreground leading-none">
                                 {total.toLocaleString()}
                             </h3>
                         </div>
@@ -113,12 +110,12 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                         </div>
                     </div>
 
-                    <div className="h-[135px] w-full mt-auto relative">
+                    <div className="h-[110px] w-full mt-auto relative">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={displayData} margin={{ top: 0, right: 0, bottom: 2, left: 0 }}>
+                            <AreaChart data={displayData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                                 <defs>
                                     <linearGradient id={`gradient-${id}`} x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor={color} stopOpacity={0.3} />
+                                        <stop offset="5%" stopColor={color} stopOpacity={0.1} />
                                         <stop offset="95%" stopColor={color} stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
@@ -141,7 +138,7 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                                     type="monotone"
                                     dataKey="count"
                                     stroke={color}
-                                    strokeWidth={4}
+                                    strokeWidth={3}
                                     fillOpacity={1}
                                     fill={`url(#gradient-${id})`}
                                     animationDuration={dataMax === 0 ? 0 : 1500}
@@ -149,15 +146,6 @@ export function GrowthCharts({ data, loading }: { data?: GrowthData; loading: bo
                                 />
                             </AreaChart>
                         </ResponsiveContainer>
-
-                        <div className="absolute bottom-0 left-0 right-0 px-5 flex justify-between items-center text-muted-foreground/30 font-bold pointer-events-none">
-                            <span className="text-[8.5px] uppercase tracking-widest">
-                                {displayData[0]?.date ? formatDate(displayData[0].date) : ''}
-                            </span>
-                            <span className="text-[8.5px] uppercase tracking-widest">
-                                {displayData[displayData.length - 1]?.date ? formatDate(displayData[displayData.length - 1].date) : ''}
-                            </span>
-                        </div>
                     </div>
                 </CardContent>
             </Card>
