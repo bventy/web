@@ -5,16 +5,21 @@ export const api = axios.create({
   withCredentials: true,
 });
 
+api.interceptors.request.use((config) => {
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && typeof window !== "undefined") {
-      const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL;
-      // Don't redirect if we're already on an auth page
-      if (!window.location.hostname.includes('auth.') && AUTH_URL) {
-        window.location.href = `${AUTH_URL}/login`;
-      }
-    }
+    // We handle redirects in the AuthContext or individual apps instead
+    // of a global interceptor to avoid loops on public pages.
     return Promise.reject(error);
   }
 );
