@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { eventService, Event  } from "@bventy/services";
-import { Button  } from "@bventy/ui";
+import { eventService, Event } from "@bventy/services";
+import { Button } from "@bventy/ui";
 import Link from "next/link";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle  } from "@bventy/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@bventy/ui";
 import { Plus, Calendar, MapPin, Loader2, ArrowRight } from "lucide-react";
-import { useAuth  } from "@bventy/services";
+import { useAuth } from "@bventy/services";
 import { useRouter } from "next/navigation";
-import { Badge  } from "@bventy/ui";
+import { Badge } from "@bventy/ui";
 
 export default function MyEventsPage() {
     const { user, loading: authLoading } = useAuth();
@@ -18,7 +18,8 @@ export default function MyEventsPage() {
 
     useEffect(() => {
         if (!authLoading && !user) {
-            router.push("/auth/login");
+            const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "";
+            window.location.href = `${AUTH_URL}/login`;
             return;
         }
 

@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { groupService, Group  } from "@bventy/services";
-import { Button  } from "@bventy/ui";
+import { groupService, Group } from "@bventy/services";
+import { Button } from "@bventy/ui";
 import Link from "next/link";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle  } from "@bventy/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@bventy/ui";
 import { Plus, Users, MapPin, Loader2 } from "lucide-react";
-import { useAuth  } from "@bventy/services";
+import { useAuth } from "@bventy/services";
 import { useRouter } from "next/navigation";
 
 export default function MyGroupsPage() {
@@ -17,7 +17,8 @@ export default function MyGroupsPage() {
 
     useEffect(() => {
         if (!authLoading && !user) {
-            router.push("/auth/login");
+            const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "";
+            window.location.href = `${AUTH_URL}/login`;
             return;
         }
 

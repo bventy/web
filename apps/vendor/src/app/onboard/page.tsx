@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { VendorOnboardingForm } from "@/components/vendor/VendorOnboardingForm";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle  } from "@bventy/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@bventy/ui";
 import { Navbar } from "@bventy/ui";
 import { Footer } from "@bventy/ui";
 
 import { X } from "lucide-react";
-import { Button  } from "@bventy/ui";
+import { Button } from "@bventy/ui";
 import Link from "next/link";
 
 export default function VendorOnboardingPage() {
@@ -18,7 +18,8 @@ export default function VendorOnboardingPage() {
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
-            router.push("/auth/login");
+            const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "";
+            window.location.href = `${AUTH_URL}/login`;
         } else {
             setCheckingAuth(false);
         }

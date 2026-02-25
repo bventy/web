@@ -2,35 +2,37 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { VendorProfile, vendorService  } from "@bventy/services";
-import { eventService, Event  } from "@bventy/services";
-import { quoteService  } from "@bventy/services";
-import { trackService  } from "@bventy/services";
-import { Button  } from "@bventy/ui";
+import { VendorProfile, vendorService } from "@bventy/services";
+import { eventService, Event } from "@bventy/services";
+import { quoteService } from "@bventy/services";
+import { trackService } from "@bventy/services";
+import { Button } from "@bventy/ui";
 import { Navbar } from "@bventy/ui";
 import { Footer } from "@bventy/ui";
 import { Loader2, MapPin, BadgeCheck, MessageCircle, Plus, Check, FileText } from "lucide-react";
-import { Badge  } from "@bventy/ui";
-import { Input  } from "@bventy/ui";
-import { Textarea  } from "@bventy/ui";
-import { Label  } from "@bventy/ui";
+import { Badge } from "@bventy/ui";
+import { Input } from "@bventy/ui";
+import { Textarea } from "@bventy/ui";
+import { Label } from "@bventy/ui";
 import Link from "next/link";
-import { useAuth  } from "@bventy/services";
-import { Dialog,
+import { useAuth } from "@bventy/services";
+import {
+    Dialog,
     DialogContent,
     DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
- } from "@bventy/ui";
-import { Select,
+} from "@bventy/ui";
+import {
+    Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
     SelectSeparator,
- } from "@bventy/ui";
+} from "@bventy/ui";
 import { toast } from "sonner"; // Assuming sonner is installed, or use standard alert
 import { InlineCreateEventForm } from "@/components/events/InlineCreateEventForm";
 import { ReviewSection } from "@bventy/ui";
@@ -407,7 +409,7 @@ export default function VendorProfilePage() {
                                         </Dialog>
                                     ) : (
                                         <Button className="w-full mb-3" size="lg" asChild>
-                                            <Link href="/auth/login?redirect=/vendors">Login to Request Quote</Link>
+                                            <Link href={`${process.env.NEXT_PUBLIC_AUTH_URL}/login?redirect=/vendors`}>Login to Request Quote</Link>
                                         </Button>
                                     )}
 
@@ -476,7 +478,7 @@ export default function VendorProfilePage() {
                                         </Dialog>
                                     ) : (
                                         <Button variant="outline" className="w-full" asChild>
-                                            <Link href="/auth/login?redirect=/vendors">Login to Shortlist</Link>
+                                            <Link href={`${process.env.NEXT_PUBLIC_AUTH_URL}/login?redirect=/vendors`}>Login to Shortlist</Link>
                                         </Button>
                                     )}
                                 </div>

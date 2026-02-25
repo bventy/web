@@ -1,26 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { quoteService, Quote  } from "@bventy/services";
+import { quoteService, Quote } from "@bventy/services";
 import { Navbar } from "@bventy/ui";
 import { Footer } from "@bventy/ui";
-import { Button  } from "@bventy/ui";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow
- } from "@bventy/ui";
-import { Badge  } from "@bventy/ui";
+import { Button } from "@bventy/ui";
+import {
+    Table, TableBody, TableCell, TableHead, TableHeader, TableRow
+} from "@bventy/ui";
+import { Badge } from "@bventy/ui";
 import { Loader2, ReceiptText, Check, X, ArrowLeft, Eye } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth  } from "@bventy/services";
-import { QuoteContact  } from "@bventy/services";
-import { Dialog,
+import { useAuth } from "@bventy/services";
+import { QuoteContact } from "@bventy/services";
+import {
+    Dialog,
     DialogContent,
     DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogFooter,
- } from "@bventy/ui";
+} from "@bventy/ui";
 import { FileText, Phone, Mail, MessageCircle } from "lucide-react";
 
 export default function MyQuotesPage() {
@@ -51,7 +53,8 @@ export default function MyQuotesPage() {
 
     useEffect(() => {
         if (!authLoading && !user) {
-            router.push("/auth/login");
+            const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "";
+            window.location.href = `${AUTH_URL}/login`;
             return;
         }
 

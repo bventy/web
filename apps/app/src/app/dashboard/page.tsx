@@ -2,16 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { userService, UserProfile  } from "@bventy/services";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle  } from "@bventy/ui";
-import { Button  } from "@bventy/ui";
+import { userService, UserProfile } from "@bventy/services";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@bventy/ui";
+import { Button } from "@bventy/ui";
 import { Loader2, Store, Calendar, ShieldCheck, Users, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Navbar } from "@bventy/ui";
 import { Footer } from "@bventy/ui";
-import { quoteService  } from "@bventy/services";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow  } from "@bventy/ui";
-import { Badge  } from "@bventy/ui";
+import { quoteService } from "@bventy/services";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@bventy/ui";
+import { Badge } from "@bventy/ui";
 import { Check, X, ReceiptText } from "lucide-react";
 import { toast } from "sonner";
 
@@ -25,7 +25,8 @@ export default function DashboardPage() {
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
-            router.push("/auth/login");
+            const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "";
+            window.location.href = `${AUTH_URL}/login`;
             return;
         }
 
@@ -46,7 +47,8 @@ export default function DashboardPage() {
             } catch (error) {
                 console.error("Failed to fetch dashboard data", error);
                 localStorage.removeItem("token");
-                router.push("/auth/login");
+                const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "";
+                window.location.href = `${AUTH_URL}/login`;
             } finally {
                 setLoading(false);
             }
