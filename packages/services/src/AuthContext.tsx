@@ -37,6 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
         } catch (error) {
             console.error("Failed to fetch user profile", error);
+            localStorage.removeItem("token");
             setUser(null);
         } finally {
             setLoading(false);
@@ -44,11 +45,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     useEffect(() => {
-        fetchUser();
+        const token = localStorage.getItem("token");
+        if (token) {
+            fetchUser();
+        } else {
+            setLoading(false);
+        }
     }, []);
 
     const login = async (token?: string, shouldRedirect = true) => {
-        // Token is now in cookie, but we allow passing it for backward compatibility if needed
+        if (token) {
+            localStorage.setItem("token", token);
+        }
+
         await fetchUser();
 
         if (shouldRedirect) {
@@ -67,6 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const logout = () => {
+        localStorage.removeItem("token");
         setUser(null);
         posthog.reset();
         const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "";
