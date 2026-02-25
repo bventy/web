@@ -49,7 +49,10 @@ export function LoginForm() {
         setError(null);
         try {
             const response = await authService.login(values);
-            await login(response.token);
+            // Check for returnTo in URL
+            const params = new URLSearchParams(window.location.search);
+            const returnTo = params.get("returnTo");
+            await login(response.token, true); // login handles the redirect logic with returnTo from URL internally
         } catch (err: any) {
             if (err.response && err.response.data && err.response.data.message) {
                 setError(err.response.data.message);

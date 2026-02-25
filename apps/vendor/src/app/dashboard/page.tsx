@@ -109,7 +109,9 @@ export default function VendorDashboardPage() {
                 }
             } catch (error) {
                 console.error(error);
-                router.push(`${process.env.NEXT_PUBLIC_AUTH_URL}/login`);
+                const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.bventy.in";
+                const returnTo = encodeURIComponent(window.location.host);
+                window.location.href = `${AUTH_URL}/login?returnTo=${returnTo}`;
             } finally {
                 setLoading(false);
             }

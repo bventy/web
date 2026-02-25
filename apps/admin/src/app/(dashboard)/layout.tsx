@@ -17,7 +17,9 @@ export default function AdminLayout({
     useEffect(() => {
         if (!loading) {
             if (!user) {
-                router.push(`${process.env.NEXT_PUBLIC_AUTH_URL}/login`);
+                const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.bventy.in";
+                const returnTo = encodeURIComponent(window.location.host);
+                window.location.href = `${AUTH_URL}/login?returnTo=${returnTo}`;
             } else if (!["admin", "super_admin"].includes(user.role)) {
                 router.push(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard`);
             }
