@@ -5,6 +5,6 @@
 
 echo "Checking if build should proceed using turbo-ignore..."
 
-# npx turbo-ignore automatically detects the workspace and its dependencies.
+# npx -y turbo-ignore automatically detects the workspace and its dependencies.
 # It exits with 1 if a build is needed, and 0 if it should be skipped.
-npx turbo-ignore
+npx -y turbo-ignore
