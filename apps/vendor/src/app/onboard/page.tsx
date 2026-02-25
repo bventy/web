@@ -10,22 +10,22 @@ import { Footer } from "@bventy/ui";
 import { X } from "lucide-react";
 import { Button } from "@bventy/ui";
 import Link from "next/link";
+import { useAuth } from "@bventy/services";
 
 export default function VendorOnboardingPage() {
     const router = useRouter();
-    const [checkingAuth, setCheckingAuth] = useState(true);
+    const { user, loading: authLoading } = useAuth();
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) {
+        if (authLoading) return;
+
+        if (!user) {
             const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "";
             window.location.href = `${AUTH_URL}/login`;
-        } else {
-            setCheckingAuth(false);
         }
-    }, [router]);
+    }, [user, authLoading, router]);
 
-    if (checkingAuth) {
+    if (authLoading) {
         return null;
     }
 
