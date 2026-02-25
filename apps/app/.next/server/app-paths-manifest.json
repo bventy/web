@@ -1,0 +1,11 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/profile/page": "app/dashboard/profile/page.js",
+  "/events/[id]/page": "app/events/[id]/page.js",
+  "/events/new/page": "app/events/new/page.js",
+  "/events/page": "app/events/page.js",
+  "/groups/new/page": "app/groups/new/page.js",
+  "/groups/page": "app/groups/page.js"
+}
