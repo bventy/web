@@ -1,23 +1,31 @@
-# Environment Reference
+# Environment Variables Guide
 
-The following variables are required to run the Bventy frontend. For local development, use a `.env.local` file.
+Bventy uses a centralized configuration for its cross-subdomain monorepo architecture. Locally, create a `.env` file in the root directory.
 
-## API Connection
+## Core Variable Set
 
-- `NEXT_PUBLIC_API_URL`: The full URL of your running backend API (e.g., `http://localhost:8080`).
+### API Configuration
+- **`NEXT_PUBLIC_API_URL`**: Target URL for the Bventy backend API.
 
-## Discovery and Auth
+### Cookie Management
+- **`NEXT_PUBLIC_COOKIE_DOMAIN`**: Set to `.bventy.in` for cross-subdomain session persistence.
 
-- `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`: (Optional) If using Cloudinary for additional media handling.
-- `NEXT_PUBLIC_APP_URL`: The base URL of the frontend application.
+### Subdomain Routing
+- **`NEXT_PUBLIC_WWW_URL`**: Base URL for marketing and discovery.
+- **`NEXT_PUBLIC_AUTH_URL`**: Centralized authentication entry point.
+- **`NEXT_PUBLIC_APP_URL`**: Organizer workspace hub.
+- **`NEXT_PUBLIC_VENDOR_URL`**: Vendor management portal.
+- **`NEXT_PUBLIC_ADMIN_URL`**: Restricted platform administration.
 
-## Analytics
+### Observability
+- **`NEXT_PUBLIC_POSTHOG_KEY`**: Client-side event tracking key.
+- **`NEXT_PUBLIC_UMAMI_WEBSITE_ID`**: Privacy-focused traffic analytics ID.
 
-- `NEXT_PUBLIC_POSTHOG_KEY`: The API key for your PostHog project.
-- `NEXT_PUBLIC_POSTHOG_HOST`: Your PostHog instance host.
-- `NEXT_PUBLIC_UMAMI_WEBSITE_ID`: Your Umami website ID.
-- `NEXT_PUBLIC_UMAMI_SCRIPT_URL`: The URL to your hosted Umami script.
+## Security Practices
 
-## Rules
+1. **Public Exposure**: Variables prefixed with `NEXT_PUBLIC_` are exposed to the client. Never include private keys or database credentials in these.
+2. **Monorepo Propagation**: Turborepo automatically provides these variables to each app workspace during the build process.
+3. **Local Safety**: Ensure `.env` is ignored by version control.
 
-Variables prefixed with `NEXT_PUBLIC_` are exposed to the browser. Ensure that no sensitive secrets (like API private keys) use this prefix.
+---
+© 2026 Bventy.
