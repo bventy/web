@@ -2,17 +2,22 @@
 "use client";
 
 import Link from "next/link";
-import { Button  } from "@bventy/ui";
-import { useAuth  } from "@bventy/services";
-import { DropdownMenu,
+import { Button } from "@bventy/ui";
+import { useAuth } from "@bventy/services";
+import {
+    DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
- } from "@bventy/ui";
-import { Avatar, AvatarFallback, AvatarImage  } from "@bventy/ui";
+} from "@bventy/ui";
+import { Avatar, AvatarFallback, AvatarImage } from "@bventy/ui";
 import { User, LogOut, LayoutDashboard, ShieldCheck } from "lucide-react";
+
+const WWW_URL = process.env.NEXT_PUBLIC_WWW_URL || "";
+const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "";
 
 export function Navbar() {
     const { user, logout } = useAuth();
@@ -21,18 +26,18 @@ export function Navbar() {
         <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
                 <div className="flex items-center gap-2">
-                    <Link href="/" className="flex items-center space-x-2 transition-opacity hover:opacity-80">
+                    <Link href={WWW_URL || "/"} className="flex items-center space-x-2 transition-opacity hover:opacity-80">
                         <span className="text-xl font-bold tracking-tight">Bventy</span>
                     </Link>
                 </div>
                 <nav className="flex items-center gap-3">
                     <Button variant="ghost" asChild className="hidden text-sm font-medium transition-colors hover:text-primary sm:inline-flex">
-                        <Link href="/vendors">Explore</Link>
+                        <Link href={`${WWW_URL}/vendors`}>Explore</Link>
                     </Button>
                     {user ? (
                         <div className="flex items-center gap-2">
                             <Button variant="ghost" size="sm" asChild className="text-sm font-medium">
-                                <Link href="/dashboard">Dashboard</Link>
+                                <Link href={`${APP_URL}/dashboard`}>Dashboard</Link>
                             </Button>
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
@@ -58,13 +63,13 @@ export function Navbar() {
                                     </DropdownMenuLabel>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem asChild className="cursor-pointer">
-                                        <Link href="/dashboard" className="flex w-full items-center">
+                                        <Link href={`${APP_URL}/dashboard`} className="flex w-full items-center">
                                             <LayoutDashboard className="mr-2 h-4 w-4 opacity-70" />
                                             Dashboard
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem asChild className="cursor-pointer">
-                                        <Link href="/dashboard/profile" className="flex w-full items-center">
+                                        <Link href={`${APP_URL}/dashboard/profile`} className="flex w-full items-center">
                                             <User className="mr-2 h-4 w-4 opacity-70" />
                                             Profile
                                         </Link>
@@ -80,10 +85,10 @@ export function Navbar() {
                     ) : (
                         <div className="flex items-center gap-2">
                             <Button variant="ghost" size="sm" asChild className="text-sm font-medium">
-                                <Link href="/auth/login">Login</Link>
+                                <Link href={`${AUTH_URL}/login`}>Login</Link>
                             </Button>
                             <Button size="sm" className="hidden h-9 px-5 text-sm font-medium sm:inline-flex" asChild>
-                                <Link href="/auth/signup">Join Bventy</Link>
+                                <Link href={`${AUTH_URL}/signup`}>Join Bventy</Link>
                             </Button>
                         </div>
                     )}
