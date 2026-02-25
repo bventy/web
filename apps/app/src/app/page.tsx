@@ -18,7 +18,13 @@ export default function AppPage() {
             if (user) {
                 router.push("/dashboard");
             } else {
-                // If not logged in, redirect to the marketing site
+                // Check if we have a token in the URL or storage first
+                const params = new URLSearchParams(window.location.search);
+                if (params.has("token") || localStorage.getItem("token")) {
+                    // Stay here, the AuthContext mount effect will handle it
+                    return;
+                }
+                // Only redirect if we are truly unauthenticated
                 window.location.href = process.env.NEXT_PUBLIC_WWW_URL || "https://bventy.in";
             }
         }

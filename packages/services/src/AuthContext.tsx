@@ -54,9 +54,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     useEffect(() => {
-        // Always attempt to fetch the user profile on mount.
-        // Even if localStorage is empty, the browser may have a session cookie.
-        fetchUser();
+        // Check for token in URL for cross-subdomain sync
+        const params = new URLSearchParams(window.location.search);
+        const tokenFromUrl = params.get("token");
+
+        if (tokenFromUrl) {
+            // Save to local storage for this subdomain
+            localStorage.setItem("token", tokenFromUrl);
+
+            // Clean up the URL to hide the token
+            const url = new URL(window.location.href);
+            url.searchParams.delete("token");
+            window.history.replaceState({}, "", url.toString());
+
+            fetchUser(tokenFromUrl);
+        } else {
+            // Always attempt to fetch the user profile on mount.
+            // Even if localStorage is empty, the browser may have a session cookie.
+            fetchUser();
+        }
     }, []);
 
     const login = async (token?: string, shouldRedirect = true) => {
@@ -71,9 +87,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const profile = await userService.getMe();
 
             if (profile && ["admin", "super_admin"].includes(profile.role)) {
-                window.location.href = ADMIN_URL || "/";
+                // Redirect with token for synchronization
+                window.location.href = `${ADMIN_URL}/?token=${token}`;
             } else {
-                window.location.href = `${APP_URL}/dashboard`;
+                // Redirect with token for synchronization
+                window.location.href = `${APP_URL}/dashboard?token=${token}`;
             }
         }
     };
