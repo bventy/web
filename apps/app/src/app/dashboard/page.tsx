@@ -26,8 +26,9 @@ export default function DashboardPage() {
         if (authLoading) return;
 
         if (!profile) {
-            const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "";
-            window.location.href = `${AUTH_URL}/login`;
+            const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.bventy.in";
+            const returnTo = encodeURIComponent(window.location.host);
+            window.location.href = `${AUTH_URL}/login?returnTo=${returnTo}`;
             return;
         }
 

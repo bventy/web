@@ -25,7 +25,9 @@ export default function AppPage() {
                     return;
                 }
                 // Only redirect if we are truly unauthenticated
-                window.location.href = process.env.NEXT_PUBLIC_WWW_URL || "https://bventy.in";
+                const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.bventy.in";
+                const returnTo = encodeURIComponent(window.location.host);
+                window.location.href = `${AUTH_URL}/login?returnTo=${returnTo}`;
             }
         }
     }, [user, loading, router]);
