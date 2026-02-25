@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { userService, UserProfile } from "@bventy/services";
+import { userService, UserProfile, useAuth } from "@bventy/services";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@bventy/ui";
 import { Button } from "@bventy/ui";
 import { Loader2, Store, Calendar, ShieldCheck, Users, ArrowRight } from "lucide-react";
@@ -17,14 +17,15 @@ import { toast } from "sonner";
 
 export default function DashboardPage() {
     const router = useRouter();
-    const [profile, setProfile] = useState<UserProfile | null>(null);
+    const { user: profile, loading: authLoading } = useAuth();
     const [quotes, setQuotes] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) {
+        if (authLoading) return;
+
+        if (!profile) {
             const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "";
             window.location.href = `${AUTH_URL}/login`;
             return;
@@ -32,10 +33,6 @@ export default function DashboardPage() {
 
         const fetchData = async () => {
             try {
-                // Fetch user data first, this is mandatory
-                const userData = await userService.getMe();
-                setProfile(userData);
-
                 // Try to fetch quotes, but don't fail the whole page if it 404s
                 try {
                     const quotesData = await quoteService.getMyQuotes();
@@ -46,16 +43,13 @@ export default function DashboardPage() {
                 }
             } catch (error) {
                 console.error("Failed to fetch dashboard data", error);
-                localStorage.removeItem("token");
-                const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "";
-                window.location.href = `${AUTH_URL}/login`;
             } finally {
                 setLoading(false);
             }
         };
 
         fetchData();
-    }, [router]);
+    }, [profile, authLoading, router]);
 
     const handleAccept = async (id: string) => {
         setActionLoading(id + "-accept");
