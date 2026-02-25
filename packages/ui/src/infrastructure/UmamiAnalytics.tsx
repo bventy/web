@@ -3,7 +3,7 @@
 
 import Script from "next/script";
 
-export default function UmamiAnalytics() {
+export function UmamiAnalytics() {
     return (
         <Script
             src="/umami-relay/s.js"
