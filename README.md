@@ -1,6 +1,6 @@
 # Bventy Interface
 
-Official Site: [bventy.com](https://bventy.com)
+Official Site: [bventy.in](https://bventy.in)
 License: [AGPL-3.0](LICENSE)
 Trademark Policy: [TRADEMARK.md](TRADEMARK.md)
 
@@ -61,30 +61,40 @@ graph TD
 Bventy's frontend is designed for transparency and reliability, acting as a portal to the backend marketplace logic.
 
 ```mermaid
-graph LR
-    subgraph User Browser
-    App[Next.js App]
-    State[React State]
-    Auth[JWT Session]
+graph TD
+    subgraph Client Browser
+        WWW[www.bventy.in]
+        AUTH[auth.bventy.in]
+        APP[app.bventy.in]
+        VENDOR[vendor.bventy.in]
+        ADMIN[admin.bventy.in]
     end
-    
-    subgraph Integration Layer
-    Svc[Domain Services]
-    Axios[HTTP Client]
+
+    subgraph Service Shared Packages
+        UI["@bventy/ui"]
+        SVC["@bventy/services"]
     end
-    
-    subgraph Bventy Ecosystem
-    API[Backend API]
-    R2[Media Storage]
-    Track[Analytics Hub]
+
+    subgraph Infrastructure Layer
+        API[Backend API]
+        DB[(PostgreSQL)]
+        R2[Cloudflare R2]
+        KV[Redis Cache]
     end
-    
-    App --> Svc
-    Svc --> Axios
-    Axios --> API
-    App --> Auth
-    App --> R2
-    App --> Track
+
+    subgraph Observability
+        PH[PostHog]
+        UM[Umami]
+    end
+
+    WWW & AUTH & APP & VENDOR & ADMIN --> UI
+    WWW & AUTH & APP & VENDOR & ADMIN --> SVC
+    SVC --> API
+    API --> DB
+    API --> R2
+    API --> KV
+    SVC --> PH
+    SVC --> UM
 ```
 
 ### Components

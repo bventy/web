@@ -1,17 +1,26 @@
-# Tracking and Analytics
+# Tracking & Analytics
 
-Our frontend analytics are designed to be helpful for platform improvements while strictly respecting user privacy.
+Bventy implements a privacy-first observability layer designed to monitor platform health and marketplace efficiency without compromising user anonymity.
 
-## Tracking Principles
+## Core Principles
 
-- **Anonymous by Default**: We do not track personal identifiers unless specifically necessary for platform operations.
-- **Action-Oriented**: We track discrete marketplace actions (e.g., "quote_submitted") rather than passive browsing behavior.
-- **No Third-Party Cookies**: We prioritize privacy-respecting analytics solutions like PostHog and Umami, configured to avoid invasive cross-site tracking.
+- **Anonymous by Default**: We strictly avoid tracking personally identifiable information (PII) unless required for operational integrity.
+- **Cross-Subdomain Continuity**: Tracking IDs are synchronized across all subdomains (`auth.bventy.in`, `app.bventy.in`, etc.) using parent-domain cookies to maintain accurate session attribution.
+- **Action-Oriented Metrics**: We prioritize discrete marketplace events (e.g., `quote_submitted`, `vendor_verified`) over passive browsing behavior.
 
-## Analytics Implementation
+## Implementation Stack
 
-Tracking is centralized in a React Provider pattern, ensuring that events are captured consistently across the application without polluting the UI logic.
+- **PostHog**: Used for advanced event attribution and user journey mapping. Initialized via a centralized React Provider in `@bventy/services`.
+- **Umami**: Lightweight, privacy-focused analytics for aggregate traffic monitoring and performance metrics.
+- **Service Layer Integration**: Event tracking is triggered from the domain services in `@bventy/services`, ensuring consistency across different subdomain applications.
 
-## Administrative Metrics
+## Administrative Visibility
 
-The frontend provides a dedicated admin dashboard that visualizes system performance, marketplace growth, and vendor activity, providing transparency into the platform's health.
+Platform health and marketplace metrics are visualized on the restricted Admin Dashboard.
+
+- **Overview**: Real-time platform activity and system health status.
+- **Growth**: Tracking user and vendor onboarding trends.
+- **Marketplace**: Monitoring the efficiency of the quote request and fulfillment loop.
+
+---
+© 2026 Bventy.

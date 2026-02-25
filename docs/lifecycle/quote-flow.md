@@ -1,23 +1,39 @@
-# Quote Workflow
+# Marketplace Quote Workflow
 
-Bventy's interface is built around a structured quote workflow to ensure that interactions between organizers and vendors are clear and professional.
+Bventy implements a structured negotiation loop designed to minimize ambiguity and protect user privacy.
 
-## The Interaction Design
+## The Negotiation Lifecycle
 
-### 1. Request Initiation
-Organizers use a guided form to provide event details. This structured input helps vendors understand the scope without back-and-forth questioning.
+The interaction between an organizer and a vendor follows a strict, state-machine driven process.
 
-### 2. Proposal Presentation
-Vendor responses are presented in a unified dashboard. Organizers can view pricing and terms side-by-side to make informed decisions.
+```mermaid
+stateDiagram-v2
+    [*] --> Requested: Organizer submits form
+    Requested --> Responded: Vendor provides quote
+    Requested --> Expired: 7-day timeout
+    Responded --> Accepted: Organizer approves
+    Responded --> Rejected: Organizer declines
+    Accepted --> ContactUnlocked: Platform reveals PII
+    ContactUnlocked --> [*]
+```
 
-### 3. Deliberate Revisions
-The Revision Request feature allows organizers to provide feedback without leaving the platform's structured environment. Vendors receive clear notifications about what needs adjustment.
+### 1. Request Stage
+- **Input**: Organizers provide specific event parameters (date, budget, requirements).
+- **Status**: `Requested`
+- **Visibility**: Backend metadata is visible to the vendor; no contact information is shared.
 
-### 4. Acceptance and Unlocking
-When a quote is accepted, the UI transition is significant. The vendor's contact details (email, phone) are revealed, transitioning the relationship from the platform's broker state to a direct collaboration state.
+### 2. Proposal Stage
+- **Input**: Vendors evaluate the request and respond with a fixed price or range.
+- **Status**: `Responded`
+- **UI**: The organizer receives a notification and can view the proposal in their dashboard.
 
-## UX Principles
+### 3. Decision Stage
+- **Outcome A (Accepted)**: The organizer approves the terms. The system automatically transitions to the `Unlocked` state.
+- **Outcome B (Rejected)**: The interaction is archived, and the communication channel is closed immediately.
 
-- **Predictability**: Users always know the current state of their interaction and what the next step is.
-- **Clarity**: High-stakes actions, like accepting a quote, are clearly marked and verified.
-- **Low Pressure**: The gated nature of communication reduces the stress often associated with marketplace negotiations.
+### 4. Fulfillment & Expiry
+- **Contact Unlock**: Secure contact information (email, phone) is revealed to both parties for direct collaboration.
+- **Automated Archive**: Inactive requests or those past the event date are moved to history to maintain workspace hygiene.
+
+---
+© 2026 Bventy.

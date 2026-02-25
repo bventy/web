@@ -1,23 +1,62 @@
 # Architecture Overview
 
-The Bventy frontend is a modern, performance-oriented application designed to provide a seamless marketplace experience. We prioritize clarity, accessibility, and a calm user interface.
+Bventy is engineered as a high-fidelity, high-trust marketplace platform. Our architecture prioritizes professional deliberate interactions over chaotic real-time communication.
 
-## System Layers
+## The Monorepo Structure
 
-### Presentation Layer (Components)
-We use a modular component architecture based on React. Components are categorized into shared UI primitives and feature-specific blocks.
+The platform is managed as a Turborepo-powered monorepo, allowing for strict type-safety and shared design logic across multiple isolated subdomains.
 
-### Experience Layer (Pages & Routing)
-Next.js 15 manages the application's structure, utilizing both Server and Client Components to optimize data fetching and interactivity.
+```mermaid
+graph TD
+    subgraph apps [Applications]
+        WWW[www.bventy.in]
+        AUTH[auth.bventy.in]
+        APP[app.bventy.in]
+        VENDOR[vendor.bventy.in]
+        ADMIN[admin.bventy.in]
+    end
 
-### Service Layer (Integration)
-A dedicated service layer manages all communication with the backend API, providing a typed and consistent way to access marketplace resources.
+    subgraph internal [Internal Packages]
+        UI["@bventy/ui"]
+        SVC["@bventy/services"]
+    end
 
-### Analytics & Health
-A unified tracking layer provides insights into platform usage and system performance while maintaining a strict focus on user privacy.
+    apps --- internal
+```
 
-## Design Philosophy
+### Application Breakdown
 
-- **Minimalist Aesthetic**: We avoid unnecessary decorative elements to keep the focus on professional marketplace interactions.
-- **Typed Integrity**: TypeScript ensures that data structures remain consistent across the entire frontend application.
-- **Accessible by Default**: Our components are built to be usable by everyone, following standard accessibility patterns.
+- **www (Marketing)**: Public-facing landing pages and SEO-optimized vendor listings.
+- **auth (Identity)**: Centralized authentication server managing JWT issuance and parent-domain session cookies.
+- **app (Organizer Hub)**: The primary workspace for event organizers to manage events and quotes.
+- **vendor (Provider Portal)**: Dedicated interface for vendors to manage their business profiles and proposal responses.
+- **admin (Platform Control)**: Internal tools for moderation, analytics, and system oversight.
+
+## Technical Foundation
+
+- **Framework**: Next.js 15 (App Router)
+- **Styling**: Tailwind CSS 4 with a typography-driven design language
+- **State & Logic**: Shared React context and custom hooks in `@bventy/services`
+- **Session Management**: Domain-wide HTTP-only cookies with URL-based token synchronization for cross-subdomain transitions
+
+## Data Flow
+
+Our data flow is unidirectional and structured. The interface serves as a portal to the backend marketplace logic, ensuring that sensitive contact information remains gated until a formal quote acceptance occurs.
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant F as Frontend Subdomain
+    participant S as @bventy/services
+    participant B as Backend API
+
+    U->>F: Action (e.g., Request Quote)
+    F->>S: Invoke Domain Service
+    S->>B: Execute Authenticated Request
+    B-->>S: Return JSON Response
+    S-->>F: Update Local State
+    F-->>U: Reflect Outcome
+```
+
+---
+© 2026 Bventy.
