@@ -1,21 +1,42 @@
-# Contribution Guide
+# Contributing to Bventy
 
-Bventy is a collaborative project. We value contributions that improve the platform's reliability, privacy, and user experience.
+We are building a highly deliberate marketplace platform. Follow these guidelines to ensure consistency across our monorepo architecture.
 
-## Standards
+## Local Setup
 
-- **Code Clarity**: Write code that is easy for others to understand. We prioritize clarity over cleverness.
-- **Component Integrity**: Ensure new components are accessible and follow our established design patterns.
-- **Full Transparency**: Any change affecting data handling or privacy must be documented clearly in the relevant `/docs` file.
-- **TypeScript**: All new code must be fully typed. Avoid the use of `any`.
+1. **Clone & Setup**:
+   ```bash
+   git clone https://github.com/bventy/web.git
+   cd bventy-web
+   npm install
+   ```
+2. **Environment Configuration**:
+   - Create a `.env` file in the root directory.
+   - Use the template from [environment.md](environment.md).
+3. **Run Development Server**:
+   ```bash
+   npm run dev
+   ```
+   This will start all subdomains using Turborepo.
 
-## Process
+## UI & Design Standards
 
-1.  **Search**: Check if an issue or PR already exists for what you're working on.
-2.  **Discuss**: For large changes, start a discussion in an issue before writing code.
-3.  **Branch**: Work in a descriptive feature branch.
-4.  **Review**: Submit a Pull Request. Expect thoughtful feedback and be prepared to iterate.
+- **Packages**: All shared UI components must be added to `packages/ui`.
+- **Atomic Design**: Build small, reusable primitives before assembling feature-specific layouts.
+- **Radix UI**: Use Radix primitives for accessible interaction patterns.
+- **Tailwind 4**: Follow thetypography-driven design language.
 
-## Documentation Expectations
+## Development Workflow
 
-We use a calm, human-first tone. Avoid marketing language, hype, or unnecessary complexity. Documentation should feel deliberate and helpful.
+1. **Branching**: Use descriptive names (`feature/`, `fix/`).
+2. **Commits**: Use Conventional Commits (e.g., `feat:`, `fix:`, `docs:`).
+3. **Workspace Isolation**: When building for a specific app, ensure you are referencing shared logic via `@bventy/services` or `@bventy/ui`.
+
+## Build Verification
+
+Run the following commands before submitting a PR:
+- `npm run lint`: Check for code quality issues.
+- `npm run build`: Verify that all workspaces build correctly.
+
+---
+© 2026 Bventy.
