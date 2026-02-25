@@ -1,5 +1,4 @@
 "use client";
-"use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { UserProfile, userService } from "./services/user";
@@ -57,6 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Check for token in URL for cross-subdomain sync
         const params = new URLSearchParams(window.location.search);
         const tokenFromUrl = params.get("token");
+        const synced = params.get("synced");
 
         if (tokenFromUrl) {
             // Save to local storage for this subdomain
@@ -65,9 +65,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // Clean up the URL to hide the token but keep other params
             const url = new URL(window.location.href);
             url.searchParams.delete("token");
+            url.searchParams.delete("synced");
             window.history.replaceState({}, "", url.toString());
 
             fetchUser(tokenFromUrl);
+        } else if (!localStorage.getItem("token") && !synced) {
+            // If no token in storage AND not on auth app AND not just synced
+            // we perform a silent sync check against the auth authority
+            const currentHost = window.location.host;
+            if (!currentHost.includes("auth.bventy.in") && !currentHost.includes("localhost")) {
+                const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.bventy.in";
+                const returnTo = encodeURIComponent(window.location.href);
+                window.location.href = `${AUTH_URL}/sync?returnTo=${returnTo}`;
+                return;
+            }
+            fetchUser();
         } else {
             // Always attempt to fetch the user profile on mount.
             // Even if localStorage is empty, the browser may have a session cookie.
