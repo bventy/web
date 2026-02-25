@@ -54,12 +54,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            fetchUser();
-        } else {
-            setLoading(false);
-        }
+        // Always attempt to fetch the user profile on mount.
+        // Even if localStorage is empty, the browser may have a session cookie.
+        fetchUser();
     }, []);
 
     const login = async (token?: string, shouldRedirect = true) => {
