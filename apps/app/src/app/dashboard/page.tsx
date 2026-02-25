@@ -172,14 +172,14 @@ export default function DashboardPage() {
                         <CardContent className="mt-auto pt-4">
                             {profile.vendor_profile_exists ? (
                                 <Button className="w-full justify-between group" variant="outline" asChild>
-                                    <Link href="/vendor/dashboard">
+                                    <Link href={`${process.env.NEXT_PUBLIC_VENDOR_URL}/dashboard?token=${localStorage.getItem("token")}`}>
                                         Vendor Dashboard
                                         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                                     </Link>
                                 </Button>
                             ) : (
                                 <Button className="w-full justify-between group" variant="outline" asChild>
-                                    <Link href="/vendor/onboard">
+                                    <Link href={`${process.env.NEXT_PUBLIC_VENDOR_URL}/onboard?token=${localStorage.getItem("token")}`}>
                                         Become a Vendor
                                         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                                     </Link>
@@ -202,7 +202,7 @@ export default function DashboardPage() {
                             </CardHeader>
                             <CardContent className="mt-auto pt-4">
                                 <Button className="w-full justify-between group" variant="destructive" asChild>
-                                    <Link href="/admin">
+                                    <Link href={`${process.env.NEXT_PUBLIC_ADMIN_URL}/?token=${localStorage.getItem("token")}`}>
                                         Admin Panel
                                         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                                     </Link>
