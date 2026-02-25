@@ -37,7 +37,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
         } catch (error) {
             console.error("Failed to fetch user profile", error);
-            localStorage.removeItem("token");
             setUser(null);
         } finally {
             setLoading(false);
@@ -45,27 +44,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            fetchUser();
-        } else {
-            setLoading(false);
-        }
+        fetchUser();
     }, []);
 
-    const login = async (token: string, shouldRedirect = true) => {
-        localStorage.setItem("token", token);
+    const login = async (token?: string, shouldRedirect = true) => {
+        // Token is now in cookie, but we allow passing it for backward compatibility if needed
         await fetchUser();
+
         if (shouldRedirect) {
-            router.push("/dashboard");
+            const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "";
+            const ADMIN_URL = process.env.NEXT_PUBLIC_ADMIN_URL || "";
+
+            // Re-fetch user to get the latest role
+            const profile = await userService.getMe();
+
+            if (["admin", "super_admin"].includes(profile.role)) {
+                window.location.href = ADMIN_URL || "/";
+            } else {
+                window.location.href = `${APP_URL}/dashboard`;
+            }
         }
     };
 
     const logout = () => {
-        localStorage.removeItem("token");
         setUser(null);
         posthog.reset();
-        router.push("/auth/login");
+        const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "";
+        window.location.href = `${AUTH_URL}/login`;
     };
 
     return (

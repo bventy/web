@@ -3,32 +3,35 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button  } from "@bventy/ui";
-import { Form,
+import { Button } from "@bventy/ui";
+import {
+    Form,
     FormControl,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
- } from "@bventy/ui";
-import { Input  } from "@bventy/ui";
-import { Textarea  } from "@bventy/ui";
-import { Select,
+} from "@bventy/ui";
+import { Input } from "@bventy/ui";
+import { Textarea } from "@bventy/ui";
+import {
+    Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
- } from "@bventy/ui";
+} from "@bventy/ui";
+import { cn } from "@bventy/ui";
 import { useState } from "react";
-import { authService  } from "@bventy/services";
-import { vendorService  } from "@bventy/services";
-import { userService  } from "@bventy/services";
+import { authService } from "@bventy/services";
+import { vendorService } from "@bventy/services";
+import { userService } from "@bventy/services";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { Alert, AlertDescription  } from "@bventy/ui";
-import { useAuth  } from "@bventy/services";
-import { FileUpload  } from "@bventy/ui";
-import { mediaService  } from "@bventy/services";
+import { Alert, AlertDescription } from "@bventy/ui";
+import { useAuth } from "@bventy/services";
+import { FileUpload } from "@bventy/ui";
+import { mediaService } from "@bventy/services";
 
 const formSchema = z.object({
     // User Details
@@ -154,173 +157,210 @@ export function VendorSignupForm() {
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
                         {/* Column 1: Personal Details */}
-                        <div className="space-y-4">
-                            <h3 className="text-lg font-medium border-b pb-2">Personal Details</h3>
+                        <div className="space-y-6">
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-primary/80 flex items-center gap-2">
+                                <span className="h-4 w-1 bg-primary rounded-full" />
+                                Personal Details
+                            </h3>
 
-                            <FormField
-                                control={form.control}
-                                name="full_name"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Full Name</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="John Doe" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="email"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Email</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="name@example.com" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="password"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Password</FormLabel>
-                                        <FormControl>
-                                            <Input type="password" placeholder="******" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-
-                        {/* Column 2: Business Details */}
-                        <div className="space-y-4">
-                            <h3 className="text-lg font-medium border-b pb-2">Business Details</h3>
-
-                            <FormField
-                                control={form.control}
-                                name="business_name"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Business Name</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="e.g. Beats by Dre" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-4">
                                 <FormField
                                     control={form.control}
-                                    name="category"
+                                    name="full_name"
                                     render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Category</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="DJ">DJ</SelectItem>
-                                                    <SelectItem value="Decor">Decor</SelectItem>
-                                                    <SelectItem value="Venue">Venue</SelectItem>
-                                                    <SelectItem value="Catering">Catering</SelectItem>
-                                                    <SelectItem value="Photography">Photography</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
+                                        <FormItem className="space-y-1.5">
+                                            <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">Full Name</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="John Doe"
+                                                    {...field}
+                                                    className="h-11 bg-muted/30 border-muted-foreground/20 focus:bg-background transition-all"
+                                                />
+                                            </FormControl>
+                                            <FormMessage className="text-[10px]" />
                                         </FormItem>
                                     )}
                                 />
-
                                 <FormField
                                     control={form.control}
-                                    name="city"
+                                    name="email"
                                     render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>City</FormLabel>
+                                        <FormItem className="space-y-1.5">
+                                            <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">Email Address</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="e.g. Mumbai" {...field} />
+                                                <Input
+                                                    placeholder="name@example.com"
+                                                    {...field}
+                                                    className="h-11 bg-muted/30 border-muted-foreground/20 focus:bg-background transition-all"
+                                                />
                                             </FormControl>
-                                            <FormMessage />
+                                            <FormMessage className="text-[10px]" />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="password"
+                                    render={({ field }) => (
+                                        <FormItem className="space-y-1.5">
+                                            <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">Password</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="password"
+                                                    placeholder="••••••••"
+                                                    {...field}
+                                                    className="h-11 bg-muted/30 border-muted-foreground/20 focus:bg-background transition-all"
+                                                />
+                                            </FormControl>
+                                            <FormMessage className="text-[10px]" />
                                         </FormItem>
                                     )}
                                 />
                             </div>
+                        </div>
 
-                            <FormField
-                                control={form.control}
-                                name="whatsapp_link"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>WhatsApp Link</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="https://wa.me/91..." {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                        {/* Column 2: Business Details */}
+                        <div className="space-y-6">
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-primary/80 flex items-center gap-2">
+                                <span className="h-4 w-1 bg-primary rounded-full" />
+                                Business Details
+                            </h3>
 
-                            <FormField
-                                control={form.control}
-                                name="portfolio_image_url"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Portfolio Image</FormLabel>
-                                        <FormControl>
-                                            <FileUpload
-                                                onFileSelect={(file) => setSelectedFile(file)}
-                                                defaultUrl={field.value}
-                                                label="Upload Portfolio Image"
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            <div className="space-y-4">
+                                <FormField
+                                    control={form.control}
+                                    name="business_name"
+                                    render={({ field }) => (
+                                        <FormItem className="space-y-1.5">
+                                            <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">Business Name</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="e.g. Beats by Dre"
+                                                    {...field}
+                                                    className="h-11 bg-muted/30 border-muted-foreground/20 focus:bg-background transition-all"
+                                                />
+                                            </FormControl>
+                                            <FormMessage className="text-[10px]" />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <FormField
+                                        control={form.control}
+                                        name="category"
+                                        render={({ field }) => (
+                                            <FormItem className="space-y-1.5">
+                                                <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">Category</FormLabel>
+                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                    <FormControl>
+                                                        <SelectTrigger className="h-11 bg-muted/30 border-muted-foreground/20 focus:bg-background transition-all">
+                                                            <SelectValue placeholder="Select" />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectItem value="DJ">DJ</SelectItem>
+                                                        <SelectItem value="Decor">Decor</SelectItem>
+                                                        <SelectItem value="Venue">Venue</SelectItem>
+                                                        <SelectItem value="Catering">Catering</SelectItem>
+                                                        <SelectItem value="Photography">Photography</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage className="text-[10px]" />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="city"
+                                        render={({ field }) => (
+                                            <FormItem className="space-y-1.5">
+                                                <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">City</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        placeholder="e.g. Mumbai"
+                                                        {...field}
+                                                        className="h-11 bg-muted/30 border-muted-foreground/20 focus:bg-background transition-all"
+                                                    />
+                                                </FormControl>
+                                                <FormMessage className="text-[10px]" />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+
+                                <FormField
+                                    control={form.control}
+                                    name="whatsapp_link"
+                                    render={({ field }) => (
+                                        <FormItem className="space-y-1.5">
+                                            <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">WhatsApp Link</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="https://wa.me/91..."
+                                                    {...field}
+                                                    className="h-11 bg-muted/30 border-muted-foreground/20 focus:bg-background transition-all"
+                                                />
+                                            </FormControl>
+                                            <FormMessage className="text-[10px]" />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="portfolio_image_url"
+                                    render={({ field }) => (
+                                        <FormItem className="space-y-1.5">
+                                            <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">Portfolio Image</FormLabel>
+                                            <FormControl>
+                                                <FileUpload
+                                                    onFileSelect={(file) => setSelectedFile(file)}
+                                                    defaultUrl={field.value}
+                                                    label="Upload Portfolio Image"
+                                                />
+                                            </FormControl>
+                                            <FormMessage className="text-[10px]" />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                         </div>
                     </div>
 
-                    <FormField
-                        control={form.control}
-                        name="bio"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Short Bio</FormLabel>
-                                <FormControl>
-                                    <Textarea
-                                        placeholder="Tell us about your services..."
-                                        className="resize-none h-[60px]"
-                                        {...field}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                    <div className="pt-2">
+                        <FormField
+                            control={form.control}
+                            name="bio"
+                            render={({ field }) => (
+                                <FormItem className="space-y-1.5">
+                                    <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">Business Bio</FormLabel>
+                                    <FormControl>
+                                        <Textarea
+                                            placeholder="Tell us about your services, awards, and experience..."
+                                            className="resize-none h-24 bg-muted/30 border-muted-foreground/20 focus:bg-background transition-all"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage className="text-[10px]" />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
 
                     {error && (
-                        <Alert variant="destructive">
-                            <AlertDescription>{error}</AlertDescription>
+                        <Alert variant="destructive" className="py-2.5">
+                            <AlertDescription className="text-xs font-medium">{error}</AlertDescription>
                         </Alert>
                     )}
 
-                    <div className="flex justify-center">
-                        <Button type="submit" className="min-w-[200px]" disabled={isLoading}>
-                            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Create Vendor Account
+                    <div className="flex justify-center pt-4">
+                        <Button type="submit" className="min-w-[280px] h-12 text-base font-bold shadow-sm hover:shadow-lg transition-all active:scale-[0.98]" disabled={isLoading}>
+                            {isLoading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+                            {isLoading ? "Creating Account..." : "Join as a Vendor"}
                         </Button>
                     </div>
                 </form>
