@@ -4,28 +4,29 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button  } from "@bventy/ui";
-import { Form,
+import { Button } from "@bventy/ui";
+import {
+    Form,
     FormControl,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
     FormDescription,
- } from "@bventy/ui";
-import { Input  } from "@bventy/ui";
-import { Textarea  } from "@bventy/ui";
-import { useAuth  } from "@bventy/services";
-import { userService  } from "@bventy/services";
+} from "@bventy/ui";
+import { Input } from "@bventy/ui";
+import { Textarea } from "@bventy/ui";
+import { useAuth } from "@bventy/services";
+import { userService } from "@bventy/services";
 import { Loader2, Save, User } from "lucide-react";
 import { Navbar } from "@bventy/ui";
 import { Footer } from "@bventy/ui";
-import { Avatar, AvatarFallback, AvatarImage  } from "@bventy/ui";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle  } from "@bventy/ui";
+import { Avatar, AvatarFallback, AvatarImage } from "@bventy/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@bventy/ui";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { FileUpload  } from "@bventy/ui";
-import { mediaService  } from "@bventy/services";
+import { FileUpload } from "@bventy/ui";
+import { mediaService } from "@bventy/services";
 
 const profileFormSchema = z.object({
     full_name: z.string().min(2, {
@@ -146,7 +147,8 @@ export default function ProfilePage() {
     }
 
     if (!user) {
-        router.push("/auth/login");
+        const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "";
+        window.location.href = `${AUTH_URL}/login`;
         return null;
     }
 
