@@ -2,32 +2,33 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { userService, UserProfile  } from "@bventy/services";
-import { vendorService, VendorProfile  } from "@bventy/services";
-import { quoteService  } from "@bventy/services";
+import { userService, UserProfile } from "@bventy/services";
+import { vendorService, VendorProfile } from "@bventy/services";
+import { quoteService } from "@bventy/services";
 import { Navbar } from "@bventy/ui";
 import { Footer } from "@bventy/ui";
-import { Button  } from "@bventy/ui";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle  } from "@bventy/ui";
-import { Input  } from "@bventy/ui";
-import { Textarea  } from "@bventy/ui";
-import { Label  } from "@bventy/ui";
-import { Separator  } from "@bventy/ui";
-import { Badge  } from "@bventy/ui";
+import { Button } from "@bventy/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@bventy/ui";
+import { Input } from "@bventy/ui";
+import { Textarea } from "@bventy/ui";
+import { Label } from "@bventy/ui";
+import { Separator } from "@bventy/ui";
+import { Badge } from "@bventy/ui";
 import { Loader2, ArrowLeft, Store, Save, ExternalLink, Phone, Mail, MessageCircle, X, Archive } from "lucide-react";
 import { toast } from "sonner";
-import { FileUpload  } from "@bventy/ui";
+import { FileUpload } from "@bventy/ui";
 import { GalleryUpload } from "@/components/vendor/GalleryUpload";
 import { PortfolioUpload } from "@/components/vendor/PortfolioUpload";
 import Link from "next/link";
-import { QuoteContact  } from "@bventy/services";
-import { Dialog,
+import { QuoteContact } from "@bventy/services";
+import {
+    Dialog,
     DialogContent,
     DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogFooter,
- } from "@bventy/ui";
+} from "@bventy/ui";
 
 export default function VendorDashboardPage() {
     const router = useRouter();
@@ -68,7 +69,7 @@ export default function VendorDashboardPage() {
                 setUser(userData);
 
                 if (!userData.vendor_profile_exists) {
-                    router.push("/vendor/onboard");
+                    router.push("/onboard");
                     return;
                 }
 
@@ -101,14 +102,14 @@ export default function VendorDashboardPage() {
                     // This handles cases where user flag says true but profile is missing
                     if (err.response && err.response.status === 404) {
                         toast.error("Vendor profile not found. Please complete onboarding.");
-                        router.push("/vendor/onboard");
+                        router.push("/onboard");
                         return;
                     }
                     toast.error("Failed to load vendor profile");
                 }
             } catch (error) {
                 console.error(error);
-                router.push("/auth/login");
+                router.push(`${process.env.NEXT_PUBLIC_AUTH_URL}/login`);
             } finally {
                 setLoading(false);
             }

@@ -2,9 +2,9 @@
 
 import { SignupForm } from "@/components/auth/SignupForm";
 import Link from "next/link";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle  } from "@bventy/ui";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@bventy/ui";
 import { useEffect } from "react";
-import { useAuth  } from "@bventy/services";
+import { useAuth } from "@bventy/services";
 import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
@@ -28,7 +28,7 @@ export default function SignupPage() {
                             <p className="px-8 text-center text-sm text-muted-foreground w-full">
                                 Already have an account?{" "}
                                 <Link
-                                    href="/auth/login"
+                                    href="/login"
                                     className="underline underline-offset-4 hover:text-primary"
                                 >
                                     Login

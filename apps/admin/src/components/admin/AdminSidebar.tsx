@@ -4,22 +4,22 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@bventy/ui";
 import { LayoutDashboard, Users, Store, Settings } from "lucide-react";
-import { Button  } from "@bventy/ui";
+import { Button } from "@bventy/ui";
 
 const sidebarItems = [
     {
         title: "Overview",
-        href: "/admin",
+        href: "/",
         icon: LayoutDashboard,
     },
     {
         title: "Vendors",
-        href: "/admin/vendors",
+        href: "/vendors",
         icon: Store,
     },
     {
         title: "Users",
-        href: "/admin/users",
+        href: "/users",
         icon: Users,
     },
 ];
