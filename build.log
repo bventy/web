@@ -1,0 +1,43 @@
+• turbo 2.8.10
+• Packages in scope: @bventy/services, @bventy/ui, bventy-web
+• Running build in 3 packages
+• Remote caching disabled
+bventy-web:build: cache miss, executing 907fa04dd397c6af
+bventy-web:build: 
+bventy-web:build: > bventy-web@0.1.0 build
+bventy-web:build: > next build
+bventy-web:build: 
+bventy-web:build: ▲ Next.js 16.1.6 (Turbopack)
+bventy-web:build: 
+bventy-web:build:   Creating an optimized production build ...
+bventy-web:build: ✓ Compiled successfully in 21.8s
+bventy-web:build:   Running TypeScript ...
+bventy-web:build: Failed to compile.
+bventy-web:build: 
+bventy-web:build: ../../packages/ui/src/infrastructure/PostHogProvider.tsx:14:17
+bventy-web:build: Type error: Object literal may only specify known properties, and 'cookie_domain' does not exist in type 'Partial<PostHogConfig>'.
+bventy-web:build: 
+bventy-web:build: [0m [90m 12 |[39m                 api_host[33m:[39m [32m'/posth-relay'[39m[33m,[39m
+bventy-web:build:  [90m 13 |[39m                 ui_host[33m:[39m process[33m.[39menv[33m.[39m[33mNEXT_PUBLIC_POSTHOG_HOST[39m[33m,[39m
+bventy-web:build: [31m[1m>[22m[39m[90m 14 |[39m                 cookie_domain[33m:[39m [32m'.bventy.in'[39m[33m,[39m
+bventy-web:build:  [90m    |[39m                 [31m[1m^[22m[39m
+bventy-web:build:  [90m 15 |[39m                 defaults[33m:[39m [32m'2026-01-30'[39m[33m,[39m
+bventy-web:build:  [90m 16 |[39m                 capture_pageview[33m:[39m [36mfalse[39m[33m,[39m
+bventy-web:build:  [90m 17 |[39m                 disable_session_recording[33m:[39m [36mtrue[39m[33m,[39m[0m
+bventy-web:build: Next.js build worker exited with code: 1 and signal: null
+bventy-web:build: npm error Lifecycle script `build` failed with error:
+bventy-web:build: npm error code 1
+bventy-web:build: npm error path /home/onkar/Documents/Projects/bventy-web/apps/www
+bventy-web:build: npm error workspace bventy-web@0.1.0
+bventy-web:build: npm error location /home/onkar/Documents/Projects/bventy-web/apps/www
+bventy-web:build: npm error command failed
+bventy-web:build: npm error command sh -c next build
+bventy-web:build: ERROR: command finished with error: command (/home/onkar/Documents/Projects/bventy-web/apps/www) /usr/bin/npm run build exited (1)
+bventy-web#build: command (/home/onkar/Documents/Projects/bventy-web/apps/www) /usr/bin/npm run build exited (1)
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    29.745s 
+Failed:    bventy-web#build
+
+ ERROR  run failed: command  exited (1)
