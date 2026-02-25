@@ -3,21 +3,22 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button  } from "@bventy/ui";
-import { Form,
+import { Button } from "@bventy/ui";
+import {
+    Form,
     FormControl,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
- } from "@bventy/ui";
-import { Input  } from "@bventy/ui";
+} from "@bventy/ui";
+import { Input } from "@bventy/ui";
 import { useState } from "react";
-import { authService  } from "@bventy/services";
+import { authService } from "@bventy/services";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { Alert, AlertDescription  } from "@bventy/ui"; // We might need an Alert component, or simpler div
-import { useAuth  } from "@bventy/services";
+import { Alert, AlertDescription } from "@bventy/ui"; // We might need an Alert component, or simpler div
+import { useAuth } from "@bventy/services";
 import Link from "next/link";
 
 const formSchema = z.object({
@@ -68,17 +69,21 @@ export function SignupForm() {
     return (
         <div className="grid gap-6">
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                     <FormField
                         control={form.control}
                         name="full_name"
                         render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Full Name</FormLabel>
+                            <FormItem className="space-y-1.5">
+                                <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">Full Name</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="John Doe" {...field} />
+                                    <Input
+                                        placeholder="John Doe"
+                                        {...field}
+                                        className="h-11 bg-muted/30 border-muted-foreground/20 focus:bg-background transition-all"
+                                    />
                                 </FormControl>
-                                <FormMessage />
+                                <FormMessage className="text-[10px]" />
                             </FormItem>
                         )}
                     />
@@ -86,12 +91,16 @@ export function SignupForm() {
                         control={form.control}
                         name="email"
                         render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Email</FormLabel>
+                            <FormItem className="space-y-1.5">
+                                <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">Email Address</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="name@example.com" {...field} />
+                                    <Input
+                                        placeholder="name@example.com"
+                                        {...field}
+                                        className="h-11 bg-muted/30 border-muted-foreground/20 focus:bg-background transition-all"
+                                    />
                                 </FormControl>
-                                <FormMessage />
+                                <FormMessage className="text-[10px]" />
                             </FormItem>
                         )}
                     />
@@ -99,35 +108,39 @@ export function SignupForm() {
                         control={form.control}
                         name="password"
                         render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Password</FormLabel>
+                            <FormItem className="space-y-1.5">
+                                <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">Password</FormLabel>
                                 <FormControl>
-                                    <Input type="password" placeholder="******" {...field} />
+                                    <Input
+                                        type="password"
+                                        placeholder="••••••••"
+                                        {...field}
+                                        className="h-11 bg-muted/30 border-muted-foreground/20 focus:bg-background transition-all"
+                                    />
                                 </FormControl>
-                                <FormMessage />
+                                <FormMessage className="text-[10px]" />
                             </FormItem>
                         )}
                     />
 
                     {error && (
-                        <Alert variant="destructive">
-                            <AlertDescription>{error}</AlertDescription>
+                        <Alert variant="destructive" className="py-2.5">
+                            <AlertDescription className="text-xs font-medium">{error}</AlertDescription>
                         </Alert>
                     )}
 
-                    <Button type="submit" className="w-full" disabled={isLoading}>
+                    <Button type="submit" className="w-full h-11 text-sm font-semibold shadow-sm hover:shadow-md transition-all active:scale-[0.98]" disabled={isLoading}>
                         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Create Account
+                        {isLoading ? "Creating account..." : "Create Account"}
                     </Button>
 
-                    <p className="text-center text-sm text-neutral-500 mt-4">
+                    <p className="text-center text-xs text-muted-foreground/60 leading-relaxed max-w-[280px] mx-auto">
                         By signing up, you agree to our{" "}
-                        <Link href="/privacy" className="underline underline-offset-4 hover:text-neutral-900 dark:hover:text-neutral-300">
+                        <Link href="/privacy" className="underline underline-offset-4 hover:text-foreground transition-colors font-medium">
                             Privacy Policy
                         </Link>
                         .
                     </p>
-
                 </form>
             </Form>
         </div>

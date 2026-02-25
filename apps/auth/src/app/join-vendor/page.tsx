@@ -22,7 +22,7 @@ export default function JoinVendorPage() {
                 </Link>
             </div>
 
-            <div className="mx-auto flex w-full flex-col justify-center space-y-6 max-w-4xl bg-background/60 backdrop-blur-xl p-8 rounded-xl border shadow-sm">
+            <div className="mx-auto flex w-full flex-col justify-center space-y-8 max-w-4xl bg-background/40 backdrop-blur-2xl p-6 md:p-10 rounded-2xl border border-white/20 shadow-[0_0_50px_-12px_rgba(0,0,0,0.12)]">
                 <div className="flex flex-col space-y-2 text-center">
                     <div className="flex justify-center mb-2">
                         <div className="flex items-center text-lg font-medium">
@@ -41,42 +41,31 @@ export default function JoinVendorPage() {
                             Bventy for Business
                         </div>
                     </div>
-                    <h1 className="text-2xl font-semibold tracking-tight">
-                        Create a Vendor Account
+                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
+                        Join the Bventy Network
                     </h1>
-                    <p className="text-sm text-muted-foreground">
-                        Enter your details below to create your account and business profile.
+                    <p className="text-sm text-muted-foreground/80 max-w-[400px] mx-auto">
+                        Empower your business with Bventy's marketplace. Create your professional profile in seconds.
                     </p>
                 </div>
 
                 <VendorSignupForm />
 
-                <p className="px-8 text-center text-sm text-muted-foreground">
-                    By clicking continue, you agree to our{" "}
-                    <Link
-                        href="/terms"
-                        className="underline underline-offset-4 hover:text-primary"
-                    >
-                        Terms of Service
-                    </Link>{" "}
-                    and{" "}
-                    <Link
-                        href="/privacy"
-                        className="underline underline-offset-4 hover:text-primary"
-                    >
-                        Privacy Policy
-                    </Link>
-                    .
-                </p>
-                <p className="px-8 text-center text-sm text-muted-foreground">
-                    Already have an account?{" "}
-                    <Link
-                        href="/login"
-                        className="underline underline-offset-4 hover:text-primary"
-                    >
-                        Login here
-                    </Link>
-                </p>
+                <div className="space-y-4 pt-2">
+                    <p className="px-8 text-center text-xs text-muted-foreground/60 leading-relaxed max-w-[450px] mx-auto">
+                        By signing up, you agree to our{" "}
+                        <Link href="/terms" className="underline underline-offset-4 hover:text-foreground transition-colors font-medium">Terms of Service</Link>
+                        {" "}and{" "}
+                        <Link href="/privacy" className="underline underline-offset-4 hover:text-foreground transition-colors font-medium">Privacy Policy</Link>
+                        .
+                    </p>
+                    <p className="px-8 text-center text-sm font-medium text-muted-foreground/80">
+                        Already have an account?{" "}
+                        <Link href="/login" className="text-primary hover:underline underline-offset-4 transition-all">
+                            Login here
+                        </Link>
+                    </p>
+                </div>
             </div>
         </div>
     );
