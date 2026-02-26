@@ -12,6 +12,7 @@ import {
 } from "@bventy/ui";
 import Script from "next/script";
 import { Suspense } from "react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -59,6 +60,7 @@ export default function RootLayout({
             </Suspense>
           </AuthProvider>
         </PostHogProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
