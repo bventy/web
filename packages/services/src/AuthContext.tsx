@@ -8,7 +8,7 @@ import { usePostHog } from "posthog-js/react";
 interface AuthContextType {
     user: UserProfile | null;
     loading: boolean;
-    login: (token: string, shouldRedirect?: boolean) => Promise<void>;
+    login: (shouldRedirect?: boolean) => Promise<void>;
     logout: () => void;
     refetch: () => Promise<void>;
     isAuthenticated: boolean;
@@ -22,14 +22,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const posthog = usePostHog();
 
-    const fetchUser = async (explicitToken?: string) => {
+    const fetchUser = async () => {
         try {
-            // If an explicit token is provided, we set it in local storage first
-            // and then make the call. The interceptor will pick it up.
-            if (explicitToken) {
-                localStorage.setItem("token", explicitToken);
-            }
-
             const profile = await userService.getMe();
             setUser(profile);
 
@@ -41,11 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 });
             }
         } catch (error) {
-            console.error("Failed to fetch user profile", error);
-            // Only remove token if it was already there and failed
-            if (localStorage.getItem("token")) {
-                localStorage.removeItem("token");
-            }
+            console.error("Session fetch failed or no session exists", error);
             setUser(null);
         } finally {
             setLoading(false);
@@ -53,50 +43,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     useEffect(() => {
-        // Check for token in URL for cross-subdomain sync
-        const params = new URLSearchParams(window.location.search);
-        const tokenFromUrl = params.get("token");
-        const synced = params.get("synced");
-
-        if (tokenFromUrl) {
-            // Save to local storage for this subdomain
-            localStorage.setItem("token", tokenFromUrl);
-
-            // Clean up the URL to hide the token but keep other params
-            const url = new URL(window.location.href);
-            url.searchParams.delete("token");
-            url.searchParams.delete("synced");
-            window.history.replaceState({}, "", url.toString());
-
-            fetchUser(tokenFromUrl);
-        } else if (!localStorage.getItem("token") && !synced) {
-            // Aggressive Sync: Check Auth Authority if no local session
-            const currentHost = window.location.host;
-            const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "";
-
-            // Only sync if we are NOT on the auth app itself
-            const isOnAuthApp = currentHost.includes("auth.bventy.in") ||
-                (AUTH_URL.includes(currentHost) && AUTH_URL !== "");
-
-            if (!isOnAuthApp) {
-                const targetAuthUrl = AUTH_URL || "https://auth.bventy.in";
-                const returnTo = encodeURIComponent(window.location.href);
-                window.location.href = `${targetAuthUrl}/sync?returnTo=${returnTo}`;
-                return;
-            }
-            fetchUser();
-        } else {
-            // Always attempt to fetch the user profile on mount.
-            // Even if localStorage is empty, the browser may have a session cookie.
-            fetchUser();
-        }
+        // Source of truth is now the HttpOnly session cookie.
+        // We simply check if we have a valid session on mount.
+        fetchUser();
     }, []);
 
-    const login = async (token?: string, shouldRedirect = true) => {
-        // We pass the token explicitly to fetchUser to avoid race conditions
-        await fetchUser(token);
+    const login = async (shouldRedirect = true) => {
+        // The fetchUser call will now automatically use the cookie set by the backend.
+        await fetchUser();
 
-        if (shouldRedirect && token) {
+        if (shouldRedirect) {
             const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "";
             const ADMIN_URL = process.env.NEXT_PUBLIC_ADMIN_URL || "";
             const VENDOR_URL = process.env.NEXT_PUBLIC_VENDOR_URL || "";
@@ -104,37 +60,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // Re-fetch user to get the latest role
             const profile = await userService.getMe();
 
-            // Check if there's a returnTo parameter in the current URL
-            const params = new URLSearchParams(window.location.search);
-            const returnTo = params.get("returnTo");
-
-            if (returnTo) {
-                // If it's a known sibling host, redirect there with token
-                const targetUrl = returnTo.includes("admin") ? ADMIN_URL :
-                    returnTo.includes("vendor") ? VENDOR_URL : APP_URL;
-                window.location.href = `${targetUrl}/dashboard?token=${token}`;
-                return;
-            }
-
             if (profile && ["admin", "super_admin"].includes(profile.role)) {
-                // Redirect with token for synchronization
-                window.location.href = `${ADMIN_URL}/?token=${token}`;
+                window.location.href = `${ADMIN_URL}/`;
             } else if (profile && profile.vendor_profile_exists) {
-                window.location.href = `${VENDOR_URL}/dashboard?token=${token}`;
+                window.location.href = `${VENDOR_URL}/dashboard`;
             } else {
-                // Redirect with token for synchronization
-                window.location.href = `${APP_URL}/dashboard?token=${token}`;
+                window.location.href = `${APP_URL}/dashboard`;
             }
         }
     };
 
     const logout = () => {
-        localStorage.removeItem("token");
         setUser(null);
         posthog.reset();
         const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "";
+        // The backend logout endpoint will clear the shared domain cookie
         window.location.href = `${AUTH_URL}/login`;
     };
+
 
     return (
         <AuthContext.Provider
