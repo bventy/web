@@ -5,8 +5,8 @@ export const api = axios.create({
   withCredentials: true,
 });
 
-// Removed Authorization header interceptor to strictly prefer HttpOnly cookies
-// for cross-subdomain security and Safari ITP compatibility.
+// Note: We use withCredentials: true to send cookies automatically.
+// The Authorization header is no longer needed as we rely on secure cookies.
 
 
 api.interceptors.response.use(
