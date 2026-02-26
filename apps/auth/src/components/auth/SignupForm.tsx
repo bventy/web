@@ -52,8 +52,9 @@ export function SignupForm() {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await authService.signup(values);
-            await login();
+            await authService.signup(values);
+            await login(true);
+
         } catch (err: any) {
             // Simple error handling
             if (err.response && err.response.data && err.response.data.message) {

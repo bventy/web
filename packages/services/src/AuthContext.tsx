@@ -2,7 +2,9 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { UserProfile, userService } from "./services/user";
+import { authService } from "./services/auth";
 import { useRouter } from "next/navigation";
+
 import { usePostHog } from "posthog-js/react";
 
 interface AuthContextType {
@@ -35,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 });
             }
         } catch (error) {
-            console.error("Session fetch failed or no session exists", error);
+            console.error("Failed to fetch user profile", error);
             setUser(null);
         } finally {
             setLoading(false);
@@ -43,13 +45,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     useEffect(() => {
-        // Source of truth is now the HttpOnly session cookie.
-        // We simply check if we have a valid session on mount.
+        // Always attempt to fetch the user profile on mount.
+        // We rely entirely on the secure cookie for authentication.
         fetchUser();
     }, []);
 
     const login = async (shouldRedirect = true) => {
-        // The fetchUser call will now automatically use the cookie set by the backend.
         await fetchUser();
 
         if (shouldRedirect) {
@@ -60,8 +61,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // Re-fetch user to get the latest role
             const profile = await userService.getMe();
 
+            // Check if there's a returnTo parameter in the current URL
+            const params = new URLSearchParams(window.location.search);
+            const returnTo = params.get("returnTo");
+
+            if (returnTo) {
+                window.location.href = returnTo;
+                return;
+            }
+
             if (profile && ["admin", "super_admin"].includes(profile.role)) {
-                window.location.href = `${ADMIN_URL}/`;
+                window.location.href = ADMIN_URL;
             } else if (profile && profile.vendor_profile_exists) {
                 window.location.href = `${VENDOR_URL}/dashboard`;
             } else {
@@ -70,13 +80,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
-    const logout = () => {
-        setUser(null);
-        posthog.reset();
-        const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "";
-        // The backend logout endpoint will clear the shared domain cookie
-        window.location.href = `${AUTH_URL}/login`;
+    const logout = async () => {
+        try {
+            await authService.logout();
+            setUser(null);
+            posthog.reset();
+            const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "";
+            window.location.href = `${AUTH_URL}/login`;
+        } catch (e) {
+            console.error("Logout failed", e);
+            // Fallback: clear local state and redirect anyway if API fails
+            setUser(null);
+            window.location.href = `${process.env.NEXT_PUBLIC_AUTH_URL}/login`;
+        }
     };
+
 
 
     return (
