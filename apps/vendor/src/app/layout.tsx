@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@bventy/services";
-import { 
-  Toaster, 
-  PostHogProvider, 
-  BackendWarmup, 
-  ProgressProvider, 
-  UmamiAnalytics, 
-  PostHogPageView 
+import {
+  Toaster,
+  PostHogProvider,
+  BackendWarmup,
+  ProgressProvider,
+  UmamiAnalytics,
+  PostHogPageView
 } from "@bventy/ui";
 import Script from "next/script";
 import { Suspense } from "react";
@@ -33,6 +33,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // If we are in the Monolith Shell, we don't need the html/body/providers again
+  if (process.env.NEXT_PUBLIC_IS_SHELL === 'true') {
+    return <>{children}</>;
+  }
+
   return (
     <html lang="en">
       <body

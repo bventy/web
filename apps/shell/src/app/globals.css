@@ -1,5 +1,10 @@
 @import "tailwindcss";
 @source "../../../../packages/ui/src/**/*.{ts,tsx}";
+@source "../../../../apps/www/src/**/*.{ts,tsx}";
+@source "../../../../apps/auth/src/**/*.{ts,tsx}";
+@source "../../../../apps/app/src/**/*.{ts,tsx}";
+@source "../../../../apps/vendor/src/**/*.{ts,tsx}";
+@source "../../../../apps/admin/src/**/*.{ts,tsx}";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
