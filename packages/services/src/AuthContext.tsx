@@ -70,13 +70,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             fetchUser(tokenFromUrl);
         } else if (!localStorage.getItem("token") && !synced) {
-            // If no token in storage AND not on auth app AND not just synced
-            // we perform a silent sync check against the auth authority
+            // Aggressive Sync: Check Auth Authority if no local session
             const currentHost = window.location.host;
-            if (!currentHost.includes("auth.bventy.in") && !currentHost.includes("localhost")) {
-                const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.bventy.in";
+            const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "";
+
+            // Only sync if we are NOT on the auth app itself
+            const isOnAuthApp = currentHost.includes("auth.bventy.in") ||
+                (AUTH_URL.includes(currentHost) && AUTH_URL !== "");
+
+            if (!isOnAuthApp) {
+                const targetAuthUrl = AUTH_URL || "https://auth.bventy.in";
                 const returnTo = encodeURIComponent(window.location.href);
-                window.location.href = `${AUTH_URL}/sync?returnTo=${returnTo}`;
+                window.location.href = `${targetAuthUrl}/sync?returnTo=${returnTo}`;
                 return;
             }
             fetchUser();
