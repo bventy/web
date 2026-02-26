@@ -52,7 +52,7 @@ export function LoginForm() {
             // Check for returnTo in URL
             const params = new URLSearchParams(window.location.search);
             const returnTo = params.get("returnTo");
-            await login(response.token, true); // login handles the redirect logic with returnTo from URL internally
+            await login(true); // login handles the redirect logic internally
         } catch (err: any) {
             if (err.response && err.response.data && err.response.data.message) {
                 setError(err.response.data.message);

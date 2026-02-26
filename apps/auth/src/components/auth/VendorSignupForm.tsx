@@ -67,7 +67,7 @@ const formSchema = z.object({
 
 export function VendorSignupForm() {
     const router = useRouter();
-    const { login } = useAuth();
+    const { login, refetch } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -100,7 +100,7 @@ export function VendorSignupForm() {
 
             // 2. Login (to get token for next step) - suppress redirect
             // We need to keep the user on this page to finish the upload logic
-            await login(authResponse.token, false);
+            await login(false);
 
             // 3. Upload Media (if selected) - NOW that we are logged in
             let portfolioImageUrl = values.portfolio_image_url;
@@ -111,7 +111,7 @@ export function VendorSignupForm() {
                         // Sync to user profile
                         await userService.updateProfile({ profile_image_url: portfolioImageUrl });
                         // Refetch auth context to update UI immediately
-                        await login(authResponse.token, false); // Poor man's refetch if refetch isn't available, OR better: use refetch if exposed.
+                        await refetch();
                         // Wait, I just exposed refetch. Let's use it. Actually, I need to destructure it first.
                         // Since I can't change the destructuring in this block easily, I'll rely on calling login again or just assume the user will reload.
                         // BUT, calling login() again forces a fetchUser()!
@@ -137,7 +137,7 @@ export function VendorSignupForm() {
             // But just in case, let's call login again to be safe and redirect manually.
             // Actually, simply redirecting now is fine if we updated the profile.
             // To ensure the context is fresh:
-            await login(authResponse.token, true); // This fetches and redirects
+            await login(true); // This fetches and redirects
             // router.push("/dashboard"); // Handled by login
 
         } catch (err: any) {

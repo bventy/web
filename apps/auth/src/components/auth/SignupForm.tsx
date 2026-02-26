@@ -53,7 +53,7 @@ export function SignupForm() {
         setError(null);
         try {
             const response = await authService.signup(values);
-            await login(response.token);
+            await login();
         } catch (err: any) {
             // Simple error handling
             if (err.response && err.response.data && err.response.data.message) {
