@@ -37,12 +37,13 @@ export default function SignupPage() {
                             <p className="px-8 text-center text-sm text-muted-foreground w-full">
                                 Are you a vendor?{" "}
                                 <Link
-                                    href="/join-vendor"
+                                    href="/signup/vendor"
                                     className="underline underline-offset-4 hover:text-primary font-medium"
                                 >
                                     Join as Vendor
                                 </Link>
                             </p>
+
                         </CardFooter>
 
                     </Card>
