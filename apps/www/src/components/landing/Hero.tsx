@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Button  } from "@bventy/ui";
+import { Button } from "@bventy/ui";
 import { motion } from "framer-motion";
 
 export function Hero() {
@@ -46,8 +46,9 @@ export function Hero() {
                     <Link href="/vendors">Explore Vendors</Link>
                 </Button>
                 <Button size="lg" variant="outline" className="h-12 px-8 text-base transition-transform hover:scale-105 active:scale-95" asChild>
-                    <Link href="/auth/join-vendor">Join as Vendor</Link>
+                    <Link href={`${process.env.NEXT_PUBLIC_AUTH_URL}/join-vendor`}>Join as Vendor</Link>
                 </Button>
+
             </motion.div>
         </section>
     );

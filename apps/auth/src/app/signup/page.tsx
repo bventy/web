@@ -24,7 +24,7 @@ export default function SignupPage() {
                         <CardContent>
                             <SignupForm />
                         </CardContent>
-                        <CardFooter>
+                        <CardFooter className="flex flex-col gap-2">
                             <p className="px-8 text-center text-sm text-muted-foreground w-full">
                                 Already have an account?{" "}
                                 <Link
@@ -34,7 +34,17 @@ export default function SignupPage() {
                                     Login
                                 </Link>
                             </p>
+                            <p className="px-8 text-center text-sm text-muted-foreground w-full">
+                                Are you a vendor?{" "}
+                                <Link
+                                    href="/join-vendor"
+                                    className="underline underline-offset-4 hover:text-primary font-medium"
+                                >
+                                    Join as Vendor
+                                </Link>
+                            </p>
                         </CardFooter>
+
                     </Card>
                 </div>
             </div>

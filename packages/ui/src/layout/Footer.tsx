@@ -1,6 +1,9 @@
 "use client";
 import Link from "next/link";
 
+const WWW_URL = process.env.NEXT_PUBLIC_WWW_URL || "";
+const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "";
+
 export function Footer() {
     return (
         <footer className="border-t bg-background">
@@ -9,7 +12,7 @@ export function Footer() {
                     <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
                         Built by{" "}
                         <Link
-                            href="#"
+                            href={WWW_URL || "#"}
                             target="_blank"
                             rel="noreferrer"
                             className="font-medium underline underline-offset-4"
@@ -29,13 +32,13 @@ export function Footer() {
                     </p>
                 </div>
                 <div className="flex items-center gap-4">
-                    <Link href="/auth/login" className="text-sm font-medium hover:underline">
+                    <Link href={`${AUTH_URL}/login`} className="text-sm font-medium hover:underline">
                         Login
                     </Link>
-                    <Link href="/auth/signup" className="text-sm font-medium hover:underline">
+                    <Link href={`${AUTH_URL}/signup`} className="text-sm font-medium hover:underline">
                         Signup
                     </Link>
-                    <Link href="/vendors" className="text-sm font-medium hover:underline">
+                    <Link href={`${WWW_URL}/vendors`} className="text-sm font-medium hover:underline">
                         Explore
                     </Link>
                 </div>
@@ -43,3 +46,4 @@ export function Footer() {
         </footer>
     );
 }
+
