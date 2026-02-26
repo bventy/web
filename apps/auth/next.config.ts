@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "https://bventy-api.onrender.com/:path*",
+        destination: "https://api.bventy.in/:path*",
       },
       {
         source: "/vercel-relay/s.js",
