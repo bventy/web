@@ -145,12 +145,15 @@ export function VendorSignupForm() {
 
         } catch (err: any) {
             console.error("Vendor signup error:", err);
-            if (err.response && err.response.data && err.response.data.message) {
+            if (err.response && err.response.data && err.response.data.error) {
+                setError(err.response.data.error);
+            } else if (err.response && err.response.data && err.response.data.message) {
                 setError(err.response.data.message);
             } else {
-                setError("Failed to create vendor account. Please try again.");
+                setError("Failed to create vendor account. This might be a connection issue; please check your internet and try again.");
             }
         } finally {
+
             setIsLoading(false);
         }
     }
