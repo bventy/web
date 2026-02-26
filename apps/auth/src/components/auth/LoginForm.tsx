@@ -52,12 +52,15 @@ export function LoginForm() {
             await login(true); // login handles the redirect logic internally based on profile/role
 
         } catch (err: any) {
-            if (err.response && err.response.data && err.response.data.message) {
+            if (err.response && err.response.data && err.response.data.error) {
+                setError(err.response.data.error);
+            } else if (err.response && err.response.data && err.response.data.message) {
                 setError(err.response.data.message);
             } else {
-                setError("Invalid credentials. Please try again.");
+                setError("Unable to connect to the login service. Please check your internet or try again later.");
             }
         } finally {
+
             setIsLoading(false);
         }
     }
