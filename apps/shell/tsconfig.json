@@ -30,6 +30,9 @@
         "../../apps/app/src/*",
         "../../apps/vendor/src/*",
         "../../apps/admin/src/*"
+      ],
+      "@styles/*": [
+        "../../packages/ui/src/styles/*"
       ]
     }
   },

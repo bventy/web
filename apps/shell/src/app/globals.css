@@ -5,7 +5,7 @@
 @source "../../../../**/*.{ts,tsx,js,jsx}";
 @source "../../../../../**/*.{ts,tsx,js,jsx}";
 
-@plugin "tw-animate-css";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
