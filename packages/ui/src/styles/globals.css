@@ -1,7 +1,10 @@
 @import "tailwindcss";
-@source "../../../../packages/ui/src/**/*.{ts,tsx}";
+
+/* Scan everything in the monorepo for Tailwind classes */
+@source "../../../**/*.{ts,tsx}";
+@source "../../../../apps/*/src/**/*.{ts,tsx}";
+
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
 
