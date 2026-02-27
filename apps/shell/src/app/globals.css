@@ -1,15 +1,15 @@
 @import "tailwindcss";
 @source "../../../../packages/ui/src/**/*.{ts,tsx,js,jsx}";
 @source "../../../www/src/**/*.{ts,tsx,js,jsx}";
-@source "../../../../www/src/**/*.{ts,tsx,js,jsx}";
+@source "../../../../apps/www/src/**/*.{ts,tsx,js,jsx}";
 @source "../../../auth/src/**/*.{ts,tsx,js,jsx}";
-@source "../../../../auth/src/**/*.{ts,tsx,js,jsx}";
+@source "../../../../apps/auth/src/**/*.{ts,tsx,js,jsx}";
 @source "../../../app/src/**/*.{ts,tsx,js,jsx}";
-@source "../../../../app/src/**/*.{ts,tsx,js,jsx}";
+@source "../../../../apps/app/src/**/*.{ts,tsx,js,jsx}";
 @source "../../../vendor/src/**/*.{ts,tsx,js,jsx}";
-@source "../../../../vendor/src/**/*.{ts,tsx,js,jsx}";
+@source "../../../../apps/vendor/src/**/*.{ts,tsx,js,jsx}";
 @source "../../../admin/src/**/*.{ts,tsx,js,jsx}";
-@source "../../../../admin/src/**/*.{ts,tsx,js,jsx}";
+@source "../../../../apps/admin/src/**/*.{ts,tsx,js,jsx}";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
