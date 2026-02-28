@@ -26,6 +26,22 @@ const nextConfig: NextConfig = {
             },
             // PostHog Relay
             {
+                source: "/posth-relay/static/:path*",
+                destination: "https://us-assets.i.posthog.com/static/:path*",
+            },
+            {
+                source: "/posth-relay/s/:path*",
+                destination: "https://us.i.posthog.com/s/:path*",
+            },
+            {
+                source: "/posth-relay/e/:path*",
+                destination: "https://us.i.posthog.com/e/:path*",
+            },
+            {
+                source: "/posth-relay/decide",
+                destination: "https://us.i.posthog.com/decide",
+            },
+            {
                 source: "/posth-relay/:path*",
                 destination: "https://us.i.posthog.com/:path*",
             },
@@ -33,6 +49,10 @@ const nextConfig: NextConfig = {
             {
                 source: "/umami-relay/s.js",
                 destination: "https://cloud.umami.is/script.js",
+            },
+            {
+                source: "/umami-relay/api/send",
+                destination: "https://cloud.umami.is/api/send",
             },
         ];
     },

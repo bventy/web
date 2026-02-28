@@ -7,7 +7,7 @@ export function UmamiAnalytics() {
     return (
         <Script
             src="/umami-relay/s.js"
-            data-website-id="3e89ac7f-6f2d-4006-a387-316d10695e85"
+            data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
             data-host-url="/umami-relay"
             strategy="afterInteractive"
         />
