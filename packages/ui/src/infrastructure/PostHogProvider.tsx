@@ -9,7 +9,7 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (typeof window !== 'undefined') {
             posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-                api_host: '/posth-relay',
+                api_host: '/a/p',
                 ui_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
                 cross_subdomain_cookie: true,
                 defaults: '2026-01-30',

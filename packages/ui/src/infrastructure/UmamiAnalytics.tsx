@@ -6,9 +6,9 @@ import Script from "next/script";
 export function UmamiAnalytics() {
     return (
         <Script
-            src="/umami-relay/s.js"
+            src="/a/u/m.js"
             data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
-            data-host-url="/umami-relay"
+            data-host-url="/a/u"
             strategy="afterInteractive"
         />
     );
