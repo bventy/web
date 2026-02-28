@@ -14,8 +14,8 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
                 cross_subdomain_cookie: true,
                 defaults: '2026-01-30',
                 capture_pageview: false,
-                disable_session_recording: true,
-                enable_recording_console_log: false,
+                disable_session_recording: false,
+                enable_recording_console_log: true,
                 persistence: 'cookie'
             })
         }
