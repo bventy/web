@@ -24,34 +24,34 @@ const nextConfig: NextConfig = {
                 source: "/vercel-relay/s.js",
                 destination: "https://va.vercel-scripts.com/v1/script.js",
             },
-            // PostHog Relay
+            // PostHog Obscure Relay
             {
-                source: "/posth-relay/static/:path*",
+                source: "/a/p/static/:path*",
                 destination: "https://us-assets.i.posthog.com/static/:path*",
             },
             {
-                source: "/posth-relay/s/:path*",
+                source: "/a/p/s/:path*",
                 destination: "https://us.i.posthog.com/s/:path*",
             },
             {
-                source: "/posth-relay/e/:path*",
+                source: "/a/p/e/:path*",
                 destination: "https://us.i.posthog.com/e/:path*",
             },
             {
-                source: "/posth-relay/decide",
+                source: "/a/p/decide",
                 destination: "https://us.i.posthog.com/decide",
             },
             {
-                source: "/posth-relay/:path*",
+                source: "/a/p/:path*",
                 destination: "https://us.i.posthog.com/:path*",
             },
-            // Umami Relay
+            // Umami Obscure Relay
             {
-                source: "/umami-relay/s.js",
+                source: "/a/u/m.js",
                 destination: "https://cloud.umami.is/script.js",
             },
             {
-                source: "/umami-relay/api/send",
+                source: "/a/u/api/send",
                 destination: "https://cloud.umami.is/api/send",
             },
         ];

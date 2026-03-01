@@ -58,7 +58,7 @@ export default function RootLayout({
                 data-debug="false"
               />
             )}
-            {process.env.NEXT_PUBLIC_UMAMI_ID && <UmamiAnalytics />}
+            {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && <UmamiAnalytics />}
             <Suspense fallback={null}>
               <PostHogPageView />
             </Suspense>
