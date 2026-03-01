@@ -33,20 +33,23 @@ export function BackendWarmup() {
         // Ping immediately on mount
         warmup();
 
-        // Trigger ping on tab visibility change (to wake up if backgrounded)
-        const handleVisibilityChange = () => {
+        // Trigger ping on tab visibility change or window focus (to wake up if backgrounded or inactive)
+        const handleInteraction = () => {
             if (document.visibilityState === "visible") {
                 warmup();
             }
         };
-        document.addEventListener("visibilitychange", handleVisibilityChange);
+
+        document.addEventListener("visibilitychange", handleInteraction);
+        window.addEventListener("focus", handleInteraction);
 
         // Keep-alive: ping every 9 minutes while the app is open (Render timeout is ~15 mins of inactivity)
         const interval = setInterval(warmup, 9 * 60 * 1000);
 
         return () => {
             clearInterval(interval);
-            document.removeEventListener("visibilitychange", handleVisibilityChange);
+            document.removeEventListener("visibilitychange", handleInteraction);
+            window.removeEventListener("focus", handleInteraction);
         };
     }, []);
 
