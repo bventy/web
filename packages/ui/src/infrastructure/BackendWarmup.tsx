@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api  } from "@bventy/services";
+import { api } from "@bventy/services";
 
 /**
  * BackendWarmup is a headless component that pings the backend health endpoint
@@ -30,7 +30,24 @@ export function BackendWarmup() {
             }
         };
 
+        // Ping immediately on mount
         warmup();
+
+        // Trigger ping on tab visibility change (to wake up if backgrounded)
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === "visible") {
+                warmup();
+            }
+        };
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
+        // Keep-alive: ping every 9 minutes while the app is open (Render timeout is ~15 mins of inactivity)
+        const interval = setInterval(warmup, 9 * 60 * 1000);
+
+        return () => {
+            clearInterval(interval);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+        };
     }, []);
 
     // This component is mostly headless, but we could return a small fixed portal or 
