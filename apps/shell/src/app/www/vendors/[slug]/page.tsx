@@ -116,6 +116,8 @@ export default function VendorProfilePage() {
                 setQuoteBudget(`₹${ev.budget_min} - ₹${ev.budget_max}`);
             }
         }
+    }, [selectedEventId, events]);
+
     const [pricingSurcharge, setPricingSurcharge] = useState<{ type: string; label: string }[]>([]);
 
     useEffect(() => {
