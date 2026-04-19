@@ -346,7 +346,7 @@ export default function ServicesPricingPage() {
                                                         <div className="relative">
                                                             <Input 
                                                                 type="number"
-                                                                value={rules.weekend_premium_percentage}
+                                                                value={rules.weekend_premium_percentage || 0}
                                                                 onChange={e => updateRules({ weekend_premium_percentage: Number(e.target.value) })}
                                                                 className="h-9 pl-8"
                                                             />
@@ -407,7 +407,7 @@ export default function ServicesPricingPage() {
                                                         <div className="relative">
                                                             <Input 
                                                                 type="number"
-                                                                value={rules.last_minute_booking_percentage}
+                                                                value={rules.last_minute_booking_percentage || 0}
                                                                 onChange={e => updateRules({ last_minute_booking_percentage: Number(e.target.value) })}
                                                                 className="h-9 pl-8"
                                                             />
@@ -421,7 +421,7 @@ export default function ServicesPricingPage() {
                                                         <div className="relative">
                                                             <Input 
                                                                 type="number"
-                                                                value={rules.last_minute_days}
+                                                                value={rules.last_minute_days || 0}
                                                                 onChange={e => updateRules({ last_minute_days: Number(e.target.value) })}
                                                                 className="h-9 pl-8"
                                                             />
