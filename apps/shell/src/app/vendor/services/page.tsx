@@ -426,7 +426,7 @@ export default function ServicesPricingPage() {
                                                                 className="h-9 pl-8"
                                                             />
                                                             <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/50">
-                                                                <Calendar className="h-3 w-3" />
+                                                                <CalendarDays className="h-3 w-3" />
                                                             </div>
                                                         </div>
                                                     </div>
