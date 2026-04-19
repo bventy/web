@@ -516,6 +516,25 @@ export default function VendorProfilePage() {
                                                                 </SelectContent>
                                                             </Select>
                                                         </div>
+
+                                                        {pricingSurcharge.length > 0 && (
+                                                            <div className="p-3 rounded-xl bg-orange-500/5 border border-orange-500/20 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                                                                <p className="text-[10px] font-bold uppercase tracking-wider text-orange-600 flex items-center gap-1.5">
+                                                                    <Banknote className="h-3 w-3" /> Pricing Notice
+                                                                </p>
+                                                                <div className="space-y-1">
+                                                                    {pricingSurcharge.map((s, i) => (
+                                                                        <div key={i} className="flex items-center justify-between text-xs">
+                                                                            <span className="text-muted-foreground">{s.type}</span>
+                                                                            <span className="font-bold text-orange-600">{s.label}</span>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                                <p className="text-[9px] text-muted-foreground italic">
+                                                                    This surcharge will be applied to your final quote.
+                                                                </p>
+                                                            </div>
+                                                        )}
                                                         <div className="space-y-2">
                                                             <Label>Budget Range (Prefilled from event)</Label>
                                                             <Input
@@ -627,25 +646,6 @@ export default function VendorProfilePage() {
                                                                 </SelectContent>
                                                             </Select>
                                                         </div>
-
-                                                        {pricingSurcharge.length > 0 && (
-                                                            <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                                                                <p className="text-[10px] font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
-                                                                    <Banknote className="h-3 w-3" /> Pricing Notice
-                                                                </p>
-                                                                <div className="space-y-1">
-                                                                    {pricingSurcharge.map((s, i) => (
-                                                                        <div key={i} className="flex items-center justify-between text-xs">
-                                                                            <span className="text-muted-foreground">{s.type}</span>
-                                                                            <span className="font-bold text-primary">{s.label}</span>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                                <p className="text-[9px] text-muted-foreground italic">
-                                                                    This surcharge will be applied to your final quote.
-                                                                </p>
-                                                            </div>
-                                                        )}
                                                     )}
                                                     {!isCreatingEventInShortlist && (
                                                         <DialogFooter>
