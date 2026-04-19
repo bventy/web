@@ -148,7 +148,7 @@ export default function VendorProfilePage() {
                 const label = rules.last_minute_booking_type === 'percentage'
                     ? `+${rules.last_minute_booking_percentage}%`
                     : `+₹${rules.last_minute_booking_percentage}`;
-                surcharges.push({ type: 'Last Minute Surcharge', label });
+                surcharges.push({ type: `Last Minute Surcharge (within ${rules.last_minute_days} days)`, label });
             }
 
             setPricingSurcharge(surcharges);

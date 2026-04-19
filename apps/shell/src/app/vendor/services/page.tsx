@@ -371,7 +371,7 @@ export default function ServicesPricingPage() {
                                         </div>
                                         <div className="space-y-0.5">
                                             <p className="text-sm font-semibold">Last Minute Booking</p>
-                                            <p className="text-xs text-muted-foreground">Surcharge for bookings within 7 days</p>
+                                            <p className="text-xs text-muted-foreground">Surcharge for bookings within {rules?.last_minute_days || 7} days</p>
                                         </div>
                                     </div>
                                     <div
