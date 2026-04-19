@@ -389,8 +389,7 @@ export default function ServicesPricingPage() {
                                             exit={{ height: 0, opacity: 0, marginTop: 0 }}
                                             className="overflow-hidden px-1"
                                         >
-                                            <div className="p-4 rounded-xl border border-border/40 bg-muted/5 space-y-4">
-                                                <div className="grid grid-cols-2 gap-4">
+                                                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                                                     <div className="space-y-2">
                                                         <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Type</Label>
                                                         <Select value={rules.last_minute_booking_type} onValueChange={v => updateRules({ last_minute_booking_type: v as any })}>
@@ -417,8 +416,21 @@ export default function ServicesPricingPage() {
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    <div className="space-y-2 col-span-2 lg:col-span-1">
+                                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Threshold (Days)</Label>
+                                                        <div className="relative">
+                                                            <Input 
+                                                                type="number"
+                                                                value={rules.last_minute_days}
+                                                                onChange={e => updateRules({ last_minute_days: Number(e.target.value) })}
+                                                                className="h-9 pl-8"
+                                                            />
+                                                            <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/50">
+                                                                <Calendar className="h-3 w-3" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>

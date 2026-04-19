@@ -35,8 +35,17 @@ export interface Quote {
     contact_expires_at?: string;
     archived_at?: string;
     revision_message?: string;
-    event_date?: string;
     event_type?: string;
+    is_premium?: boolean;
+    surcharge_details?: {
+        applied_rules: string[];
+        breakdown: Record<string, {
+            type: string;
+            value: number;
+            label: string;
+            threshold_days?: number;
+        }>;
+    };
 }
 
 export interface QuoteContact {

@@ -23,12 +23,13 @@ import {
     Loader2,
     Mail,
     Phone,
-    ExternalLink
+    ExternalLink,
+    Banknote
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import useSWR, { mutate } from "swr";
-import { vendorService, quoteService, QuoteContact } from "@bventy/services";
+import { vendorService, quoteService, QuoteContact, getVendorUrl } from "@bventy/services";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import {
@@ -121,6 +122,8 @@ export default function LeadDetailPage() {
     const safeLead = lead || {
         id: id,
         status: "pending",
+        is_premium: false,
+        surcharge_details: null,
         event: { title: "Lead Details", event_date: null, city: "TBD", guest_count: null, event_type: null },
         organizer: { full_name: "Organizer" }
     };
@@ -193,6 +196,35 @@ export default function LeadDetailPage() {
                                     {safeLead.message || (safeLead.event.event_type ? `Request for ${safeLead.event.event_type}` : "No description provided.")}
                                 </p>
                             </div>
+                            {safeLead.is_premium && safeLead.surcharge_details && (
+                                <>
+                                    <Separator className="my-6" />
+                                    <div className="space-y-4">
+                                        <h4 className="font-semibold text-sm flex items-center gap-2">
+                                            <Banknote className="h-4 w-4 text-primary" /> Pricing Surcharges
+                                        </h4>
+                                        <div className="grid gap-3 sm:grid-cols-2">
+                                            {safeLead.surcharge_details.applied_rules.map((rule: string) => {
+                                                const detail = safeLead.surcharge_details?.breakdown[rule === 'weekend_premium' ? 'weekend_premium' : 'last_minute_booking'];
+                                                if (!detail) return null;
+                                                return (
+                                                    <div key={rule} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+                                                        <div>
+                                                            <p className="text-[10px] font-bold uppercase text-muted-foreground">
+                                                                {rule === 'weekend_premium' ? 'Weekend Premium' : 'Last Minute Booking'}
+                                                            </p>
+                                                            <p className="text-sm font-medium">{detail.label} Applied</p>
+                                                        </div>
+                                                        <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-[10px] h-5">
+                                                            Premium
+                                                        </Badge>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </CardContent>
                     </Card>
 
